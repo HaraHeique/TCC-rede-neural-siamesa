@@ -1,4 +1,4 @@
-# Trabalho de Conclusão de Curso - Similaridades de Estilos Literários Utilizando Rede Neural Convolutiva Siamesa
+# Trabalho de Conclusão de Curso - Similaridades de Estilos Literários Baseadas em Aprendizado Profundo
 
 Trabalho Conclusão referente ao curso de graduação de Bacharelado de Sistema de Informação do IFES - Serra.
 
@@ -14,7 +14,7 @@ Para executar a aplicação o app no ambiente Linux basta seguir os seguintes pa
 
 1. Primeiramente é necessário conter o interpretador do Python 3. Para baixar e instalar siga este [link](https://www.python.org/downloads/), onde pode ser encontrado a última versão estável;
 
-2. Abra o terminal bash e execute o seguinte comando para instalar as dependências da aplicação
+2. Abra o terminal bash e execute o seguinte comando para instalar as dependências da aplicação:
 
         $ sh dependencies.sh
 
