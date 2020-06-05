@@ -1,0 +1,14 @@
+Deep LSTM siamese network for text similarity:
+https://github.com/dhwajraj/deep-siamese-text-similarity
+
+Siamese-LSTM:
+https://github.com/aditya1503/Siamese-LSTM
+
+Siamese LSTM for Text Classification:
+https://github.com/lanPN85/siamese-lstm
+
+Siamese-LSTM:
+https://github.com/likejazz/Siamese-LSTM
+
+Text Similarity Using Siamese Deep Neural Network:
+https://github.com/amansrivastava17/lstm-siamese-text-similarity

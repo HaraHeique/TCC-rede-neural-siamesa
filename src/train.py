@@ -11,11 +11,11 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 
 from tensorflow.python.keras.models import Model, Sequential
-from tensorflow.python.keras.layers import Input, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPool1D, Dense, Dropout
+from tensorflow.python.keras.layers import Input, Embedding, LSTM
 
-from util import make_w2v_embeddings
-from util import split_and_zero_padding
-from util import ManDist
+from src.util import make_w2v_embeddings
+from src.util import split_and_zero_padding
+from src.util import ManDist
 
 # File paths
 TRAIN_CSV = './data/train.csv'

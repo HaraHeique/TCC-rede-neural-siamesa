@@ -2,9 +2,9 @@ import pandas as pd
 
 import tensorflow as tf
 
-from util import make_w2v_embeddings
-from util import split_and_zero_padding
-from util import ManDist
+from src.util import make_w2v_embeddings
+from src.util import split_and_zero_padding
+from src.util import ManDist
 
 # File paths
 TEST_CSV = './data/test30.csv'
