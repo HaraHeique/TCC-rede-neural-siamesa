@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 
 .idea
+
+# Removing compact files
+src/data/*.bin.gz
