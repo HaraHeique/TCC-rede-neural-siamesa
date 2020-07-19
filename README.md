@@ -6,7 +6,6 @@ Trabalho Conclusão referente ao curso de graduação de Bacharelado de Sistema 
 - **Autor**: Harã Heique
 - **Orientador**: Fidelis Castro
 - **Linguagem de programação**: Python (versão 3.6.8+)
-- **Ferramentas de suporte**: _Checar_
 - **Ambiente de desenvolvimento**: Visual Studio Code (versão 1.35.1+)
 
 ### Como executar?
