@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 
 from tensorflow.python.keras.models import Model, Sequential
-from tensorflow.python.keras.layers import Input, Embedding, LSTM
+from tensorflow.python.keras.layers import Input, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPool1D, Dense, Dropout
 
 from src.util import make_w2v_embeddings
 from src.util import split_and_zero_padding
@@ -37,7 +37,7 @@ validation_size = int(len(train_df) * 0.1)
 training_size = len(train_df) - validation_size
 
 X = train_df[['question1_n', 'question2_n']]
-#Y = train_df['is_duplicate']
+# Y = train_df['is_duplicate']
 train_df.label = pd.Categorical(train_df.label)
 train_df['label'] = train_df.label.cat.codes
 Y = train_df['label']
@@ -106,8 +106,8 @@ model.save('./data/SiameseLSTM.h5')
 
 # Plot accuracy
 plt.subplot(211)
-plt.plot(malstm_trained.history['acc'])
-plt.plot(malstm_trained.history['val_acc'])
+plt.plot(malstm_trained.history['accuracy'])
+plt.plot(malstm_trained.history['val_accuracy'])
 plt.title('Model Accuracy')
 plt.ylabel('Accuracy')
 plt.xlabel('Epoch')
@@ -125,6 +125,6 @@ plt.legend(['Train', 'Validation'], loc='upper right')
 plt.tight_layout(h_pad=1.0)
 plt.savefig('./data/history-graph.png')
 
-print(str(malstm_trained.history['val_acc'][-1])[:6] +
-      "(max: " + str(max(malstm_trained.history['val_acc']))[:6] + ")")
+print(str(malstm_trained.history['val_accuracy'][-1])[:6] +
+      "(max: " + str(max(malstm_trained.history['val_accuracy']))[:6] + ")")
 print("Done.")
