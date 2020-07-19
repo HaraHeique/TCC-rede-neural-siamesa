@@ -17,6 +17,12 @@ pip3 install gensim
 # nltk
 pip3 install nltk
 
+# matplolib
+pip3 install matplotlib
+
+# scikit learn
+pip3 install scikit-learn
+
 echo "\n"
 echo "The packages has been successfully installed:"
 pip3 list
