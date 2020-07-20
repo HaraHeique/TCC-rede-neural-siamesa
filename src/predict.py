@@ -1,5 +1,4 @@
 import pandas as pd
-
 import tensorflow as tf
 
 from src.util import make_w2v_embeddings

@@ -1,21 +1,17 @@
-from time import time
 import pandas as pd
-
 import matplotlib
-
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
-from sklearn.model_selection import train_test_split
-
 import tensorflow as tf
 
+from time import time
+from sklearn.model_selection import train_test_split
 from tensorflow.python.keras.models import Model, Sequential
 from tensorflow.python.keras.layers import Input, Embedding, LSTM, GRU, Conv1D, Conv2D, GlobalMaxPool1D, Dense, Dropout
-
 from src.util import make_w2v_embeddings
 from src.util import split_and_zero_padding
 from src.util import ManDist
+
+matplotlib.use('Agg')
 
 # File paths
 TRAIN_CSV = './data/train.csv'
@@ -123,7 +119,7 @@ plt.xlabel('Epoch')
 plt.legend(['Train', 'Validation'], loc='upper right')
 
 plt.tight_layout(h_pad=1.0)
-plt.savefig('./data/history-graph.png')
+plt.savefig('./results/history-graph.png')
 
 print(str(malstm_trained.history['val_accuracy'][-1])[:6] +
       "(max: " + str(max(malstm_trained.history['val_accuracy']))[:6] + ")")
