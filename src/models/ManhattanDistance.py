@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+
+"""
+    It represents a Manhattan distance similarity measure.
+"""
+
 from tensorflow.python.keras import backend as k
 from tensorflow.python.keras.layers import Layer
 
