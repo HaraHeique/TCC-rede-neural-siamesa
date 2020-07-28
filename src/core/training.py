@@ -8,11 +8,12 @@ import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 import tensorflow as tf
-import src.core.helper as util
+import src.core.helper as helper
 
 from sklearn.model_selection import train_test_split
 from tensorflow.python.keras.models import Model, Sequential
 from tensorflow.python.keras.layers import Input, Embedding, LSTM
+from src.models.ManhattanDistance import ManhattanDistance
 
 matplotlib.use('Agg')
 
@@ -27,7 +28,8 @@ def load_train_dataframe(filename):
 
 
 def make_word2vec_embeddings(train_dataframe, embedding_dim=300, empty_w2v=False):
-    train_df, embeddings = util.make_w2v_embeddings(train_dataframe, embedding_dim=embedding_dim, empty_w2v=empty_w2v)
+    train_df, embeddings = helper.make_w2v_embeddings(train_dataframe, embedding_dim=embedding_dim, empty_w2v=empty_w2v)
+    train_dataframe = train_df
 
     return embeddings
 
@@ -47,15 +49,15 @@ def split_data_train(train_dataframe):
     train_dataframe['label'] = train_dataframe.label.cat.codes
     y_labels = train_dataframe['label']
 
-    return x_questions, y_labels
+    return {'questions': x_questions, 'labels': y_labels}
 
 
 def define_train_and_validation_dataframe(x_questions, y_labels, validation_size, max_seq_length):
     x_train, x_validation, y_train, y_validation = train_test_split(x_questions, y_labels, test_size=validation_size)
 
     # Zero padding and splitting in two parts (left and right)
-    x_train = util.split_and_zero_padding(x_train, max_seq_length)
-    x_validation = util.split_and_zero_padding(x_validation, max_seq_length)
+    x_train = helper.split_and_zero_padding(x_train, max_seq_length)
+    x_validation = helper.split_and_zero_padding(x_validation, max_seq_length)
 
     # Convert labels to their numpy representations
     y_train = y_train.values
@@ -72,10 +74,10 @@ def check_train_dataframe(x_train, y_train):
 def define_shared_model(embeddings, embedding_dim, max_seq_length, n_hidden):
     shared_model = Sequential()
     shared_model.add(Embedding(len(embeddings),
-                               embedding_dim,
-                               weights=[embeddings],
-                               input_shape=(max_seq_length,),
-                               trainable=False))
+                     embedding_dim,
+                     weights=[embeddings],
+                     input_shape=(max_seq_length,),
+                     trainable=False))
 
     # LSTM - Long Short Term Memory
     shared_model.add(LSTM(n_hidden))
@@ -89,7 +91,7 @@ def define_manhattan_model(shared_model, max_seq_length):
     right_input = Input(shape=(max_seq_length,), dtype='int32')
 
     # Pack it all up into a Manhattan Distance model
-    malstm_distance = util.ManDist()([shared_model(left_input), shared_model(right_input)])
+    malstm_distance = ManhattanDistance()([shared_model(left_input), shared_model(right_input)])
     manhattan_model = Model(inputs=[left_input, right_input], outputs=[malstm_distance])
 
     return manhattan_model
@@ -157,3 +159,8 @@ def save_plot_graph(filename):
 def show_plot_graph():
     plt.tight_layout(h_pad=1.0)
     plt.show()
+
+
+def report_max_accuracy(network_trained):
+    print(str(network_trained.history['val_accuracy'][-1])[:6] +
+          "(max: " + str(max(network_trained.history['val_accuracy']))[:6] + ")")
