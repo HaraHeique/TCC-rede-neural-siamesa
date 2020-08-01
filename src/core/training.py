@@ -18,7 +18,7 @@ from src.models.ManhattanDistance import ManhattanDistance
 matplotlib.use('Agg')
 
 
-def load_train_dataframe(filename):
+def load_training_dataframe(filename):
     train_dataframe = pd.read_csv(filename)
 
     for q in ['question1', 'question2']:

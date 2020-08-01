@@ -6,28 +6,28 @@
 
 import pandas as pd
 import tensorflow as tf
-import src.core.helper as util
+import src.core.helper as helper
 
 
-def load_predict_dataframe(filename):
+def load_prediction_dataframe(filename):
     # Load training set
-    predict_dataframe = pd.read_csv(filename)
+    prediction_dataframe = pd.read_csv(filename)
     for q in ['question1', 'question2']:
-        predict_dataframe[q + '_n'] = predict_dataframe[q]
+        prediction_dataframe[q + '_n'] = prediction_dataframe[q]
 
-    return predict_dataframe
+    return prediction_dataframe
 
 
 def make_word2vec_embeddings(prediction_dataframe, embedding_dim=300, empty_w2v=False):
-    predict_dataframe, embeddings = util.make_w2v_embeddings(prediction_dataframe,
-                                                             embedding_dim=embedding_dim,
-                                                             empty_w2v=empty_w2v)
-    return predict_dataframe
+    prediction_dataframe, embeddings = helper.make_w2v_embeddings(prediction_dataframe,
+                                                                  embedding_dim=embedding_dim,
+                                                                  empty_w2v=empty_w2v)
+    return embeddings
 
 
 def define_prediction_dataframe(prediction_dataframe, max_seq_length):
     # Split to dicts and append zero padding.
-    x_prediction = util.split_and_zero_padding(prediction_dataframe, max_seq_length)
+    x_prediction = helper.split_and_zero_padding(prediction_dataframe, max_seq_length)
 
     return x_prediction
 
@@ -38,7 +38,7 @@ def check_prediction_dataframe(x_prediction):
 
 
 def load_manhattan_model(filename):
-    model = tf.keras.models.load_model(filename, custom_objects={'ManDist': util.ManDist})
+    model = tf.keras.models.load_model(filename, custom_objects={'ManDist': helper.ManDist})
 
     return model
 

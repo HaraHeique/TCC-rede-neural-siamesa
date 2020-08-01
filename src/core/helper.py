@@ -16,7 +16,7 @@ from tensorflow.python.keras.preprocessing.sequence import pad_sequences
 WORD2VEC_PATH = "./data/GoogleNews-vectors-negative300.bin.gz"
 
 
-def make_w2v_embeddings(df, embedding_dim=300, empty_w2v=False):
+def make_w2v_embeddings(dataframe, embedding_dim=300, empty_w2v=False):
     vocabs = {}
     vocabs_cnt = 0
 
@@ -37,7 +37,7 @@ def make_w2v_embeddings(df, embedding_dim=300, empty_w2v=False):
 
     print("word2vec loaded")
 
-    for index, row in df.iterrows():
+    for index, row in dataframe.iterrows():
         # Print the number of embedded sentences.
         if index != 0 and index % 1000 == 0:
             print("{:,} sentences embedded.".format(index), flush=True)
@@ -45,7 +45,9 @@ def make_w2v_embeddings(df, embedding_dim=300, empty_w2v=False):
         # Iterate through the text of both questions of the row
         for question in ['question1', 'question2']:
 
-            q2n = []  # q2n -> question numbers representation
+            # Question numbers representation
+            q2n = []
+
             for word in _text_to_word_list(row[question]):
                 # Check for unwanted words
                 if word in stops:
@@ -66,18 +68,22 @@ def make_w2v_embeddings(df, embedding_dim=300, empty_w2v=False):
                     q2n.append(vocabs[word])
 
             # Append question as number representation
-            df.at[index, question + '_n'] = q2n
+            dataframe.at[index, question + '_n'] = q2n
 
-    embeddings = 1 * np.random.randn(len(vocabs) + 1, embedding_dim)  # This will be the embedding matrix
-    embeddings[0] = 0  # So that the padding will be ignored
+    # This will be the embedding matrix
+    embeddings = 1 * np.random.randn(len(vocabs) + 1, embedding_dim)
+
+    # The padding will be ignored
+    embeddings[0] = 0
 
     # Build the embedding matrix
     for word, index in vocabs.items():
         if word in word2vec.vocab:
             embeddings[index] = word2vec.word_vec(word)
+
     del word2vec
 
-    return df, embeddings
+    return dataframe, embeddings
 
 
 def split_and_zero_padding(dataframe, max_seq_length):
