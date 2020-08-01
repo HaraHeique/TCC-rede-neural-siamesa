@@ -46,13 +46,6 @@ def insert_percent_validation():
             return float(percent)
 
 
-def clear_screen():
-    try:
-        os.system('cls' if os.name == 'nt' else 'clear')
-    except Exception:
-        pass
-
-
 def _try_parse_int_positive(str_int):
     if not str_int.isdigit() or int(str_int) < 0:
         print("Please insert a valid and positive integer number")
