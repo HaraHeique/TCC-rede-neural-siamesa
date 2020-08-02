@@ -6,7 +6,6 @@
 """
 
 import os
-
 from src.enums.Stage import Stage
 
 _DATA_FILES_PATH = os.path.dirname(os.path.abspath(__file__)) + "/data"
@@ -16,7 +15,7 @@ _DATA_FILES_PREDICTION_PATH = _DATA_FILES_PATH + "/prediction"
 
 def choose_stage():
     while True:
-        option_chosen = input("What would you like to do?\n 0) Leave\n 1) Train\n 2) Predict")
+        option_chosen = input("What would you like to do?\n 0) Leave\n 1) Train\n 2) Predict\n")
 
         if _try_parse_int_positive(option_chosen) and _check_chosen_option(int(option_chosen)):
             return Stage(int(option_chosen))

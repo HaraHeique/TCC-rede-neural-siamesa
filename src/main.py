@@ -3,7 +3,6 @@ import src.user_interface.cli_input as ui
 import src.user_interface.cli_output as uo
 import src.core.training as training
 import src.core.prediction as prediction
-
 from src.enums.Stage import Stage
 
 

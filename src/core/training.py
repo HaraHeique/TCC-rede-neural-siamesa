@@ -9,7 +9,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import src.core.helper as helper
-
 from sklearn.model_selection import train_test_split
 from tensorflow.python.keras.models import Model, Sequential
 from tensorflow.python.keras.layers import Input, Embedding, LSTM

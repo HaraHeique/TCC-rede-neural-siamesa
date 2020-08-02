@@ -8,7 +8,6 @@ import itertools
 import re
 import nltk
 import numpy as np
-
 from gensim.models import KeyedVectors
 from nltk.corpus import stopwords
 from tensorflow.python.keras.preprocessing.sequence import pad_sequences
