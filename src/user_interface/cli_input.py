@@ -7,15 +7,16 @@
 
 import os
 from src.enums.Stage import Stage
+import src.user_interface.cli_output as uo
 
-_DATA_FILES_PATH = os.path.dirname(os.path.abspath(__file__)) + "/data"
+_DATA_FILES_PATH = os.path.dirname(os.path.abspath("src")) + "/data"
 _DATA_FILES_TRAINING_PATH = _DATA_FILES_PATH + "/training"
 _DATA_FILES_PREDICTION_PATH = _DATA_FILES_PATH + "/prediction"
 
 
 def choose_stage():
     while True:
-        option_chosen = input("What would you like to do?\n 0) Leave\n 1) Train\n 2) Predict\n")
+        option_chosen = input("What would you like to do?\n 0 - Leave\n 1 - Train\n 2 - Predict\n")
 
         if _try_parse_int_positive(option_chosen) and _check_chosen_option(int(option_chosen)):
             return Stage(int(option_chosen))
@@ -26,7 +27,7 @@ def insert_training_filename():
         filename = input("Enter the name of the training file located inside the /data/training: ")
 
         if _check_file_existence(_DATA_FILES_TRAINING_PATH, filename):
-            return filename
+            return os.path.join(_DATA_FILES_TRAINING_PATH, filename)
 
 
 def insert_prediction_filename():
@@ -34,7 +35,7 @@ def insert_prediction_filename():
         filename = input("Enter the name of the prediction file located inside the /data/prediction: ")
 
         if _check_file_existence(_DATA_FILES_PREDICTION_PATH, filename):
-            return filename
+            return os.path.join(_DATA_FILES_PREDICTION_PATH, filename)
 
 
 def insert_percent_validation():
@@ -65,7 +66,7 @@ def _check_file_existence(directory, filename):
     if os.path.isfile(os.path.join(directory, filename)):
         return True
 
-    print("The filename {0} does not exist".format(filename))
+    print("The filename {0} does not exist. Try again".format(filename))
     return False
 
 

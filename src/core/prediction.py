@@ -7,6 +7,7 @@
 import pandas as pd
 import tensorflow as tf
 import src.core.helper as helper
+from src.models.ManhattanDistance import ManhattanDistance
 
 
 def load_prediction_dataframe(filename):
@@ -38,7 +39,7 @@ def check_prediction_dataframe(x_prediction):
 
 
 def load_manhattan_model(filename):
-    model = tf.keras.models.load_model(filename, custom_objects={'ManDist': helper.ManDist})
+    model = tf.keras.models.load_model(filename, custom_objects={'ManhattanDistance': ManhattanDistance})
 
     return model
 

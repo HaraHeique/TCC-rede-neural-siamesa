@@ -156,8 +156,12 @@ def save_plot_graph(filename):
 
 
 def show_plot_graph():
-    plt.tight_layout(h_pad=1.0)
+    # plt.tight_layout(h_pad=1.0)
     plt.show()
+
+
+def clear_plot_graph():
+    plt.clf()
 
 
 def report_max_accuracy(network_trained):

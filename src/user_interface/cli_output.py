@@ -7,8 +7,12 @@
 import os
 
 
-def training_finished_message(n_epoch, training_start_time, training_end_time):
+def show_training_finished_message(n_epoch, training_start_time, training_end_time):
     print("Training time finished.\n%d epochs in %12.2f" % (n_epoch, training_end_time - training_start_time))
+
+
+def show_leaving_message():
+    print("\nThanks for using. Have a nice day :)\n")
 
 
 def clear_screen():
@@ -16,3 +20,13 @@ def clear_screen():
         os.system('cls' if os.name == 'nt' else 'clear')
     except Exception:
         pass
+
+
+def break_lines(number_of_lines):
+    lines_to_break = '\n' * number_of_lines
+    print(lines_to_break)
+
+
+if __name__ == '__main__':
+    break_lines(2)
+    show_leaving_message()

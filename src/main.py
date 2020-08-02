@@ -7,9 +7,10 @@ from src.enums.Stage import Stage
 
 
 def main():
-    uo.clear_screen()
     stage = ui.choose_stage()
+    uo.clear_screen()
     status = _execute_stage(stage)
+    uo.break_lines(3)
 
     return status
 
@@ -22,13 +23,14 @@ def _execute_stage(stage):
         _execute_prediction()
         return 1
     else:
+        uo.show_leaving_message()
         return 0
 
 
 def _execute_training():
     # Filename results
-    model_save_filename = "/data/SiameseLSTM.h5"
-    graph_save_filename = "/results/history-graph.png"
+    model_save_filename = "./data/SiameseLSTM.h5"
+    graph_save_filename = "./results/history-graph.png"
 
     # Model variables
     max_seq_length = 35
@@ -57,27 +59,28 @@ def _execute_training():
     shared_model = training.define_shared_model(embeddings_matrix, embedding_dim, max_seq_length, n_hidden)
     training.show_summary_model(shared_model)
 
-    manhattan_model = training.define_manhattan_model(shared_model, max_seq_length)
-    training.compile_model(manhattan_model, gpus)
-    training.show_summary_model(manhattan_model)
+    model = training.define_manhattan_model(shared_model, max_seq_length)
+    training.compile_model(model, gpus)
+    training.show_summary_model(model)
 
     training_start_time = time.time()
-    manhattan_model_trained = training.train_neural_network(manhattan_model, normalized_dataframe, batch_size, n_epoch)
+    manhattan_model_trained = training.train_neural_network(model, normalized_dataframe, batch_size, n_epoch)
     training_end_time = time.time()
-    uo.training_finished_message(n_epoch, training_start_time, training_end_time)
+    uo.show_training_finished_message(n_epoch, training_start_time, training_end_time)
 
-    training.save_model(manhattan_model_trained, model_save_filename)
+    training.save_model(model, model_save_filename)
 
     training.set_plot_accuracy(manhattan_model_trained)
     training.set_plot_loss(manhattan_model_trained)
     training.save_plot_graph(graph_save_filename)
-    training.show_plot_graph()
+    training.clear_plot_graph()
+    # training.show_plot_graph()
     training.report_max_accuracy(manhattan_model_trained)
 
 
 def _execute_prediction():
     # Saved model trained
-    model_saved_filename = "/data/SiameseLSTM.h5"
+    model_saved_filename = "./data/SiameseLSTM.h5"
 
     # Model variables
     max_seq_length = 35
