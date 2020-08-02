@@ -132,3 +132,4 @@ dmypy.json
 
 # Removing compact files
 src/data/*.bin.gz
+src/data/*.h5
