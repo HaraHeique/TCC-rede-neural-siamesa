@@ -61,7 +61,7 @@ def _execute_training():
 
     # Creating the model based on a similarity function/measure
     shared_model = training.define_shared_model(embedding_matrix, embedding_dim, max_seq_length, n_hidden)
-    training.show_summary_model(shared_model)
+    # training.show_summary_model(shared_model)
 
     model = training.define_manhattan_model(shared_model, max_seq_length)
     training.compile_model(model, gpus)
@@ -95,14 +95,20 @@ def _execute_prediction():
     # User input variables
     filename = ui.insert_prediction_filename()
 
+    # Data loading
     prediction_dataframe = prediction.load_prediction_dataframe(filename)
+
+    # Data pre-processing and creating embedding matrix
     embeddings_matrix = prediction.make_word2vec_embeddings(prediction_dataframe, embedding_dim)
 
+    # Data preparation
     test_normalized_dataframe = prediction.define_prediction_dataframe(prediction_dataframe, max_seq_length)
 
+    # Loading the model trained
     test_model = prediction.load_manhattan_model(model_saved_filename)
     prediction.show_summary_model(test_model)
 
+    # Results
     prediction.show_prediction_model(test_model, test_normalized_dataframe)
 
 
