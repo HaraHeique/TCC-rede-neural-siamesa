@@ -9,7 +9,7 @@ from tensorflow.python.keras.layers import Layer
 
 
 class ManhattanDistance(Layer):
-    # initialize the layer, No need to include inputs parameter!
+    # initialize the layer
     def __init__(self, **kwargs):
         self.result = None
         super(ManhattanDistance, self).__init__(**kwargs)

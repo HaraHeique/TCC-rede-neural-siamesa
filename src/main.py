@@ -44,25 +44,30 @@ def _execute_training():
     filename = ui.insert_training_filename()
     percent_validation = ui.insert_percent_validation()
 
+    # Data loading
     training_dataframe = training.load_training_dataframe(filename)
-    embeddings_matrix = training.make_word2vec_embeddings(training_dataframe, embedding_dim)
 
+    # Data pre-processing and creating embedding matrix
+    embedding_matrix = training.make_word2vec_embeddings(training_dataframe, embedding_dim)
+
+    # Data preparation and normalization
     validation_size = training.get_validation_size(training_dataframe, percent_validation)
     training_size = training.get_training_size(training_dataframe, validation_size)
-
     splited_data_training = training.split_data_train(training_dataframe)
     normalized_dataframe = training.define_train_and_validation_dataframe(splited_data_training['questions'],
                                                                           splited_data_training['labels'],
                                                                           validation_size,
                                                                           max_seq_length)
 
-    shared_model = training.define_shared_model(embeddings_matrix, embedding_dim, max_seq_length, n_hidden)
+    # Creating the model based on a similarity function/measure
+    shared_model = training.define_shared_model(embedding_matrix, embedding_dim, max_seq_length, n_hidden)
     training.show_summary_model(shared_model)
 
     model = training.define_manhattan_model(shared_model, max_seq_length)
     training.compile_model(model, gpus)
     training.show_summary_model(model)
 
+    # Training the neural network based on model
     training_start_time = time.time()
     manhattan_model_trained = training.train_neural_network(model, normalized_dataframe, batch_size, n_epoch)
     training_end_time = time.time()
@@ -70,6 +75,7 @@ def _execute_training():
 
     training.save_model(model, model_save_filename)
 
+    # Results
     training.set_plot_accuracy(manhattan_model_trained)
     training.set_plot_loss(manhattan_model_trained)
     training.save_plot_graph(graph_save_filename)
