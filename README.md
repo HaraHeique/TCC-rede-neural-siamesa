@@ -43,16 +43,29 @@ mais distante são eles, implicando que tendem a serem assimilares.
 </p>
 
 ### Como executar?
-Para executar a aplicação o app no ambiente Linux basta seguir os seguintes passos:
+Para executar a aplicação no ambiente Linux, o qual é o principal utilizado, basta seguir os seguintes passos:
 
 1. Primeiramente é necessário conter o interpretador do Python 3. Para baixar e instalar siga este 
 [link](https://www.python.org/downloads/), onde pode ser encontrado a última versão estável;
 
-2. Abra o terminal bash e execute o seguinte comando para instalar as dependências da aplicação:
+2. O ideal é que antes de executar a **etapa 3** é recomendável realizar a instalação das dependências em um ambiente 
+virtual do Python, pois ele empacota todas as dependências que um projeto precisa e armazena em um 
+diretório, isolando-o do SO base. A seguir um [link](https://pythonacademy.com.br/blog/python-e-virtualenv-como-programar-em-ambientes-virtuais) 
+explicando em detalhes o que são e o passo a passo de como instalar e utilizar.
+
+3. Abra o terminal bash dentro do ambiente virtual e execute o seguinte comando para instalar as dependências da 
+aplicação:
 
         $ sh dependencies.sh
 
-3. Após instalar as dependências do projeto (continuar)...
+4. Após instalar as dependências do projeto basta abrir o CLI (Command Line Interface) no diretório /src da aplicação e 
+executar o seguinte comando para inicializar a aplicação:
+
+        $ python3 main.py
+
+5. Por fim basta interagir com a interface de linha de comando escolhendo as opções fornecidas pela aplicação, sendo as
+principais de **treinamento** e **predição**.
+
 
 ### Informações adicionais
 Todo o código fonte está hospedado no [GitHub](https://github.com/HaraHeique/TCC-Rede-Neural-Siamesa).
