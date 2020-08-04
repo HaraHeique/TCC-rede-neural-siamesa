@@ -38,14 +38,15 @@ distanciamento é definida por uma medida de similaridade, que comumente geram v
 trabalho que são valores de 0 a 1, em que quanto mais próximo de 1 maior é a similaridade entre os pares. Caso contrário
 mais distante são eles, implicando que tendem a serem assimilares.  
 
-
-
-
+<p align="center">
+    <img src="./docs/images/arquitetura_rede_padrao_siamesa.png" alt="arquitetura-RNS" title="Arquitetura Rede Neural Siamesa"/>
+</p>
 
 ### Como executar?
 Para executar a aplicação o app no ambiente Linux basta seguir os seguintes passos:
 
-1. Primeiramente é necessário conter o interpretador do Python 3. Para baixar e instalar siga este [link](https://www.python.org/downloads/), onde pode ser encontrado a última versão estável;
+1. Primeiramente é necessário conter o interpretador do Python 3. Para baixar e instalar siga este 
+[link](https://www.python.org/downloads/), onde pode ser encontrado a última versão estável;
 
 2. Abra o terminal bash e execute o seguinte comando para instalar as dependências da aplicação:
 
