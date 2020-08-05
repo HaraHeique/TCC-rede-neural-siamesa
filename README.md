@@ -42,6 +42,58 @@ mais distante são eles, implicando que tendem a serem assimilares.
     <img src="./docs/images/arquitetura_rede_padrao_siamesa.png" alt="arquitetura-RNS" title="Arquitetura Rede Neural Siamesa"/>
 </p>
 
+### Descrição geral
+A estrutura da aplicação está definida da seguinte maneira:
+
+```
+TCC-rede-neural-siamesa
+    |_ docs
+       |_ *arquivos de documentação*
+    |_ src
+       |_ core
+          |_ helper.py
+          |_ prediction.py 
+          |_ training.py
+       |_ data
+          |_ prediction
+             |_ *arquivos de entrada de predição*
+          |_ training
+             |_ *arquivos de entrada de treinamento*
+          |_ GoogleNews-vectors-negative300.bin.gz
+          |_ *arquivos de modelos da rede neural*.h5
+       |_ enums
+          |_ Stage.py
+       |_ models
+          |_ ManhattanDistance.py
+       |_ results
+          |_ *arquivos de resultados e análises*
+       |_ user_interface
+          |_ cli_input.py
+          |_ cli_output.py
+    |_ main.py
+    |_ README.md
+    |_ dependencies.sh
+```
+
+#### Descrição geral dos arquivos
+Descrição geral dos principais arquivos contidos nesta aplicação:
+
+Arquivo|Path|Descrição
+---|---|---
+**ManhattanDistance.py**|src/models/ExecutionType.py|
+**Stage.py**|src/models/Person.py|
+**helper.py**|src/build.py|
+**prediction.py**|src/handler_person.py|
+**training.py**|src/sort_collection.py|
+**cli_input.py**|src/sort_collection.py|
+**cli_output.py**|src/sort_collection.py|
+**main.py**
+**GoogleNews-vectors-negative300.bin.gz**|src/|
+**arquivos de entrada de predição**|src/files/input/arquivos entrada.csv|
+**arquivos de entrada de treinamento**|src/files/output/arquivos saida.csv|
+**arquivos de modelos da rede neural.h5**.|src/| 
+
+
 ### Como executar?
 Para executar a aplicação no ambiente Linux, o qual é o principal utilizado, basta seguir os seguintes passos:
 
@@ -58,12 +110,15 @@ aplicação:
 
         $ sh dependencies.sh
 
-4. Após instalar as dependências do projeto basta abrir o CLI (Command Line Interface) no diretório /src da aplicação e 
+4. Após instalar as dependências ao projeto é necessário baixar o word2vec no [link](https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit) 
+e colocá-lo no diretório **/src/data**xxxxxxxxx
+
+5. Feito isto basta abrir o CLI (Command Line Interface) no diretório **/src** da aplicação e 
 executar o seguinte comando para inicializar a aplicação:
 
         $ python3 main.py
 
-5. Por fim basta interagir com a interface de linha de comando escolhendo as opções fornecidas pela aplicação, sendo as
+6. Por fim basta interagir com a interface de linha de comando escolhendo as opções fornecidas pela aplicação, sendo as
 principais de **treinamento** e **predição**.
 
 
