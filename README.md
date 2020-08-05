@@ -103,7 +103,7 @@ Para executar a aplicação no ambiente Linux, o qual é o principal utilizado, 
 2. O ideal é que antes de executar a **etapa 3** é recomendável realizar a instalação das dependências em um ambiente 
 virtual do Python, pois ele empacota todas as dependências que um projeto precisa e armazena em um 
 diretório, isolando-o do SO base. A seguir um [link](https://pythonacademy.com.br/blog/python-e-virtualenv-como-programar-em-ambientes-virtuais) 
-explicando em detalhes o que são e o passo a passo de como instalar e utilizar.
+explicando em detalhes o que são e o passo a passo de como instalar e utilizar;
 
 3. Abra o terminal bash dentro do ambiente virtual e execute o seguinte comando para instalar as dependências da 
 aplicação:
@@ -111,7 +111,7 @@ aplicação:
         $ sh dependencies.sh
 
 4. Após instalar as dependências ao projeto é necessário baixar o word2vec no [link](https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit) 
-e colocá-lo no diretório **/src/data**xxxxxxxxx
+e colocá-lo no diretório **/src/data**;
 
 5. Feito isto basta abrir o CLI (Command Line Interface) no diretório **/src** da aplicação e 
 executar o seguinte comando para inicializar a aplicação:
