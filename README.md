@@ -80,18 +80,18 @@ Descrição geral dos principais arquivos contidos nesta aplicação:
 
 Arquivo|Path|Descrição
 ---|---|---
-**ManhattanDistance.py**|src/models/ExecutionType.py|
-**Stage.py**|src/models/Person.py|
-**helper.py**|src/build.py|
-**prediction.py**|src/handler_person.py|
-**training.py**|src/sort_collection.py|
-**cli_input.py**|src/sort_collection.py|
-**cli_output.py**|src/sort_collection.py|
-**main.py**
-**GoogleNews-vectors-negative300.bin.gz**|src/|
-**arquivos de entrada de predição**|src/files/input/arquivos entrada.csv|
-**arquivos de entrada de treinamento**|src/files/output/arquivos saida.csv|
-**arquivos de modelos da rede neural.h5**.|src/| 
+**ManhattanDistance.py**|src/models/ManhattanDistance.py|Classe que representa a medida/função de similaridade da distância de Manhattan. São necessárias pois servem para realizar o processo de merge da saída das subredes siamesas.
+**Stage.py**|src/enums/Stage.py|É a classe enumerada em que seus valores determina qual dos estágios o usuário deseja executar da rede no processo de interação com a interface. Os valores são: NONE(0), TRAINING(1) e PREDICTION(2), os quais suas nomenclaturas são auto-explicativas.
+**helper.py**|src/core/helper.py|É o módulo responsável por conter funções auxiliares para os módulos principais da aplicação: *prediction.py* e *traning.py*.
+**training.py**|src/core/prediction.py|É o módulo que contém funções para realização de todo o processo de treinamento da rede neural, ou seja, pre-processamento dos dados, criação da matrix incorporada, normalização/preparação dos dados, criação do modelo com suas camadas (criação da rede neural siamesa com uma arquitetura e medida de similaridade previamente escolhidas), execução do trainamento e seus resultados.
+**prediction.py**|src/core/training.py|Este módulo contém funções para realização do processo de predição dado um conjunto de dados de entrada na rede previamente treinada, determinando assim o indíce de similiridade existente.
+**cli_input.py**|src/user_interface/cli_input.py|É um módulo que interage com o usuário fazendo o papel de receber, tratar e validar as entradas de informações do requeridas pelo usuário.
+**cli_output.py**|src/user_interface/cli_output.py|É um módulo que também interage com o usuário, mas com o papel de mostrar os dados e informações de saída, tais como mensagens, limpeza do prompt, quebras de linhas para melhor formatação e afins.
+**main.py**|src/main.py|É o módulo principal (bootstrap) da aplicação, ou seja, contém a execução princpal e coordena as chamadas de todos os módulos e classes pertencentes.
+**GoogleNews-vectors-negative300.bin.gz**|src/data/GoogleNews-vectors-negative300.bin.gz|Este arquivo é carregado runtime na aplicação e é basicamente responsável por realizar o word embedding, ou seja, define a incoporação word2vec corresponde de cada palavra para serem encapsuladas na matriz de incorporação, sendo esta importante na etapa de criação do modelo e treinamento da rede neural siamesa.
+**arquivos de entrada de predição**|src/data/arquivos de entrada de predição|São os arquivos, em geral no formato *.csv*, contendo somente duas colunas, sendo elas *question1* e *question2* (ambas frases de obras literárias de um autor).
+**arquivos de entrada de treinamento**|src/data/arquivos de entrada de treinamento|São os arquivos, em geral no formato *.csv*, contendo como as principais colunas *question1*, *question2* (ambas frases de obras literárias de um autor) e *label* (nome do autor da frase).
+**arquivos de modelos da rede neural.h5**.|src/data/arquivos de modelos da rede neural.h5|Contém arrays multidimensionais de dados dos modelos treinados da rede neural siamesa. Este arquivo é gerado sempre que o modelo da rede neural é salvo. Posteriormente na etapa de predição o modelo da rede salva é carregada e utilizada.
 
 
 ### Como executar?
