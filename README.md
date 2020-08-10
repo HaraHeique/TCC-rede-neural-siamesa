@@ -42,6 +42,10 @@ mais distante são eles, implicando que tendem a serem assimilares.
     <img src="./docs/images/arquitetura_rede_padrao_siamesa.png" alt="arquitetura-RNS" title="Arquitetura Rede Neural Siamesa"/>
 </p>
 
+Já na figura abaixo demonstra o fluxo de funcionamento principal da Rede Neural Siamesa utilizada neste trabalho de conclusão. Note que ela contém diversas etapas, onde na primeira é realizada a **obtenção dos dados**, que neste caso são os textos literários de autores da literatura inglesa. Logo depois é realizado a **estruturação dos dados**, os quais são selecionadas frases das obras literárias e transformados em colunas em arquivos do formato *CSV*. Após isto é realizado o **pré-processamento dos dados**, retirando palavras indesejadas (sem influência) e criação dos vetores de indíces de cada frase lida do arquivo *CSV*. Dado isto na etapa seguinte é realizado o processo de **normalização/preparação dos dados** de entrada da rede neural, onde são basicamente criados e separados os dados de *treinamento* e *validação* para o lado esquerdo e direito da rede. Já na quinta etapa é realizada a entrada dos dados e seu **processamento** nas camadas escondidas (hidden) do modelo de um rede neural *LSTM (Long Short Term Memory)* previamente criada, sendo esta uma etapa fundamental no treinamento e predição. Na sexta etapa é realizada **chamada da medida/função de similaridade** nas saídas da rede neural, sendo ela responsável pelo processo de merge das duas subredes utilizadas. Por fim na etapa de **resultado** é apresentado um valor entre 0 e 1 (intervalo fechado) que determina o índice de similaridade entre os diferentes pares.
+
+OBS.: COLOCAR IMAGEM AQUI...
+
 ### Descrição geral
 A estrutura da aplicação está definida da seguinte maneira:
 
