@@ -33,11 +33,11 @@ def _execute_training():
     graph_save_filename = "./results/history-graph.png"
 
     # Model variables
-    max_seq_length = 35
+    max_seq_length = 35  # TODO A better way is to count the number of words for each phrase and define the highest one
     embedding_dim = 300
     gpus = 1
     batch_size = 128 * gpus
-    n_epoch = 50
+    n_epoch = 50  # TODO Find the better number of epochs to define in my data context when training de neural network
     n_hidden = 50
 
     # User input variables
@@ -54,7 +54,7 @@ def _execute_training():
     validation_size = training.get_validation_size(training_dataframe, percent_validation)
     training_size = training.get_training_size(training_dataframe, validation_size)
     splited_data_training = training.split_data_train(training_dataframe)
-    normalized_dataframe = training.define_train_and_validation_dataframe(splited_data_training['questions'],
+    normalized_dataframe = training.define_train_and_validation_dataframe(splited_data_training['phrases'],
                                                                           splited_data_training['labels'],
                                                                           validation_size,
                                                                           max_seq_length)
@@ -89,7 +89,7 @@ def _execute_prediction():
     model_saved_filename = "./data/SiameseLSTM.h5"
 
     # Model variables
-    max_seq_length = 35
+    max_seq_length = 35  # TODO A better way is to count the number of words for each phrase and define the highest one
     embedding_dim = 300
 
     # User input variables

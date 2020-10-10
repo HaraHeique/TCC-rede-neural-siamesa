@@ -7,7 +7,6 @@
 
 import os
 from src.enums.Stage import Stage
-import src.user_interface.cli_output as uo
 
 _DATA_FILES_PATH = os.path.dirname(os.path.abspath("src")) + "/data"
 _DATA_FILES_TRAINING_PATH = _DATA_FILES_PATH + "/training"
@@ -40,7 +39,7 @@ def insert_prediction_filename():
 
 def insert_percent_validation():
     while True:
-        percent = input("Enter the percent of validation between 0% and 10%: ")
+        percent = input("Enter the percent of validation between 0% and 30%: ")
 
         if _try_parse_int_positive(percent) and _is_percent_valid(float(percent)):
             return float(percent)
@@ -71,8 +70,8 @@ def _check_file_existence(directory, filename):
 
 
 def _is_percent_valid(value):
-    if 0 <= value <= 10:
+    if 0 <= value <= 30:
         return True
 
-    print("Percentage must be between 0% and 10%")
+    print("Percentage must be between 0% and 30%")
     return False

@@ -42,12 +42,12 @@ def make_w2v_embeddings(dataframe, embedding_dim=300, empty_w2v=False):
             print("{:,} sentences embedded.".format(index), flush=True)
 
         # Iterate through the text of both questions of the row
-        for question in ['question1', 'question2']:
+        for phrase in ['phrase1', 'phrase2']:
 
             # Question numbers representation
             q2n = []
 
-            for word in _text_to_word_list(row[question]):
+            for word in _text_to_word_list(row[phrase]):
                 # Check for unwanted words
                 if word in stops:
                     continue
@@ -66,8 +66,8 @@ def make_w2v_embeddings(dataframe, embedding_dim=300, empty_w2v=False):
                 else:
                     q2n.append(vocabs[word])
 
-            # Append question as number representation
-            dataframe.at[index, question + '_n'] = q2n
+            # Append phrase as number representation
+            dataframe.at[index, phrase + '_n'] = q2n
 
     # This will be the embedding matrix
     embeddings = 1 * np.random.randn(len(vocabs) + 1, embedding_dim)
@@ -87,11 +87,11 @@ def make_w2v_embeddings(dataframe, embedding_dim=300, empty_w2v=False):
 
 def split_and_zero_padding(dataframe, max_seq_length):
     # Split to dicts
-    side_questions = {'left': dataframe['question1_n'], 'right': dataframe['question2_n']}
+    side_phrases = {'left': dataframe['phrase1_n'], 'right': dataframe['phrase2_n']}
     dataset = None
 
     # Zero padding
-    for dataset, side in itertools.product([side_questions], ['left', 'right']):
+    for dataset, side in itertools.product([side_phrases], ['left', 'right']):
         dataset[side] = pad_sequences(dataset[side], padding='pre', truncating='post', maxlen=max_seq_length)
 
     return dataset

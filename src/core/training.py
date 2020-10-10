@@ -20,7 +20,7 @@ matplotlib.use('Agg')
 def load_training_dataframe(filename):
     train_dataframe = pd.read_csv(filename)
 
-    for q in ['question1', 'question2']:
+    for q in ['phrase1', 'phrase2']:
         train_dataframe[q + '_n'] = train_dataframe[q]
 
     return train_dataframe
@@ -42,17 +42,17 @@ def get_training_size(train_dataframe, validation_size):
 
 
 def split_data_train(train_dataframe):
-    x_questions = train_dataframe[['question1_n', 'question2_n']]
+    x_questions = train_dataframe[['phrase1_n', 'phrase2_n']]
 
     train_dataframe.label = pd.Categorical(train_dataframe.label)
     train_dataframe['label'] = train_dataframe.label.cat.codes
     y_labels = train_dataframe['label']
 
-    return {'questions': x_questions, 'labels': y_labels}
+    return {'phrases': x_questions, 'labels': y_labels}
 
 
-def define_train_and_validation_dataframe(x_questions, y_labels, validation_size, max_seq_length):
-    x_train, x_validation, y_train, y_validation = train_test_split(x_questions, y_labels, test_size=validation_size)
+def define_train_and_validation_dataframe(x_phrases, y_labels, validation_size, max_seq_length):
+    x_train, x_validation, y_train, y_validation = train_test_split(x_phrases, y_labels, test_size=validation_size)
 
     # Zero padding and splitting in two parts (left and right)
     x_train = helper.split_and_zero_padding(x_train, max_seq_length)

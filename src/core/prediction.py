@@ -13,7 +13,7 @@ from src.models.ManhattanDistance import ManhattanDistance
 def load_prediction_dataframe(filename):
     # Load training set
     prediction_dataframe = pd.read_csv(filename)
-    for q in ['question1', 'question2']:
+    for q in ['phrase1', 'phrase2']:
         prediction_dataframe[q + '_n'] = prediction_dataframe[q]
 
     return prediction_dataframe
@@ -40,7 +40,6 @@ def check_prediction_dataframe(x_prediction):
 
 def load_manhattan_model(filename):
     model = tf.keras.models.load_model(filename, custom_objects={'ManhattanDistance': ManhattanDistance})
-
     return model
 
 
