@@ -30,7 +30,7 @@ def _execute_stage(stage):
 def _execute_training():
     # Filename results
     model_save_filename = "./data/SiameseLSTM.h5"
-    graph_save_filename = "./results/history-graph.png"
+    graph_save_filename = "./results/history-graph-{percent_training}-{percent_validation}.png"
 
     # Model variables
     max_seq_length = 35  # TODO A better way is to count the number of words for each phrase and define the highest one
@@ -78,10 +78,16 @@ def _execute_training():
     # Results
     training.set_plot_accuracy(manhattan_model_trained)
     training.set_plot_loss(manhattan_model_trained)
+    graph_save_filename = graph_save_filename.format(
+        percent_training=int(training.get_percent_training_size(training_dataframe, training_size)),
+        percent_validation=int(training.get_percent_validation_size(training_dataframe, validation_size))
+    )
     training.save_plot_graph(graph_save_filename)
     training.clear_plot_graph()
     # training.show_plot_graph()
     training.report_max_accuracy(manhattan_model_trained)
+
+    # print(len(training_dataframe), training_size, validation_size)
 
 
 def _execute_prediction():

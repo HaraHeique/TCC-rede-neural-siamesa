@@ -41,6 +41,14 @@ def get_training_size(train_dataframe, validation_size):
     return len(train_dataframe) - validation_size
 
 
+def get_percent_validation_size(train_dataframe, validation_size):
+    return (validation_size / len(train_dataframe)) * 100
+
+
+def get_percent_training_size(train_dataframe, training_size):
+    return (training_size / len(train_dataframe)) * 100
+
+
 def split_data_train(train_dataframe):
     x_questions = train_dataframe[['phrase1_n', 'phrase2_n']]
 
