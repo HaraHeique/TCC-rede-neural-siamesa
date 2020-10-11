@@ -137,8 +137,6 @@ def save_model(model, filename):
 
 
 def set_plot_accuracy(network_trained):
-    title = "Model Accuracy ({0})".format(get)
-
     # Plot accuracy
     plt.subplot(211)
     plt.plot(network_trained.history['accuracy'])
