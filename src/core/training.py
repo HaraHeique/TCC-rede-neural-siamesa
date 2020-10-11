@@ -137,6 +137,8 @@ def save_model(model, filename):
 
 
 def set_plot_accuracy(network_trained):
+    title = "Model Accuracy ({0})".format(get)
+
     # Plot accuracy
     plt.subplot(211)
     plt.plot(network_trained.history['accuracy'])
@@ -144,7 +146,7 @@ def set_plot_accuracy(network_trained):
     plt.title('Model Accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
-    plt.legend(['Train', 'Validation'], loc='upper left')
+    plt.legend(['Training', 'Validation'], loc='upper left')
 
 
 def set_plot_loss(network_trained):
@@ -155,7 +157,7 @@ def set_plot_loss(network_trained):
     plt.title('Model Loss')
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
-    plt.legend(['Train', 'Validation'], loc='upper right')
+    plt.legend(['Training', 'Validation'], loc='upper right')
 
 
 def save_plot_graph(filename):
