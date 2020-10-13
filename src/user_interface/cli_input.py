@@ -45,6 +45,14 @@ def insert_percent_validation():
             return float(percent)
 
 
+def insert_number_epochs():
+    while True:
+        number_epochs = input("Enter the number of epochs to train: ")
+
+        if _try_parse_int_positive(number_epochs) and int(number_epochs) > 0:
+            return int(number_epochs)
+
+
 def _try_parse_int_positive(str_int):
     if not str_int.isdigit() or int(str_int) < 0:
         print("Please insert a valid and positive integer number")
