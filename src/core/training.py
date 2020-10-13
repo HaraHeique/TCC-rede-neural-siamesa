@@ -5,6 +5,7 @@
 """
 
 import pandas as pd
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -31,6 +32,17 @@ def make_word2vec_embeddings(train_dataframe, embedding_dim=300, empty_w2v=False
     train_dataframe = train_df
 
     return embeddings
+
+
+def find_max_seq_length(train_dataframe):
+    max_seq_length = 0
+
+    for column in train_dataframe[['phrase1', 'phrase2']]:
+        series_phrase = train_dataframe[column].str.split().str.len()
+        max_value = series_phrase.max()
+        max_seq_length = (max_value if max_value > max_seq_length else max_seq_length)
+
+    return int(max_seq_length)
 
 
 def get_validation_size(train_dataframe, percent):
@@ -81,10 +93,10 @@ def check_train_dataframe(x_train, y_train):
 def define_shared_model(embeddings, embedding_dim, max_seq_length, n_hidden):
     shared_model = Sequential()
     shared_model.add(Embedding(len(embeddings),
-                     embedding_dim,
-                     weights=[embeddings],
-                     input_shape=(max_seq_length,),
-                     trainable=False))
+                               embedding_dim,
+                               weights=[embeddings],
+                               input_shape=(max_seq_length,),
+                               trainable=False))
 
     # LSTM - Long Short Term Memory
     shared_model.add(LSTM(n_hidden))
@@ -175,3 +187,10 @@ def clear_plot_graph():
 def report_max_accuracy(network_trained):
     print(str(network_trained.history['val_accuracy'][-1])[:6] +
           "(max: " + str(max(network_trained.history['val_accuracy']))[:6] + ")")
+
+
+def report_size_data(training_dataframe, training_size, validation_size):
+    print("Size dataframe: {0} records\n"
+          "Size training: {1} records\n"
+          "Size validation: {2} records"
+          .format(len(training_dataframe), training_size, validation_size))
