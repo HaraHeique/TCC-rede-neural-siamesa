@@ -97,6 +97,17 @@ def split_and_zero_padding(dataframe, max_seq_length):
     return dataset
 
 
+def find_max_seq_length(dataframe):
+    max_seq_length = 0
+
+    for column in dataframe[['phrase1_n', 'phrase2_n']]:
+        series_phrase = dataframe[column].str.split().str.len()
+        max_value = series_phrase.max()
+        max_seq_length = (max_value if max_value > max_seq_length else max_seq_length)
+
+    return int(max_seq_length)
+
+
 def _text_to_word_list(text):
     # Pre process and convert texts to a list of words
     text = str(text)

@@ -99,7 +99,7 @@ def _execute_prediction():
     model_saved_filename = "./data/SiameseLSTM.h5"
 
     # Model variables
-    max_seq_length = 35  # TODO A better way is to count the number of words for each phrase and define the highest one
+    max_seq_length = 35
     embedding_dim = 300
 
     # User input variables
@@ -107,6 +107,9 @@ def _execute_prediction():
 
     # Data loading
     prediction_dataframe = prediction.load_prediction_dataframe(filename)
+
+    # find the length of the longest phrase to define in max_seq_length variable
+    max_seq_length = prediction.find_max_seq_length(prediction_dataframe)
 
     # Data pre-processing and creating embedding matrix
     embeddings_matrix = prediction.make_word2vec_embeddings(prediction_dataframe, embedding_dim)

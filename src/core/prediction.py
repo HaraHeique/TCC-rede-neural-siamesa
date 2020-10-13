@@ -26,6 +26,10 @@ def make_word2vec_embeddings(prediction_dataframe, embedding_dim=300, empty_w2v=
     return embeddings
 
 
+def find_max_seq_length(train_dataframe):
+    return helper.find_max_seq_length(train_dataframe)
+
+
 def define_prediction_dataframe(prediction_dataframe, max_seq_length):
     # Split to dicts and append zero padding.
     x_prediction = helper.split_and_zero_padding(prediction_dataframe, max_seq_length)

@@ -35,14 +35,7 @@ def make_word2vec_embeddings(train_dataframe, embedding_dim=300, empty_w2v=False
 
 
 def find_max_seq_length(train_dataframe):
-    max_seq_length = 0
-
-    for column in train_dataframe[['phrase1', 'phrase2']]:
-        series_phrase = train_dataframe[column].str.split().str.len()
-        max_value = series_phrase.max()
-        max_seq_length = (max_value if max_value > max_seq_length else max_seq_length)
-
-    return int(max_seq_length)
+    return helper.find_max_seq_length(train_dataframe)
 
 
 def get_validation_size(train_dataframe, percent):
