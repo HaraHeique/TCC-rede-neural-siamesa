@@ -5,7 +5,6 @@
 """
 
 import pandas as pd
-import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -161,6 +160,10 @@ def set_plot_loss(network_trained):
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
     plt.legend(['Training', 'Validation'], loc='upper right')
+
+
+def plot_hist_length_dataframe(training_dataframe, filename):
+    helper.plot_hist_length_dataframe(training_dataframe, filename)
 
 
 def save_plot_graph(filename):

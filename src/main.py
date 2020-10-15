@@ -31,6 +31,7 @@ def _execute_training():
     # Filename results
     model_save_filename = "./data/SiameseLSTM.h5"
     graph_save_filename = "./results/history-graph-{percent_training}-{percent_validation}-{epochs}.png"
+    distribution_save_filename = "./results/words-distribution.png"
 
     # Model variables
     max_seq_length = 35
@@ -47,6 +48,7 @@ def _execute_training():
 
     # Data loading
     training_dataframe = training.load_training_dataframe(filename)
+    training.plot_hist_length_dataframe(training_dataframe, distribution_save_filename)
 
     # find the length of the longest phrase to define in max_seq_length variable
     max_seq_length = training.find_max_seq_length(training_dataframe)

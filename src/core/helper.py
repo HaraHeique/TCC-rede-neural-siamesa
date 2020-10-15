@@ -8,6 +8,7 @@ import itertools
 import re
 import nltk
 import numpy as np
+import matplotlib.pyplot as plt
 from gensim.models import KeyedVectors
 from nltk.corpus import stopwords
 from tensorflow.python.keras.preprocessing.sequence import pad_sequences
@@ -106,6 +107,24 @@ def find_max_seq_length(dataframe):
         max_seq_length = (max_value if max_value > max_seq_length else max_seq_length)
 
     return int(max_seq_length)
+
+
+def plot_hist_length_dataframe(dataframe, filename):
+    data = []
+
+    for column in dataframe[['phrase1_n', 'phrase2_n']]:
+        series_phrase = dataframe[column].str.split().str.len()
+        data.extend(series_phrase.tolist())
+
+    plt.figure(figsize=[10, 8])
+    plt.hist(x=data, bins=10, color='#D24324', alpha=0.9, rwidth=1)
+    plt.grid(axis="y", alpha=0.75)
+    plt.xlabel("Word Length", fontsize=15)
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.ylabel("Frequency", fontsize=15)
+    plt.title("Words Distribution Histogram", fontsize=15)
+    plt.savefig(filename)
 
 
 def _text_to_word_list(text):
