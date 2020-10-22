@@ -1,10 +1,10 @@
 # Trabalho de Conclusão de Curso - Similaridades de Estilos Literários Baseadas em Aprendizado Profundo
 
-Trabalho Conclusão referente ao curso de graduação de Bacharelado de Sistema de Informação do IFES - Serra.
+Trabalho de Conclusão de Curso (TCC) como requisito para obtenção do título de Bacharel em Análise e Desenvolvimento de Sistemas pelo IFES, Campus Serra.
 
 ### Informações gerais
 - **Autor**: Harã Heique
-- **Orientador**: Fidelis Castro
+- **Orientador**: Fidelis Zanetti de Castro
 - **Linguagem de programação**: Python (versão 3.6.8+)
 - **Ambiente de desenvolvimento**: Visual Studio Code (versão 1.35.1+) e PyCharm (versão 2019.2.2+)
 
@@ -39,7 +39,7 @@ trabalho que são valores de 0 a 1, em que quanto mais próximo de 1 maior é a 
 mais distante são eles, implicando que tendem a serem assimilares.  
 
 <p align="center">
-    <img src="./docs/images/arquitetura-RNS.png" alt="arquitetura-RNS" title="Arquitetura Rede Neural Siamesa"/>
+    <img src="https://github.com/HaraHeique/TCC-rede-neural-siamesa/blob/master/docs/images/arquitetura_rede_padrao_siamesa.png?raw=true" alt="arquitetura-RNS" title="Arquitetura Rede Neural Siamesa"/>
 </p>
 
 Já na figura abaixo demonstra o fluxo de funcionamento principal da Rede Neural Siamesa utilizada neste trabalho de conclusão. Note que ela contém diversas etapas, onde na primeira é realizada a **obtenção dos dados**, que neste caso são os textos literários de autores da literatura inglesa. Logo depois é realizado a **estruturação dos dados**, os quais são selecionadas frases das obras literárias e transformados em colunas em arquivos do formato *CSV*. Após isto é realizado o **pré-processamento dos dados**, retirando palavras indesejadas (sem influência) e criação dos vetores de indíces de cada frase lida do arquivo *CSV*. Dado isto na etapa seguinte é realizado o processo de **normalização/preparação dos dados** de entrada da rede neural, onde são basicamente criados e separados os dados de *treinamento* e *validação* para o lado esquerdo e direito da rede. Já na quinta etapa é realizada a entrada dos dados e seu **processamento** nas camadas escondidas (hidden) do modelo de uma rede neural *LSTM (Long Short Term Memory)* ou *CNN (Convolutional Neural Network)*, ambas previamente criadas e modeladas, sendo esta uma etapa fundamental no treinamento e predição. Na sexta etapa é realizada **chamada da medida/função de similaridade**, o qual pode ser a medida de *Manhattan*, *Cosseno* ou *Euclidiana*, nas saídas da rede neural, sendo ela responsável pelo processo de merge das duas subredes utilizadas. Por fim na etapa de **resultado** é apresentado um valor entre 0 e 1 (intervalo fechado) que determina o índice de similaridade entre os diferentes pares.
@@ -81,7 +81,7 @@ TCC-rede-neural-siamesa
     |_ dependencies.sh
 ```
 
-#### Descrição geral dos arquivos
+#### Descrição geral dos arquivosCampus
 Descrição geral dos principais arquivos contidos nesta aplicação:
 
 Arquivo|Path|Descrição
@@ -92,7 +92,7 @@ Arquivo|Path|Descrição
 **training.py**|src/core/prediction.py|É o módulo que contém funções para realização de todo o processo de treinamento da rede neural, ou seja, pré-processamento dos dados, criação da matrix incorporada, normalização/preparação dos dados, criação do modelo com suas camadas (criação da rede neural siamesa com uma arquitetura e medida de similaridade previamente escolhidas), execução do treinamento e seus resultados.
 **prediction.py**|src/core/training.py|Este módulo contém funções para realização do processo de predição dado um conjunto de dados de entrada na rede previamente treinada, determinando assim o indíce de similiridade existente entre pares de entredas distintos.
 **cli_input.py**|src/user_interface/cli_input.py|É um módulo que interage com o usuário fazendo o papel de receber, tratar e validar as entradas de informações requeridas pelo usuário.
-**cli_output.py**|src/user_interface/cli_output.py|É um módulo que também interage com o usuário, mas com o papel de mostrar os dados e informações de saída, tais como mensagens, limpeza do prompt, quebras de linhas para melhor formatação e afins.
+**cli_output.py**|src/user_interface/cli_output.py|É um módulo que também interage com o usuário, mas com o papel de mostrar os dados e informações de saída, tais como mensagens, limpeza do prompt, quebras de linhas para mCampuselhor formatação e afins.
 **main.py**|src/main.py|É o módulo principal (bootstrap) da aplicação, ou seja, contém a execução princpal e coordena as chamadas de todos os módulos e classes pertencentes.
 **GoogleNews-vectors-negative300.bin.gz**|src/data/GoogleNews-vectors-negative300.bin.gz|Este arquivo é carregado runtime na aplicação e é basicamente responsável por realizar o word embedding, ou seja, define a incoporação word2vec corresponde de cada palavra das frases de entrada para serem encapsuladas na matriz de incorporação, sendo esta importante na etapa de criação do modelo e treinamento da rede neural siamesa.
 **arquivos de entrada de predição**|src/data/arquivos de entrada de predição|São os arquivos, em geral no formato *.csv*, contendo somente duas colunas, sendo elas *phrase1* e *phrase2* (ambas frases extraídas de obras literárias de um autor da literatura inglesa).
