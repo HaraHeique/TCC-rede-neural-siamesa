@@ -31,7 +31,7 @@ def _execute_training():
     # Filename results
     model_save_filename = "./data/SiameseLSTM.h5"
     graph_save_filename = "./results/history-graph-{percent_training}-{percent_validation}-{epochs}.png"
-    distribution_save_filename = "./results/words-distribution.png"
+    distribution_save_filename = "./results/sentences-distribution.png"
 
     # Model variables
     max_seq_length = 35

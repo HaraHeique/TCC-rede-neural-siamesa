@@ -7,8 +7,10 @@
 import itertools
 import re
 import nltk
+import statistics
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 from gensim.models import KeyedVectors
 from nltk.corpus import stopwords
 from tensorflow.python.keras.preprocessing.sequence import pad_sequences
@@ -48,7 +50,7 @@ def make_w2v_embeddings(dataframe, embedding_dim=300, empty_w2v=False):
             # Question numbers representation
             q2n = []
 
-            for word in _text_to_word_list(row[phrase]):
+            for word in __text_to_word_list(row[phrase]):
                 # Check for unwanted words
                 if word in stops:
                     continue
@@ -110,24 +112,20 @@ def find_max_seq_length(dataframe):
 
 
 def plot_hist_length_dataframe(dataframe, filename):
-    data = []
-
-    for column in dataframe[['phrase1_n', 'phrase2_n']]:
-        series_phrase = dataframe[column].str.split().str.len()
-        data.extend(series_phrase.tolist())
+    data = __phrases_dataframe_size(dataframe)
 
     plt.figure(figsize=[10, 8])
     plt.hist(x=data, bins=10, color='#D24324', alpha=0.9, rwidth=1)
-    plt.grid(axis="y", alpha=0.75)
-    plt.xlabel("Word Length", fontsize=15)
-    plt.xticks(fontsize=15)
+    plt.xlabel("Sentence Length", fontsize=15)
+    plt.xticks(np.arange(0, max(data) + 1, 10), fontsize=15)
     plt.yticks(fontsize=15)
     plt.ylabel("Frequency", fontsize=15)
-    plt.title("Words Distribution Histogram", fontsize=15)
+    plt.title("Sentences Distribution Histogram", fontsize=15)
+    plt.legend(handles=__statistics_mpatches(data), handlelength=0, handletextpad=0, fancybox=True)
     plt.savefig(filename)
 
 
-def _text_to_word_list(text):
+def __text_to_word_list(text):
     # Pre process and convert texts to a list of words
     text = str(text)
     text = text.lower()
@@ -164,6 +162,31 @@ def _text_to_word_list(text):
     text = re.sub(r"\s{2,}", " ", text)
 
     return text.split()
+
+
+def __statistics_mpatches(data):
+    qnt_patch = mpatches.Patch(label="Qnt. - {qnt}".format(qnt=len(data)))
+    min_patch = mpatches.Patch(label="Min. - {min}".format(min=int(min(data))))
+    max_patch = mpatches.Patch(label="Max. - {max}".format(max=int(max(data))))
+    mean_patch = mpatches.Patch(label="Mean - {:.2f}".format(statistics.mean(data)))
+    mode_patch = mpatches.Patch(label="Mode - {mode}".format(mode=statistics.mode(data)))
+    median_patch = mpatches.Patch(label="Median - {:.2f}".format(statistics.median(data)))
+    stddev_patch = mpatches.Patch(label="Std. Dev. - {:.2f}".format(statistics.stdev(data)))
+    variance_patch = mpatches.Patch(label="Variance - {:.2f}".format(statistics.variance(data)))
+
+    patches = [qnt_patch, min_patch, max_patch, mean_patch, mode_patch, median_patch, stddev_patch, variance_patch]
+
+    return patches
+
+
+def __phrases_dataframe_size(dataframe):
+    phrases_size = []
+
+    for column in dataframe[['phrase1_n', 'phrase2_n']]:
+        series_phrase = dataframe[column].str.split().str.len().fillna(0)
+        phrases_size.extend(series_phrase.tolist())
+
+    return phrases_size
 
 
 class EmptyWord2Vec:
