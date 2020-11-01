@@ -1,6 +1,7 @@
 import time
 import src.user_interface.cli_input as ui
 import src.user_interface.cli_output as uo
+import src.core.data_structuring as structuring
 import src.core.training as training
 import src.core.prediction as prediction
 from src.enums.Stage import Stage
@@ -16,18 +17,37 @@ def main():
 
 
 def _execute_stage(stage):
-    if stage == Stage.TRAINING:
-        _execute_training()
+    if stage == Stage.STRUCTURING:
+        __execute_data_structuring()
+        return 1
+    elif stage == Stage.TRAINING:
+        __execute_training()
         return 1
     elif stage == Stage.PREDICTION:
-        _execute_prediction()
+        __execute_prediction()
         return 1
     else:
         uo.show_leaving_message()
         return 0
 
 
-def _execute_training():
+def __execute_data_structuring():
+    # Default paths
+    authors_dir = "./data/works/"
+
+    # User input variables
+    n_sentences = ui.insert_number_sentences()
+
+    # Extract the data from dataset
+    authors = structuring.list_dir_authors(authors_dir)
+    dic_works = structuring.dic_works_by_authors(authors)
+    dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences)
+
+    # Save the csv file with the extracted data
+    structuring.save_training_sentences_as_csv(dic_data_works)
+
+
+def __execute_training():
     # Filename results
     model_save_filename = "./data/SiameseLSTM.h5"
     graph_save_filename = "./results/history-graph-{percent_training}-{percent_validation}-{epochs}.png"
@@ -38,7 +58,7 @@ def _execute_training():
     embedding_dim = 300
     gpus = 1
     batch_size = 128 * gpus
-    n_epoch = 50  # TODO Find the better number of epochs to define in my data context when training de neural network
+    n_epoch = 50
     n_hidden = 50
 
     # User input variables
@@ -50,7 +70,7 @@ def _execute_training():
     training_dataframe = training.load_training_dataframe(filename)
     training.plot_hist_length_dataframe(training_dataframe, distribution_save_filename)
 
-    # find the length of the longest phrase to define in max_seq_length variable
+    # Find the length of the longest phrase to define in max_seq_length variable
     max_seq_length = training.find_max_seq_length(training_dataframe)
 
     # Data pre-processing and creating embedding matrix
@@ -96,7 +116,7 @@ def _execute_training():
     training.report_size_data(training_dataframe, training_size, validation_size)
 
 
-def _execute_prediction():
+def __execute_prediction():
     # Saved model trained
     model_saved_filename = "./data/SiameseLSTM.h5"
 

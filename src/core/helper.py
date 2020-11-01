@@ -8,6 +8,7 @@ import itertools
 import re
 import nltk
 import statistics
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -16,6 +17,9 @@ from nltk.corpus import stopwords
 from tensorflow.python.keras.preprocessing.sequence import pad_sequences
 
 WORD2VEC_PATH = "./data/GoogleNews-vectors-negative300.bin.gz"
+DATA_FILES_PATH = os.path.dirname(os.path.abspath("src")) + "/data"
+DATA_FILES_TRAINING_PATH = DATA_FILES_PATH + "/training"
+DATA_FILES_PREDICTION_PATH = DATA_FILES_PATH + "/prediction"
 
 
 def make_w2v_embeddings(dataframe, embedding_dim=300, empty_w2v=False):

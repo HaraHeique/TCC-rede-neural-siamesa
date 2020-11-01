@@ -3,5 +3,6 @@ from enum import Enum
 
 class Stage(Enum):
     NONE = 0
-    TRAINING = 1
-    PREDICTION = 2
+    STRUCTURING = 1
+    TRAINING = 2
+    PREDICTION = 3
