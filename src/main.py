@@ -37,6 +37,7 @@ def __execute_data_structuring():
 
     # User input variables
     n_sentences = ui.insert_number_sentences()
+    print("Structuring and saving csv file...")
 
     # Extract the data from dataset
     authors = structuring.list_dir_authors(authors_dir)
@@ -44,7 +45,8 @@ def __execute_data_structuring():
     dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences)
 
     # Save the csv file with the extracted data
-    structuring.save_training_sentences_as_csv(dic_data_works)
+    structuring.save_training_sentences_as_csv(dic_data_works, n_sentences)
+    structuring.save_prediction_sentences_as_csv(dic_data_works, n_sentences)
 
 
 def __execute_training():

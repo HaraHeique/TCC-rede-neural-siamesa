@@ -74,6 +74,9 @@ def __try_parse_int_positive(str_int):
 def __try_parse_even_number(str_int):
     if not str_int.isdigit() or int(str_int) % 2 != 0:
         print("Please insert a valid and even positive integer number")
+        return False
+
+    return True
 
 
 def __check_chosen_option(option):

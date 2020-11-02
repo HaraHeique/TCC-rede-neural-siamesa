@@ -9,6 +9,7 @@ import sys
 import string
 import nltk
 import math
+import random
 import pandas as pd
 import nltk.tokenize as tokenize
 import src.core.helper as helper
@@ -16,40 +17,71 @@ import src.core.helper as helper
 
 def extract_works_sentence_data(dic_works, n_sentences):
     dic_data = {}
+    sent_tokenizer = __get_sent_tokenizer()
 
     for author, paths_works in dic_works.items():
         for path in paths_works:
             raw_data = __read_data(path)
-            sent_tokenizer = __get_sent_tokenizer()
             sent_tokens = sent_tokenizer.tokenize(raw_data)
             filtered_tokens = __filter_sentence_tokens(sent_tokens)
-            dic_data[author] = [] + filtered_tokens
+            dic_data[author] = dic_data[author] + filtered_tokens if author in dic_data else [] + filtered_tokens
 
             if len(dic_data[author]) >= n_sentences:
-                dic_data[author] = (dic_data[author])[:n_sentences + 1]
+                dic_data[author] = dic_data[author][0:n_sentences]
                 break
 
     return dic_data
 
 
-def save_training_sentences_as_csv(dic_data_works):
+def save_training_sentences_as_csv(dic_data_works, n_sentences):
+    csv_filename = "training-{}-sentences.csv".format(n_sentences)
+    id_count = 1
     columns = ['qd1', 'qd2', 'phrase1', 'phrase2', 'label']
-    dic_dataframe = {}
+    dic_dataframe = {'qd1': [], 'qd2': [], 'phrase1': [], 'phrase2': [], 'label': []}
 
     for author, sentences in dic_data_works.items():
-        id_count = 1
         length_sentences = len(sentences)
 
         for i in range(0, length_sentences, 2):
-            dic_dataframe['qd1'] = id_count
-            dic_dataframe['qd2'] = id_count + 1
-            dic_dataframe['phrase1'] = sentences[i]
-            dic_dataframe['phrase2'] = sentences[i + 1]
-            dic_dataframe['label'] = author
+            dic_dataframe['qd1'].append(id_count)
+            dic_dataframe['qd2'].append(id_count + 1)
+            dic_dataframe['phrase1'].append(sentences[i])
+            dic_dataframe['phrase2'].append(sentences[i + 1])
+            dic_dataframe['label'].append(author)
             id_count += 2
 
     dataframe = pd.DataFrame(dic_dataframe, columns=columns)
-    dataframe.to_csv(helper.DATA_FILES_TRAINING_PATH, index=False, header=True)
+    dataframe.to_csv(os.path.join(helper.DATA_FILES_TRAINING_PATH, csv_filename), index=False, header=True)
+
+
+def save_prediction_sentences_as_csv(dic_data_works, n_sentences):
+    n_sentences_prediction = math.ceil(n_sentences * 0.01)
+    csv_filename = "prediction-{}-sentences.csv".format(n_sentences_prediction)
+    columns = ['phrase1', 'phrase2']
+    dic_dataframe = {'phrase1': [], 'phrase2': []}
+
+    if not bool(dic_data_works):
+        return
+
+    # First column - Take n_sentences_prediction from the first author
+    first_author = next(iter(dic_data_works))
+    dic_dataframe['phrase1'] = dic_data_works[first_author][0:n_sentences_prediction]
+
+    # Second column - Take n_sentences_prediction randomly from authors inside dic_data_works
+    random_works = []
+    length_authors = len(dic_data_works.keys())
+    n_sentences_per_author = math.ceil(n_sentences_prediction / length_authors)
+
+    for author in dic_data_works.keys():
+        sentences_per_author = dic_data_works[author]
+        random.shuffle(sentences_per_author)
+        random_works += sentences_per_author[0:n_sentences_per_author]
+
+    dic_dataframe['phrase2'] = random_works[0:n_sentences_prediction]
+
+    # Export to csv file
+    dataframe = pd.DataFrame(dic_dataframe, columns=columns)
+    dataframe.to_csv(os.path.join(helper.DATA_FILES_PREDICTION_PATH, csv_filename), index=False, header=True)
 
 
 def list_dir_authors(directory_name):
