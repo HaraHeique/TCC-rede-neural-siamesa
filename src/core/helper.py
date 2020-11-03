@@ -121,7 +121,7 @@ def plot_hist_length_dataframe(dataframe, filename):
     plt.figure(figsize=[10, 8])
     plt.hist(x=data, bins=10, color='#D24324', alpha=0.9, rwidth=1)
     plt.xlabel("Sentence Length", fontsize=15)
-    plt.xticks(np.arange(0, max(data) + 1, 10), fontsize=15)
+    plt.xticks(np.arange(0, max(data) + 1, 20), fontsize=15)
     plt.yticks(fontsize=15)
     plt.ylabel("Frequency", fontsize=15)
     plt.title("Sentences Distribution Histogram", fontsize=15)

@@ -47,7 +47,7 @@ def insert_percent_validation():
 
 def insert_number_sentences():
     while True:
-        number_sentences = input("Enter the number of sentences to structure data: ")
+        number_sentences = input("Enter the number of sentences of each author to structure data: ")
 
         if __try_parse_int_positive(number_sentences) and \
            __try_parse_even_number(number_sentences) and \

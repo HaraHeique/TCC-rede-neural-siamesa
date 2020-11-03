@@ -12,6 +12,7 @@ import math
 import random
 import pandas as pd
 import nltk.tokenize as tokenize
+import nltk.stem as porter
 import src.core.helper as helper
 
 
@@ -155,6 +156,7 @@ def __get_sent_tokenizer():
 def __filter_sentence_tokens(sent_tokens):
     sent_tokens = __slice_sentence_tokens(sent_tokens, 5)
     filtered_tokens = []
+    stemmer = porter.PorterStemmer()
 
     for sentence in sent_tokens:
         if not __valid_sentence_token(sentence):
@@ -165,6 +167,9 @@ def __filter_sentence_tokens(sent_tokens):
 
         # Convert to lower case
         tokens = [w.lower() for w in tokens]
+
+        # Stemming of words
+        tokens = [stemmer.stem(w) for w in tokens]
 
         # Remove punctuation from each word
         table = str.maketrans('', '', string.punctuation)
