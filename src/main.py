@@ -44,9 +44,12 @@ def __execute_data_structuring():
     dic_works = structuring.dic_works_by_authors(authors)
     dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences)
 
-    # Save the csv file with the extracted data
+    # Save TRAINING csv file with the extracted data
     structuring.save_training_sentences_as_csv(dic_data_works, n_sentences)
-    structuring.save_prediction_sentences_as_csv(dic_data_works, n_sentences)
+
+    # Save PREDICTION csv file with the extracted data
+    structuring.save_prediction_sentences_as_csv(dic_data_works, 180)
+    structuring.save_prediction_sentences_as_csv(dic_data_works, 600)
 
 
 def __execute_training():

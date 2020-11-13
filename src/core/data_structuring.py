@@ -16,7 +16,7 @@ import nltk.stem as porter
 import src.core.helper as helper
 
 
-def extract_works_sentence_data(dic_works, n_sentences):
+def extract_works_sentence_data(dic_works, n_sentences_per_author):
     dic_data = {}
     sent_tokenizer = __get_sent_tokenizer()
 
@@ -27,15 +27,16 @@ def extract_works_sentence_data(dic_works, n_sentences):
             filtered_tokens = __filter_sentence_tokens(sent_tokens)
             dic_data[author] = dic_data[author] + filtered_tokens if author in dic_data else [] + filtered_tokens
 
-            if len(dic_data[author]) >= n_sentences:
-                dic_data[author] = dic_data[author][0:n_sentences]
+            if len(dic_data[author]) >= n_sentences_per_author:
+                dic_data[author] = dic_data[author][0:n_sentences_per_author]
                 break
 
     return dic_data
 
 
-def save_training_sentences_as_csv(dic_data_works, n_sentences):
-    csv_filename = "training-{}-sentences.csv".format(n_sentences)
+def save_training_sentences_as_csv(dic_data_works, n_sentences_per_author):
+    n_authors = len(dic_data_works.keys())
+    csv_filename = "training-{}-sentences.csv".format(n_sentences_per_author * n_authors)
     id_count = 1
     columns = ['qd1', 'qd2', 'phrase1', 'phrase2', 'label']
     dic_dataframe = {'qd1': [], 'qd2': [], 'phrase1': [], 'phrase2': [], 'label': []}
@@ -56,7 +57,7 @@ def save_training_sentences_as_csv(dic_data_works, n_sentences):
 
 
 def save_prediction_sentences_as_csv(dic_data_works, n_sentences):
-    n_sentences_prediction = math.ceil(n_sentences * 0.01)
+    n_sentences_prediction = math.ceil(n_sentences)
     csv_filename = "prediction-{}-sentences.csv".format(n_sentences_prediction)
     columns = ['phrase1', 'phrase2']
     dic_dataframe = {'phrase1': [], 'phrase2': []}
@@ -64,8 +65,9 @@ def save_prediction_sentences_as_csv(dic_data_works, n_sentences):
     if not bool(dic_data_works):
         return
 
-    # First column - Take n_sentences_prediction from the first author
+    # First column - Take n_sentences_prediction randomly from the first author
     first_author = next(iter(dic_data_works))
+    random.shuffle(dic_data_works[first_author])
     dic_dataframe['phrase1'] = dic_data_works[first_author][0:n_sentences_prediction]
 
     # Second column - Take n_sentences_prediction randomly from authors inside dic_data_works
@@ -74,7 +76,7 @@ def save_prediction_sentences_as_csv(dic_data_works, n_sentences):
     n_sentences_per_author = math.ceil(n_sentences_prediction / length_authors)
 
     for author in dic_data_works.keys():
-        sentences_per_author = dic_data_works[author]
+        sentences_per_author = [item for item in dic_data_works[author] if item not in dic_dataframe['phrase1']]
         random.shuffle(sentences_per_author)
         random_works += sentences_per_author[0:n_sentences_per_author]
 
