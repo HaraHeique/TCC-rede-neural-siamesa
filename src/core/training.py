@@ -162,10 +162,6 @@ def set_plot_loss(network_trained):
     plt.legend(['Training', 'Validation'], loc='upper right')
 
 
-def plot_hist_length_dataframe(training_dataframe, filename):
-    helper.plot_hist_length_dataframe(training_dataframe, filename)
-
-
 def save_plot_graph(filename):
     plt.tight_layout(h_pad=1.0)
     plt.savefig(filename)

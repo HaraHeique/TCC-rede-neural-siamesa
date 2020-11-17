@@ -17,9 +17,11 @@ from nltk.corpus import stopwords
 from tensorflow.python.keras.preprocessing.sequence import pad_sequences
 
 WORD2VEC_PATH = "./data/GoogleNews-vectors-negative300.bin.gz"
-DATA_FILES_PATH = os.path.dirname(os.path.abspath("src")) + "/data"
+SOURCE_PATH = os.path.dirname(os.path.abspath("src"))
+DATA_FILES_PATH = SOURCE_PATH + "/data"
 DATA_FILES_TRAINING_PATH = DATA_FILES_PATH + "/training"
 DATA_FILES_PREDICTION_PATH = DATA_FILES_PATH + "/prediction"
+DATA_FILES_RESULTS_PATH = SOURCE_PATH + "/results"
 
 
 def make_w2v_embeddings(dataframe, embedding_dim=300, empty_w2v=False):
@@ -121,7 +123,8 @@ def plot_hist_length_dataframe(dataframe, filename):
     plt.figure(figsize=[10, 8])
     plt.hist(x=data, bins=10, color='#D24324', alpha=0.9, rwidth=1)
     plt.xlabel("Sentence Length", fontsize=15)
-    plt.xticks(np.arange(0, max(data) + 1, 20), fontsize=15)
+    # plt.xticks(np.arange(0, max(data) + 1, 20), fontsize=15)
+    plt.xticks(fontsize=15)
     plt.yticks(fontsize=15)
     plt.ylabel("Frequency", fontsize=15)
     plt.title("Sentences Distribution Histogram", fontsize=15)
@@ -189,6 +192,13 @@ def __phrases_dataframe_size(dataframe):
     for column in dataframe[['phrase1_n', 'phrase2_n']]:
         series_phrase = dataframe[column].str.split().str.len().fillna(0)
         phrases_size.extend(series_phrase.tolist())
+
+    # for i, row in dataframe.iterrows():
+    #    sentence_length = len(row['phrase1_n'].split()) if row['phrase1_n'] else 0
+    #    phrases_size.append(sentence_length)
+
+    #    sentence_length = len(row['phrase2_n'].split()) if row['phrase2_n'] else 0
+    #   phrases_size.append(sentence_length)
 
     return phrases_size
 

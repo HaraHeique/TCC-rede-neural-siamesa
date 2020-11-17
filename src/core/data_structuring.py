@@ -31,6 +31,8 @@ def extract_works_sentence_data(dic_works, n_sentences_per_author):
                 dic_data[author] = dic_data[author][0:n_sentences_per_author]
                 break
 
+    __export_length_sentences(sum(dic_data.values(), []), 100)
+
     return dic_data
 
 
@@ -171,11 +173,11 @@ def __filter_sentence_tokens(sent_tokens):
         tokens = [w.lower() for w in tokens]
 
         # Stemming of words
-        tokens = [stemmer.stem(w) for w in tokens]
+        stemmed_tokens = [stemmer.stem(w) for w in tokens]
 
         # Remove punctuation from each word
         table = str.maketrans('', '', string.punctuation)
-        stripped = [w.translate(table) for w in tokens]
+        stripped = [w.translate(table) for w in stemmed_tokens]
 
         # Remove remaining tokens that are not alphabetic
         words = [word for word in stripped if word.isalpha()]
@@ -197,7 +199,7 @@ def __valid_sentence_token(sent_token):
     if '\n' in sent_token:
         return False
 
-    if len(sent_token.strip()) <= 0:
+    if len(sent_token.strip()) <= 0 or len(sent_token.split()) > 150:
         return False
 
     return True
@@ -221,3 +223,19 @@ def __slice_sentence_tokens(sent_tokens, percent):
 
 def __get_author_by_path(path):
     return path.split('/')[-1]
+
+
+def __export_length_sentences(tokens, length_sentences):
+    dic_dataframe = {'length': [], 'sentence': []}
+    sorted_tokens = sorted(tokens, key=lambda sentence: len(sentence.split()), reverse=True)
+
+    for s in sorted_tokens:
+        length_current_sentence = len(s.split())
+
+        if length_current_sentence >= length_sentences:
+            dic_dataframe['length'].append(length_current_sentence)
+            dic_dataframe['sentence'].append(s)
+
+    csv_filename = "sentences-greater-{}.csv".format(length_sentences)
+    dataframe = pd.DataFrame(dic_dataframe, columns=['length', 'sentence'])
+    dataframe.to_csv(os.path.join(helper.DATA_FILES_RESULTS_PATH, csv_filename), index=False, header=True)

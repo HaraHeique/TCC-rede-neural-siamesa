@@ -1,6 +1,7 @@
 import time
 import src.user_interface.cli_input as ui
 import src.user_interface.cli_output as uo
+import src.core.helper as helper
 import src.core.data_structuring as structuring
 import src.core.training as training
 import src.core.prediction as prediction
@@ -34,6 +35,8 @@ def _execute_stage(stage):
 def __execute_data_structuring():
     # Default paths
     authors_dir = "./data/works/"
+    filename = "./data/training/training-{n_sentences}-sentences.csv"
+    distribution_save_filename = "./results/sentences-distribution.png"
 
     # User input variables
     n_sentences = ui.insert_number_sentences()
@@ -51,15 +54,19 @@ def __execute_data_structuring():
     structuring.save_prediction_sentences_as_csv(dic_data_works, 180)
     structuring.save_prediction_sentences_as_csv(dic_data_works, 600)
 
+    # Plot histogram from training dataset
+    print("Plotting and saving sentences histogram...")
+    training_dataframe = training.load_training_dataframe(filename.format(n_sentences=n_sentences * len(authors)))
+    helper.plot_hist_length_dataframe(training_dataframe, distribution_save_filename)
+
 
 def __execute_training():
     # Filename results
     model_save_filename = "./data/SiameseLSTM.h5"
     graph_save_filename = "./results/history-graph-{percent_training}-{percent_validation}-{epochs}.png"
-    distribution_save_filename = "./results/sentences-distribution.png"
 
     # Model variables
-    max_seq_length = 35
+    max_seq_length = 14
     embedding_dim = 300
     gpus = 1
     batch_size = 128 * gpus
@@ -73,10 +80,6 @@ def __execute_training():
 
     # Data loading
     training_dataframe = training.load_training_dataframe(filename)
-    training.plot_hist_length_dataframe(training_dataframe, distribution_save_filename)
-
-    # Find the length of the longest phrase to define in max_seq_length variable
-    max_seq_length = training.find_max_seq_length(training_dataframe)
 
     # Data pre-processing and creating embedding matrix
     embedding_matrix = training.make_word2vec_embeddings(training_dataframe, embedding_dim)
