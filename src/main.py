@@ -63,7 +63,7 @@ def __execute_data_structuring():
 def __execute_training():
     # Filename results
     model_save_filename = "./data/SiameseLSTM.h5"
-    graph_save_filename = "./results/history-graph-{percent_training}-{percent_validation}-{epochs}.png"
+    graph_save_filename = "./results/history-graph-{percent_training}-{percent_validation}-{epochs}-{max_seq_length}.png"
 
     # Model variables
     max_seq_length = 14
@@ -115,7 +115,8 @@ def __execute_training():
     graph_save_filename = graph_save_filename.format(
         percent_training=int(training.get_percent_training_size(training_dataframe, training_size)),
         percent_validation=int(training.get_percent_validation_size(training_dataframe, validation_size)),
-        epochs=n_epoch
+        epochs=n_epoch,
+        max_seq_length=max_seq_length
     )
     training.save_plot_graph(graph_save_filename)
     training.clear_plot_graph()
