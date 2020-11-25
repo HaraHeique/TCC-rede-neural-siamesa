@@ -11,6 +11,8 @@ pip3 install pandas
 # tensorflow - maybe i will need a setuptools with higher version
 pip3 install tensorflow
 
+pip3 install tensorflow-addons
+
 # gensim
 pip3 install gensim
 
