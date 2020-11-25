@@ -123,11 +123,6 @@ def __read_data(filename):
     try:
         with open(filename, mode='r') as f:
             raw_data = f.read()
-            # sent_tokenizer = __get_sent_tokenizer()
-            # sent_tokens = sent_tokenizer.tokenize(raw_data)
-            # filtered_tokens = __filter_sentence_tokens(sent_tokens)
-            # print(len(filtered_tokens))
-            # print(len(sent_tokens))
     except FileNotFoundError as err:
         print(err)
         sys.exit(1)
