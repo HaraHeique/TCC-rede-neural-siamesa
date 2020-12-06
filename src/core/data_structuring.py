@@ -12,12 +12,14 @@ import math
 import random
 import pandas as pd
 import nltk.tokenize as tokenize
-import nltk.stem as porter
+import nltk.stem as stem
+import nltk.corpus as corpus
 import src.core.helper as helper
 
 
 def extract_works_sentence_data(dic_works, n_sentences_per_author):
     dic_data = {}
+    __download_text_processing_depedencies()
     sent_tokenizer = __get_sent_tokenizer()
 
     for author, paths_works in dic_works.items():
@@ -144,7 +146,6 @@ def __get_list_common_abrrev():
 
 
 def __get_sent_tokenizer():
-    nltk.download('punkt')
     punkt_params = tokenize.punkt.PunktParameters()
     punkt_params.abbrev_types = set(__get_list_common_abrrev())
     tokenizer = tokenize.punkt.PunktSentenceTokenizer(punkt_params)
@@ -152,10 +153,33 @@ def __get_sent_tokenizer():
     return tokenizer
 
 
+def __get_wordnet_pos(word):
+    wordnet = corpus.wordnet
+
+    tag = nltk.pos_tag([word])[0][1][0].upper()
+    tag_dict = {
+        "J": wordnet.ADJ,
+        "N": wordnet.NOUN,
+        "V": wordnet.VERB,
+        "R": wordnet.ADV
+    }
+
+    return tag_dict.get(tag, wordnet.NOUN)
+
+
+def __download_text_processing_depedencies():
+    nltk.download('wordnet')
+    nltk.download('averaged_perceptron_tagger')
+    nltk.download('punkt')
+    nltk.download('stopwords')
+
+
 def __filter_sentence_tokens(sent_tokens):
     sent_tokens = __slice_sentence_tokens(sent_tokens, 5)
     filtered_tokens = []
-    stemmer = porter.PorterStemmer()
+    # stemmer = stem.PorterStemmer() # Stemming
+    lemmatizer = stem.WordNetLemmatizer()  # Lemmatization
+    stopwords = set(corpus.stopwords.words('english'))
 
     for sentence in sent_tokens:
         if not __valid_sentence_token(sentence):
@@ -168,17 +192,23 @@ def __filter_sentence_tokens(sent_tokens):
         tokens = [w.lower() for w in tokens]
 
         # Stemming of words
-        stemmed_tokens = [stemmer.stem(w) for w in tokens]
+        # tokens = [stemmer.stem(w) for w in tokens]
+
+        # Lemmatization of words
+        tokens = [lemmatizer.lemmatize(w, __get_wordnet_pos(w)) for w in tokens]
 
         # Remove punctuation from each word
         table = str.maketrans('', '', string.punctuation)
-        stripped = [w.translate(table) for w in stemmed_tokens]
+        stripped = [w.translate(table) for w in tokens]
 
         # Remove remaining tokens that are not alphabetic
-        words = [word for word in stripped if word.isalpha()]
+        word_list = [word for word in stripped if word.isalpha()]
+
+        # Removing stopwords
+        word_list = [word for word in word_list if word not in stopwords]
 
         # Join the words normalized with one common space
-        normalized_sentence = ' '.join(words)
+        normalized_sentence = ' '.join(word_list)
 
         # Check if the sentence normalized is valid
         if not __valid_sentence_token(normalized_sentence):

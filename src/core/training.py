@@ -8,6 +8,7 @@ import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 import tensorflow as tf
+import tensorflow_addons as tfa
 import src.core.helper as helper
 from sklearn.model_selection import train_test_split
 from tensorflow.python.keras.models import Model, Sequential
@@ -113,7 +114,9 @@ def compile_model(model, gpus):
         # `multi_gpu_model()` is a so quite buggy. it breaks the saved model.
         model = tf.keras.utils.multi_gpu_model(model, gpus=gpus)
 
+    # model.compile(loss=tfa.losses.ContrastiveLoss(), optimizer=tf.keras.optimizers.RMSprop(), metrics=['accuracy'])
     model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(), metrics=['accuracy'])
+    # model.compile(loss='binary_crossentropy', optimizer='nadam', metrics=['accuracy'])
 
 
 def show_summary_model(model):
