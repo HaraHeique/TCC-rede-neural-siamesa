@@ -66,7 +66,7 @@ def __execute_training():
     graph_save_filename = "./results/history-graph-{percent_training}-{percent_validation}-{epochs}-{max_seq_length}.png"
 
     # Model variables
-    max_seq_length = 14
+    max_seq_length = 5
     embedding_dim = 300
     gpus = 1
     batch_size = 128 * gpus
@@ -77,6 +77,7 @@ def __execute_training():
     filename = ui.insert_training_filename()
     percent_validation = ui.insert_percent_validation()
     n_epoch = ui.insert_number_epochs()
+    max_seq_length = ui.insert_max_seq_length()
 
     # Data loading
     training_dataframe = training.load_training_dataframe(filename)

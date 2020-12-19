@@ -63,6 +63,14 @@ def insert_number_epochs():
             return int(number_epochs)
 
 
+def insert_max_seq_length():
+    while True:
+        max_seq_length = input("Enter the number of max sequence length to train: ")
+
+        if __try_parse_int_positive(max_seq_length) and int(max_seq_length) > 0:
+            return int(max_seq_length)
+
+
 def __try_parse_int_positive(str_int):
     if not str_int.isdigit() or int(str_int) < 0:
         print("Please insert a valid and positive integer number")
