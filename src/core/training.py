@@ -115,7 +115,7 @@ def compile_model(model, gpus):
         model = tf.keras.utils.multi_gpu_model(model, gpus=gpus)
 
     # model.compile(loss=tfa.losses.ContrastiveLoss(), optimizer=tf.keras.optimizers.RMSprop(), metrics=['accuracy'])
-    model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(0.01), metrics=['accuracy'])
+    model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(), metrics=['accuracy'])
     # model.compile(loss='binary_crossentropy', optimizer='nadam', metrics=['accuracy'])
 
 

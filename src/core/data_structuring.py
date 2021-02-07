@@ -10,6 +10,7 @@ import string
 import nltk
 import math
 import random
+import itertools
 import pandas as pd
 import nltk.tokenize as tokenize
 import nltk.stem as stem
@@ -40,11 +41,13 @@ def extract_works_sentence_data(dic_works, n_sentences_per_author):
 
 def save_training_sentences_as_csv(dic_data_works, n_sentences_per_author):
     n_authors = len(dic_data_works.keys())
-    csv_filename = "training-{}-sentences.csv".format(n_sentences_per_author * n_authors)
+    # csv_filename = "training-{}-sentences.csv".format(n_sentences_per_author * n_authors * 2)
+    csv_filename = "training-sentences.csv"
     id_count = 1
     columns = ['qd1', 'qd2', 'phrase1', 'phrase2', 'label']
     dic_dataframe = {'qd1': [], 'qd2': [], 'phrase1': [], 'phrase2': [], 'label': []}
 
+    # Phrases of the same author (similarity = 1)
     for author, sentences in dic_data_works.items():
         length_sentences = len(sentences)
 
@@ -53,7 +56,26 @@ def save_training_sentences_as_csv(dic_data_works, n_sentences_per_author):
             dic_dataframe['qd2'].append(id_count + 1)
             dic_dataframe['phrase1'].append(sentences[i])
             dic_dataframe['phrase2'].append(sentences[i + 1])
-            dic_dataframe['label'].append(author)
+            dic_dataframe['label'].append(1)
+            id_count += 2
+
+    # Phrases of the different author (similarity = 0)
+    author_combinations = __get_author_combinations(list(dic_data_works.keys()))
+
+    for combination in author_combinations:
+        author_a = combination[0]
+        author_b = combination[1]
+        dic_author_a = dic_data_works[author_a]
+        dic_author_b = dic_data_works[author_b]
+        # length_sentences = int(n_sentences_per_author / 2)
+        length_sentences = n_sentences_per_author
+
+        for i in range(0, length_sentences):
+            dic_dataframe['qd1'].append(id_count)
+            dic_dataframe['qd2'].append(id_count + 1)
+            dic_dataframe['phrase1'].append(dic_author_a[i])
+            dic_dataframe['phrase2'].append(dic_author_b[i])
+            dic_dataframe['label'].append(0)
             id_count += 2
 
     dataframe = pd.DataFrame(dic_dataframe, columns=columns)
@@ -248,6 +270,13 @@ def __slice_sentence_tokens(sent_tokens, percent):
 
 def __get_author_by_path(path):
     return path.split('/')[-1]
+
+
+def __get_author_combinations(authors):
+    combinations_object = itertools.combinations(authors, 2)
+    combinations = list(combinations_object)
+
+    return combinations
 
 
 def __export_length_sentences(tokens, length_sentences):
