@@ -9,13 +9,16 @@ import matplotlib
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow_addons as tfa
+from keras.layers.pooling import GlobalMaxPool1D
+
 import src.core.helper as helper
 import src.core.similarity_measure as similarity_measure
 from sklearn.model_selection import train_test_split
 from tensorflow.python.keras.models import Model, Sequential
-from tensorflow.python.keras.layers import Input, Embedding, LSTM, Lambda
+from tensorflow.python.keras.layers import Input, Embedding, LSTM, Lambda, Conv1D, Dense, Dropout
 from src.models.ManhattanDistance import ManhattanDistance
 from src.enums.SimilarityMeasureType import SimilarityMeasureType
+from src.enums.NeuralNetworkType import NeuralNetworkType
 
 matplotlib.use('Agg')
 
@@ -85,7 +88,7 @@ def check_train_dataframe(x_train, y_train):
     assert len(x_train['left']) == len(y_train)
 
 
-def define_shared_model(embeddings, embedding_dim, max_seq_length, n_hidden):
+def define_shared_model(embeddings, embedding_dim, max_seq_length, n_hidden, network_type):
     shared_model = Sequential()
     shared_model.add(Embedding(len(embeddings),
                                embedding_dim,
@@ -93,8 +96,16 @@ def define_shared_model(embeddings, embedding_dim, max_seq_length, n_hidden):
                                input_shape=(max_seq_length,),
                                trainable=False))
 
-    # LSTM - Long Short Term Memory
-    shared_model.add(LSTM(n_hidden))
+    if network_type == NeuralNetworkType.CNN:
+        # CNN - Convolutional Neural Network
+        shared_model.add(Conv1D(250, kernel_size=5, activation='relu'))
+        shared_model.add(GlobalMaxPool1D())
+        shared_model.add(Dense(250, activation='relu'))
+        shared_model.add(Dropout(0.3))
+        shared_model.add(Dense(1, activation='sigmoid'))
+    else:
+        # LSTM - Long Short Term Memory
+        shared_model.add(LSTM(n_hidden))
 
     return shared_model
 

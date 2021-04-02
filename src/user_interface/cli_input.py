@@ -7,6 +7,8 @@
 
 import os
 from src.enums.Stage import Stage
+from src.enums.SimilarityMeasureType import SimilarityMeasureType
+from src.enums.NeuralNetworkType import NeuralNetworkType
 
 _DATA_FILES_PATH = os.path.dirname(os.path.abspath("src")) + "/data"
 _DATA_FILES_TRAINING_PATH = _DATA_FILES_PATH + "/training"
@@ -35,6 +37,22 @@ def insert_prediction_filename():
 
         if __check_file_existence(_DATA_FILES_PREDICTION_PATH, filename):
             return os.path.join(_DATA_FILES_PREDICTION_PATH, filename)
+
+
+def insert_neural_network_type():
+    while True:
+        network_type = input("Choose the Neural Network Type:\n 1 - LSTM\n 2 - CNN\n")
+
+        if __try_parse_int_positive(network_type) and __is_network_type_valid(int(network_type)):
+            return NeuralNetworkType(int(network_type))
+
+
+def insert_similarity_measure_type():
+    while True:
+        similarity_type = input("Choose the Similarity Measure:\n 1 - MANHATTAN\n 2 - EUCLIDEAN\n 3 - COSINE\n")
+
+        if __try_parse_int_positive(similarity_type) and __is_similarity_type_valid(int(similarity_type)):
+            return SimilarityMeasureType(int(similarity_type))
 
 
 def insert_percent_validation():
@@ -108,4 +126,20 @@ def __is_percent_valid(value):
         return True
 
     print("Percentage must be between 0% and 30%")
+    return False
+
+
+def __is_network_type_valid(network_type):
+    if network_type == 1 or network_type == 2:
+        return True
+
+    print("Neural Network Type is invalid. Try again.")
+    return False
+
+
+def __is_similarity_type_valid(similarity_type):
+    if 1 <= similarity_type <= 3:
+        return True
+
+    print("Similarity Measure is invalid. Try again.")
     return False
