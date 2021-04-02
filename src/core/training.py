@@ -10,10 +10,12 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow_addons as tfa
 import src.core.helper as helper
+import src.core.similarity_measure as similarity_measure
 from sklearn.model_selection import train_test_split
 from tensorflow.python.keras.models import Model, Sequential
-from tensorflow.python.keras.layers import Input, Embedding, LSTM
+from tensorflow.python.keras.layers import Input, Embedding, LSTM, Lambda
 from src.models.ManhattanDistance import ManhattanDistance
+from src.enums.SimilarityMeasureType import SimilarityMeasureType
 
 matplotlib.use('Agg')
 
@@ -97,16 +99,65 @@ def define_shared_model(embeddings, embedding_dim, max_seq_length, n_hidden):
     return shared_model
 
 
+def define_model(shared_model, max_seq_length, similarity_type):
+    if similarity_type == SimilarityMeasureType.MANHATTAN:
+        return define_manhattan_model(shared_model, max_seq_length)
+    elif similarity_type == SimilarityMeasureType.COSINE:
+        return define_cosine_model(shared_model, max_seq_length)
+    elif similarity_type == SimilarityMeasureType.EUCLIDEAN:
+        return define_euclidean_model(shared_model, max_seq_length)
+    elif similarity_type == SimilarityMeasureType.JACCARD:
+        return define_jaccard_model(shared_model, max_seq_length)
+    else:
+        return None
+
+
 def define_manhattan_model(shared_model, max_seq_length):
     # The visible layer
     left_input = Input(shape=(max_seq_length,), dtype='int32')
     right_input = Input(shape=(max_seq_length,), dtype='int32')
 
     # Pack it all up into a Manhattan Distance model
-    malstm_distance = ManhattanDistance()([shared_model(left_input), shared_model(right_input)])
+    malstm_distance = similarity_measure.calculate_manhattan_distance(shared_model(left_input), shared_model(right_input))
     manhattan_model = Model(inputs=[left_input, right_input], outputs=[malstm_distance])
 
     return manhattan_model
+
+
+def define_cosine_model(shared_model, max_seq_length):
+    left_input = Input(shape=(max_seq_length,))
+    right_input = Input(shape=(max_seq_length,))
+
+    cosine_distance = similarity_measure.calculate_cosine_distance(shared_model(left_input), shared_model(right_input))
+    cosine_model = Model(inputs=[left_input, right_input], outputs=[cosine_distance])
+
+    return cosine_model
+
+
+def define_euclidean_model(shared_model, max_seq_length):
+    left_input = Input(shape=(max_seq_length,))
+    right_input = Input(shape=(max_seq_length,))
+
+    euclidean_distance = Lambda(
+        similarity_measure.calculate_euclidean_distance,
+        output_shape=similarity_measure.dist_output_shape
+    )([shared_model(left_input), shared_model(right_input)])
+    cosine_model = Model(inputs=[left_input, right_input], outputs=[euclidean_distance])
+
+    return cosine_model
+
+
+def define_jaccard_model(shared_model, max_seq_length):
+    left_input = Input(shape=(max_seq_length,))
+    right_input = Input(shape=(max_seq_length,))
+
+    jaccard_distance = Lambda(
+        similarity_measure.calculate_jaccard_distance,
+        output_shape=similarity_measure.dist_output_shape
+    )([shared_model(left_input), shared_model(right_input)])
+    jaccard_model = Model(inputs=[left_input, right_input], outputs=[jaccard_distance])
+
+    return jaccard_model
 
 
 def compile_model(model, gpus):

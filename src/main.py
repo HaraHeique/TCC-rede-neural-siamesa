@@ -6,6 +6,7 @@ import src.core.data_structuring as structuring
 import src.core.training as training
 import src.core.prediction as prediction
 from src.enums.Stage import Stage
+from src.enums.SimilarityMeasureType import SimilarityMeasureType
 
 
 def main():
@@ -98,7 +99,7 @@ def __execute_training():
     shared_model = training.define_shared_model(embedding_matrix, embedding_dim, max_seq_length, n_hidden)
     # training.show_summary_model(shared_model)
 
-    model = training.define_manhattan_model(shared_model, max_seq_length)
+    model = training.define_model(shared_model, max_seq_length, SimilarityMeasureType.MANHATTAN)
     training.compile_model(model, gpus)
     training.show_summary_model(model)
 
@@ -123,7 +124,7 @@ def __execute_training():
     training.clear_plot_graph()
     # training.show_plot_graph()
     training.report_max_accuracy(manhattan_model_trained)
-    training.report_size_data(training_dataframe, training_size, validation_size)
+    # training.report_size_data(training_dataframe, training_size, validation_size)
 
 
 def __execute_prediction():

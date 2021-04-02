@@ -12,3 +12,20 @@ https://github.com/likejazz/Siamese-LSTM
 
 Text Similarity Using Siamese Deep Neural Network:
 https://github.com/amansrivastava17/lstm-siamese-text-similarity
+
+Siamese Measure Manhattan
+https://medium.com/mlreview/implementing-malstm-on-kaggles-quora-question-pairs-competition-8b31b0b16a07
+
+Siamese Measure Cosine
+https://stackoverflow.com/questions/54165333/what-is-the-keras-2-0-equivalent-of-similarity-keras-layers-mergetarget-co
+https://stackoverflow.com/questions/39289050/sentence-similarity-using-keras
+https://github.com/keras-team/keras/issues/2672
+https://stackoverflow.com/questions/51003027/computing-cosine-similarity-between-two-tensors-in-keras
+
+Siamese Measure Euclidean
+https://colab.research.google.com/drive/15wVnKzyQwWUD8xIpAstGx8N1ySnnmRvM#scrollTo=NvuY3FzzFtEl
+https://stackoverflow.com/questions/59659494/euclidean-distance-in-keras
+
+Siamese Measure Jaccard
+https://github.com/keras-team/keras-contrib/blob/master/keras_contrib/losses/jaccard.py
+https://gist.github.com/wassname/f1452b748efcbeb4cb9b1d059dce6f96
