@@ -63,9 +63,12 @@ def insert_percent_validation():
             return float(percent)
 
 
-def insert_number_sentences():
+def insert_number_sentences(input_message=None):
+    default_message = "Enter the number of sentences of each author to structure data: "
+    input_message = input_message if input_message is not None else default_message
+
     while True:
-        number_sentences = input("Enter the number of sentences of each author to structure data: ")
+        number_sentences = input(input_message)
 
         if __try_parse_int_positive(number_sentences) and \
            __try_parse_even_number(number_sentences) and \

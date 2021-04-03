@@ -33,31 +33,45 @@ def _execute_stage(stage):
 
 
 def __execute_data_structuring():
-    # Default paths
-    authors_dir = "./data/works/"
+    # ----- TRAINING data structuring -----
+
+    authors_dir_training = "./data/works/training"
     filename = "./data/training/training-{n_sentences}-sentences.csv"
-    distribution_save_filename = "./results/sentences-distribution.png"
 
     # User input variables
-    n_sentences = ui.insert_number_sentences()
-    print("Structuring and saving csv file...")
+    n_sentences_training = ui.insert_number_sentences("Enter the number of sentences of each author to structure data TRAINING: ")
+    print("Structuring and saving TRAINING csv file...")
 
     # Extract the data from dataset
-    authors = structuring.list_dir_authors(authors_dir)
+    authors = structuring.list_dir_authors(authors_dir_training)
     dic_works = structuring.dic_works_by_authors(authors)
-    dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences)
+    dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_training)
 
     # Save TRAINING csv file with the extracted data
-    structuring.save_training_sentences_as_csv(dic_data_works, n_sentences)
-
-    # Save PREDICTION csv file with the extracted data
-    structuring.save_prediction_sentences_as_csv(dic_data_works, 180)
-    structuring.save_prediction_sentences_as_csv(dic_data_works, 600)
+    structuring.save_training_sentences_as_csv(dic_data_works, n_sentences_training)
 
     # Plot histogram from training dataset
     print("Plotting and saving sentences histogram...")
-    training_dataframe = training.load_training_dataframe(filename.format(n_sentences=n_sentences * len(authors)))
+    distribution_save_filename = "./results/sentences-distribution.png"
+    training_dataframe = training.load_training_dataframe(
+        filename.format(n_sentences=n_sentences_training * len(authors))
+    )
     helper.plot_hist_length_dataframe(training_dataframe, distribution_save_filename)
+
+    # ----- PREDICTION data structuring -----
+    authors_dir_prediction = "./data/works/prediction"
+
+    # User input variables
+    n_sentences_prediction = ui.insert_number_sentences("Enter the number of sentences of each author to structure data PREDICTION: ")
+    print("Structuring and saving PREDICTION csv file...")
+
+    # Extract the data from dataset
+    authors = structuring.list_dir_authors(authors_dir_prediction)
+    dic_works = structuring.dic_works_by_authors(authors)
+    dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_prediction)
+
+    # Save PREDICTION csv file with the extracted data
+    structuring.save_prediction_sentences_as_csv(dic_data_works, n_sentences_prediction)
 
 
 def __execute_training():
@@ -103,7 +117,8 @@ def __execute_training():
                                                                           max_seq_length)
 
     # Creating the model based on a similarity function/measure
-    shared_model = training.define_shared_model(embedding_matrix, embedding_dim, max_seq_length, n_hidden, neural_network_type)
+    shared_model = training.define_shared_model(embedding_matrix, embedding_dim, max_seq_length, n_hidden,
+                                                neural_network_type)
     # training.show_summary_model(shared_model)
 
     model = training.define_model(shared_model, max_seq_length, similarity_measure_type)

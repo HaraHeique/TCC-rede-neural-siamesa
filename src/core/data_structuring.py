@@ -9,7 +9,6 @@ import sys
 import string
 import nltk
 import math
-import random
 import itertools
 import pandas as pd
 import nltk.tokenize as tokenize
@@ -34,13 +33,15 @@ def extract_works_sentence_data(dic_works, n_sentences_per_author):
                 dic_data[author] = dic_data[author][0:n_sentences_per_author]
                 break
 
-    __export_length_sentences(sum(dic_data.values(), []), 100)
+    # __export_length_sentences(sum(dic_data.values(), []), 100)
 
     return dic_data
 
 
 def save_training_sentences_as_csv(dic_data_works, n_sentences_per_author):
-    n_authors = len(dic_data_works.keys())
+    if not bool(dic_data_works):
+        return
+
     # csv_filename = "training-{}-sentences.csv".format(n_sentences_per_author * n_authors * 2)
     csv_filename = "training-sentences.csv"
     id_count = 1
@@ -67,8 +68,8 @@ def save_training_sentences_as_csv(dic_data_works, n_sentences_per_author):
         author_b = combination[1]
         dic_author_a = dic_data_works[author_a]
         dic_author_b = dic_data_works[author_b]
-        # length_sentences = int(n_sentences_per_author / 2)
-        length_sentences = n_sentences_per_author
+        length_sentences = int(n_sentences_per_author / 2)
+        # length_sentences = n_sentences_per_author
 
         for i in range(0, length_sentences):
             dic_dataframe['qd1'].append(id_count)
@@ -78,35 +79,42 @@ def save_training_sentences_as_csv(dic_data_works, n_sentences_per_author):
             dic_dataframe['label'].append(0)
             id_count += 2
 
+    # Export to csv file
     dataframe = pd.DataFrame(dic_dataframe, columns=columns)
     dataframe.to_csv(os.path.join(helper.DATA_FILES_TRAINING_PATH, csv_filename), index=False, header=True)
 
 
-def save_prediction_sentences_as_csv(dic_data_works, n_sentences):
-    n_sentences_prediction = math.ceil(n_sentences)
-    csv_filename = "prediction-{}-sentences.csv".format(n_sentences_prediction)
-    columns = ['phrase1', 'phrase2']
-    dic_dataframe = {'phrase1': [], 'phrase2': []}
-
+def save_prediction_sentences_as_csv(dic_data_works, n_sentences_per_author):
     if not bool(dic_data_works):
         return
 
-    # First column - Take n_sentences_prediction randomly from the first author
-    first_author = next(iter(dic_data_works))
-    random.shuffle(dic_data_works[first_author])
-    dic_dataframe['phrase1'] = dic_data_works[first_author][0:n_sentences_prediction]
+    # csv_filename = "prediction-{}-sentences.csv".format(n_sentences_prediction)
+    csv_filename = "prediction-sentences.csv"
+    columns = ['phrase1', 'phrase2']
+    dic_dataframe = {'phrase1': [], 'phrase2': []}
 
-    # Second column - Take n_sentences_prediction randomly from authors inside dic_data_works
-    random_works = []
-    length_authors = len(dic_data_works.keys())
-    n_sentences_per_author = math.ceil(n_sentences_prediction / length_authors)
+    # Phrases of the same author
+    for author, sentences in dic_data_works.items():
+        length_sentences = len(sentences)
 
-    for author in dic_data_works.keys():
-        sentences_per_author = [item for item in dic_data_works[author] if item not in dic_dataframe['phrase1']]
-        random.shuffle(sentences_per_author)
-        random_works += sentences_per_author[0:n_sentences_per_author]
+        for i in range(0, length_sentences, 2):
+            dic_dataframe['phrase1'].append(sentences[i])
+            dic_dataframe['phrase2'].append(sentences[i + 1])
 
-    dic_dataframe['phrase2'] = random_works[0:n_sentences_prediction]
+    # Phrases of the different author
+    author_combinations = __get_author_combinations(list(dic_data_works.keys()))
+
+    for combination in author_combinations:
+        author_a = combination[0]
+        author_b = combination[1]
+        dic_author_a = dic_data_works[author_a]
+        dic_author_b = dic_data_works[author_b]
+        length_sentences = int(n_sentences_per_author / 2)
+        # length_sentences = n_sentences_per_author
+
+        for i in range(0, length_sentences):
+            dic_dataframe['phrase1'].append(dic_author_a[i])
+            dic_dataframe['phrase2'].append(dic_author_b[i])
 
     # Export to csv file
     dataframe = pd.DataFrame(dic_dataframe, columns=columns)
