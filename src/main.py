@@ -161,12 +161,12 @@ def __execute_prediction():
 
     # User input variables
     filename = ui.insert_prediction_filename()
+    uo.break_lines(1)
+    max_seq_length = ui.insert_max_seq_length()
+    uo.break_lines(1)
 
     # Data loading
     prediction_dataframe = prediction.load_prediction_dataframe(filename)
-
-    # find the length of the longest phrase to define in max_seq_length variable
-    max_seq_length = prediction.find_max_seq_length(prediction_dataframe)
 
     # Data pre-processing and creating embedding matrix
     embeddings_matrix = prediction.make_word2vec_embeddings(prediction_dataframe, embedding_dim)
@@ -175,7 +175,7 @@ def __execute_prediction():
     test_normalized_dataframe = prediction.define_prediction_dataframe(prediction_dataframe, max_seq_length)
 
     # Loading the model trained
-    test_model = prediction.load_manhattan_model(model_saved_filename)
+    test_model = prediction.load_model(model_saved_filename)
     prediction.show_summary_model(test_model)
 
     # Results

@@ -42,8 +42,8 @@ def check_prediction_dataframe(x_prediction):
     assert x_prediction['left'].shape == x_prediction['right'].shape
 
 
-def load_manhattan_model(filename):
-    model = tf.keras.models.load_model(filename, custom_objects={'ManhattanDistance': ManhattanDistance})
+def load_model(filename):
+    model = tf.keras.models.load_model(filename)
     return model
 
 

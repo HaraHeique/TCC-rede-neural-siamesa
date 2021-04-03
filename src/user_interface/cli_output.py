@@ -23,8 +23,8 @@ def clear_screen():
 
 
 def break_lines(number_of_lines):
-    lines_to_break = '\n' * number_of_lines
-    print(lines_to_break)
+    for i in range(number_of_lines):
+        print()
 
 
 if __name__ == '__main__':

@@ -109,10 +109,10 @@ def __try_parse_even_number(str_int):
 
 
 def __check_chosen_option(option):
-    if 0 <= option <= 2:
+    if 0 <= option <= 3:
         return True
 
-    print("Please insert a option 0, 1 or 2")
+    print("Please insert a option 0, 1, 2 or 3")
     return False
 
 
