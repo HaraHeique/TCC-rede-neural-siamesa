@@ -6,6 +6,8 @@ import src.core.data_structuring as structuring
 import src.core.training as training
 import src.core.prediction as prediction
 from src.enums.Stage import Stage
+from src.enums.SimilarityMeasureType import SimilarityMeasureType
+from src.enums.NeuralNetworkType import NeuralNetworkType
 
 
 def main():
@@ -154,6 +156,8 @@ def __execute_training():
 def __execute_prediction():
     # Saved model trained
     model_saved_filename = "./data/SiameseLSTM.h5"
+    table_title = "Índices de Similaridade ({network_type} - {similarity_type})"
+    table_filename = "./results/similarity-values-{network_type}-{similarity_type}.png"
 
     # Model variables
     max_seq_length = 35
@@ -178,8 +182,25 @@ def __execute_prediction():
     test_model = prediction.load_model(model_saved_filename)
     prediction.show_summary_model(test_model)
 
+    # Predict data from the model trained
+    prediction_result = prediction.predict_neural_network(test_model, test_normalized_dataframe)
+
     # Results
-    prediction.show_prediction_model(test_model, test_normalized_dataframe)
+    network_name = NeuralNetworkType.LSTM.name
+    similarity_name = SimilarityMeasureType.MANHATTAN.name
+
+    prediction.save_prediction_result(
+        prediction_result,
+        100,
+        table_title.format(
+            network_type=network_name,
+            similarity_type=similarity_name
+        ),
+        table_filename.format(
+            network_type=network_name,
+            similarity_type=similarity_name
+        )
+    )
 
 
 if __name__ == '__main__':
