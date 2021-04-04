@@ -6,8 +6,6 @@ import src.core.data_structuring as structuring
 import src.core.training as training
 import src.core.prediction as prediction
 from src.enums.Stage import Stage
-from src.enums.SimilarityMeasureType import SimilarityMeasureType
-from src.enums.NeuralNetworkType import NeuralNetworkType
 
 
 def main():
@@ -38,7 +36,6 @@ def __execute_data_structuring():
     # ----- TRAINING data structuring -----
 
     authors_dir_training = "./data/works/training"
-    filename = "./data/training/training-{n_sentences}-sentences.csv"
 
     # User input variables
     n_sentences_training = ui.insert_number_sentences("Enter the number of sentences of each author to structure data TRAINING: ")
@@ -55,12 +52,12 @@ def __execute_data_structuring():
     # Plot histogram from training dataset
     print("Plotting and saving sentences histogram...")
     distribution_save_filename = "./results/sentences-distribution.png"
-    training_dataframe = training.load_training_dataframe(
-        filename.format(n_sentences=n_sentences_training * len(authors))
-    )
+    training_dataframe = training.load_training_dataframe("./data/training/training-sentences.csv")
+    training_dataframe = training_dataframe[:int((n_sentences_training * len(authors)) / 2)]
     helper.plot_hist_length_dataframe(training_dataframe, distribution_save_filename)
 
     # ----- PREDICTION data structuring -----
+
     authors_dir_prediction = "./data/works/prediction"
 
     # User input variables
@@ -152,6 +149,19 @@ def __execute_training():
     training.report_max_accuracy(manhattan_model_trained)
     # training.report_size_data(training_dataframe, training_size, validation_size)
 
+    # Save config file
+    training.save_model_variables_file("./data/training_variables.txt", {
+        "max_seq_length": max_seq_length,
+        "embedding_dim": embedding_dim,
+        "gpus": gpus,
+        "batch_size": batch_size,
+        "n_epochs": n_epochs,
+        "n_hidden": n_hidden,
+        "neural_network_type": neural_network_type.name,
+        "similarity_measure_type": similarity_measure_type.name,
+        "percent_validation": percent_validation
+    })
+
 
 def __execute_prediction():
     # Saved model trained
@@ -160,23 +170,20 @@ def __execute_prediction():
     table_filename = "./results/similarity-values-{network_type}-{similarity_type}.png"
 
     # Model variables
-    max_seq_length = 35
-    embedding_dim = 300
+    variables = training.get_model_variables("./data/training_variables.txt")
 
     # User input variables
     filename = ui.insert_prediction_filename()
-    uo.break_lines(1)
-    max_seq_length = ui.insert_max_seq_length()
     uo.break_lines(1)
 
     # Data loading
     prediction_dataframe = prediction.load_prediction_dataframe(filename)
 
     # Data pre-processing and creating embedding matrix
-    embeddings_matrix = prediction.make_word2vec_embeddings(prediction_dataframe, embedding_dim)
+    embeddings_matrix = prediction.make_word2vec_embeddings(prediction_dataframe, variables["embedding_dim"])
 
     # Data preparation
-    test_normalized_dataframe = prediction.define_prediction_dataframe(prediction_dataframe, max_seq_length)
+    test_normalized_dataframe = prediction.define_prediction_dataframe(prediction_dataframe, variables["max_seq_length"])
 
     # Loading the model trained
     test_model = prediction.load_model(model_saved_filename)
@@ -186,19 +193,16 @@ def __execute_prediction():
     prediction_result = prediction.predict_neural_network(test_model, test_normalized_dataframe)
 
     # Results
-    network_name = NeuralNetworkType.LSTM.name
-    similarity_name = SimilarityMeasureType.MANHATTAN.name
-
     prediction.save_prediction_result(
         prediction_result,
         100,
         table_title.format(
-            network_type=network_name,
-            similarity_type=similarity_name
+            network_type=variables["neural_network_type"],
+            similarity_type=variables["similarity_measure_type"]
         ),
         table_filename.format(
-            network_type=network_name,
-            similarity_type=similarity_name
+            network_type=variables["neural_network_type"],
+            similarity_type=variables["similarity_measure_type"]
         )
     )
 

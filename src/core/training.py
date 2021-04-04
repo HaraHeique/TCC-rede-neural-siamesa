@@ -129,7 +129,8 @@ def define_manhattan_model(shared_model, max_seq_length):
     right_input = Input(shape=(max_seq_length,), dtype='int32')
 
     # Pack it all up into a Manhattan Distance model
-    malstm_distance = similarity_measure.calculate_manhattan_distance(shared_model(left_input), shared_model(right_input))
+    malstm_distance = similarity_measure.calculate_manhattan_distance(shared_model(left_input),
+                                                                      shared_model(right_input))
     manhattan_model = Model(inputs=[left_input, right_input], outputs=[malstm_distance])
 
     return manhattan_model
@@ -251,3 +252,59 @@ def report_size_data(training_dataframe, training_size, validation_size):
           "Size training: {1} records\n"
           "Size validation: {2} records"
           .format(len(training_dataframe), training_size, validation_size))
+
+
+def save_model_variables_file(filename, variables):
+    content = """
+        max_seq_length={max_seq_length}
+        embedding_dim={embedding_dim}
+        gpus={gpus}
+        batch_size={batch_size}
+        n_epochs={n_epochs}
+        n_hidden={n_hidden}
+        neural_network_type={neural_network_type}
+        similarity_measure_type={similarity_measure_type}
+        percent_validation={percent_validation}
+    """.format(
+        max_seq_length=variables["max_seq_length"],
+        embedding_dim=variables["embedding_dim"],
+        gpus=variables["gpus"],
+        batch_size=variables["batch_size"],
+        n_epochs=variables["n_epochs"],
+        n_hidden=variables["n_hidden"],
+        neural_network_type=variables["neural_network_type"],
+        similarity_measure_type=variables["similarity_measure_type"],
+        percent_validation=variables["percent_validation"]
+    )
+
+    content = content.replace(' ', '')
+
+    try:
+        f = open(filename, 'w')
+        f.write(content)
+        f.close()
+    except Exception as err:
+        print(err)
+
+
+def get_model_variables(filename):
+    try:
+        f = open(filename, 'r')
+        content = f.read()
+        variables = {}
+        SEPARATOR = '='
+
+        for line in content.split('\n'):
+            if SEPARATOR not in line:
+                continue
+
+            token = line.split(SEPARATOR)
+            var_name = token[0]
+            var_value = token[1]
+            variables[var_name] = var_value if not var_value.isnumeric() else int(var_value)
+
+        f.close()
+    except Exception as err:
+        print(err)
+    else:
+        return variables
