@@ -16,7 +16,6 @@ import src.core.similarity_measure as similarity_measure
 from sklearn.model_selection import train_test_split
 from tensorflow.python.keras.models import Model, Sequential
 from tensorflow.python.keras.layers import Input, Embedding, LSTM, Lambda, Conv1D, Dense, Dropout
-from src.models.ManhattanDistance import ManhattanDistance
 from src.enums.SimilarityMeasureType import SimilarityMeasureType
 from src.enums.NeuralNetworkType import NeuralNetworkType
 
@@ -88,29 +87,32 @@ def check_train_dataframe(x_train, y_train):
     assert len(x_train['left']) == len(y_train)
 
 
-def define_shared_model(embeddings, embedding_dim, max_seq_length, n_hidden, network_type):
+def define_shared_model(embeddings, hyperparameters):
     shared_model = Sequential()
     shared_model.add(Embedding(len(embeddings),
-                               embedding_dim,
+                               hyperparameters['embedding_dim'],
                                weights=[embeddings],
-                               input_shape=(max_seq_length,),
+                               input_shape=(hyperparameters['max_seq_length'],),
                                trainable=False))
 
-    if network_type == NeuralNetworkType.CNN:
+    if hyperparameters['neural_network_type'] == NeuralNetworkType.CNN:
         # CNN - Convolutional Neural Network
-        shared_model.add(Conv1D(250, kernel_size=5, activation='relu'))
+        shared_model.add(Conv1D(hyperparameters['conv1d_filters'], kernel_size=hyperparameters['kernel_size'], activation=hyperparameters['activation_relu']))
         shared_model.add(GlobalMaxPool1D())
-        shared_model.add(Dense(250, activation='relu'))
-        shared_model.add(Dropout(0.3))
-        shared_model.add(Dense(1, activation='sigmoid'))
+        shared_model.add(Dense(hyperparameters['dense_units_relu'], activation=hyperparameters['activation_relu']))
+        shared_model.add(Dropout(hyperparameters['dropout_rate']))
+        shared_model.add(Dense(hyperparameters['dense_units_sigmoid'], activation=hyperparameters['activation_sigmoid']))
     else:
         # LSTM - Long Short Term Memory
-        shared_model.add(LSTM(n_hidden))
+        shared_model.add(LSTM(hyperparameters['n_hidden']))
 
     return shared_model
 
 
-def define_model(shared_model, max_seq_length, similarity_type):
+def define_model(shared_model, hyperparameters):
+    similarity_type = hyperparameters['similarity_measure_type']
+    max_seq_length = hyperparameters['max_seq_length']
+
     if similarity_type == SimilarityMeasureType.MANHATTAN:
         return define_manhattan_model(shared_model, max_seq_length)
     elif similarity_type == SimilarityMeasureType.COSINE:
@@ -172,21 +174,24 @@ def define_jaccard_model(shared_model, max_seq_length):
     return jaccard_model
 
 
-def compile_model(model, gpus):
+def compile_model(model, hyperparameters):
+    gpus = hyperparameters['gpus']
+
     if gpus >= 2:
         # `multi_gpu_model()` is a so quite buggy. it breaks the saved model.
         model = tf.keras.utils.multi_gpu_model(model, gpus=gpus)
 
     # model.compile(loss=tfa.losses.ContrastiveLoss(), optimizer=tf.keras.optimizers.RMSprop(), metrics=['accuracy'])
-    model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(), metrics=['accuracy'])
+    # model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(), metrics=['accuracy'])
     # model.compile(loss='binary_crossentropy', optimizer='nadam', metrics=['accuracy'])
+    model.compile(loss=hyperparameters['loss'], optimizer=hyperparameters['optimizer'], metrics=['accuracy'])
 
 
 def show_summary_model(model):
     model.summary()
 
 
-def train_neural_network(model, data, batch_size, n_epoch):
+def train_neural_network(model, data, hyperparameters):
     x_train = data['train']['x']
     y_train = data['train']['y']
     x_validation = data['validation']['x']
@@ -194,8 +199,8 @@ def train_neural_network(model, data, batch_size, n_epoch):
 
     neural_network_trained = model.fit([x_train['left'], x_train['right']],
                                        y_train,
-                                       batch_size=batch_size,
-                                       epochs=n_epoch,
+                                       batch_size=hyperparameters['batch_size'],
+                                       epochs=hyperparameters['n_epochs'],
                                        validation_data=([x_validation['left'], x_validation['right']],
                                                         y_validation)
                                        )
@@ -254,7 +259,7 @@ def report_size_data(training_dataframe, training_size, validation_size):
           .format(len(training_dataframe), training_size, validation_size))
 
 
-def save_model_variables_file(filename, variables):
+def save_model_variables_file(filename, hyperparameters):
     content = """
         max_seq_length={max_seq_length}
         embedding_dim={embedding_dim}
@@ -266,15 +271,15 @@ def save_model_variables_file(filename, variables):
         similarity_measure_type={similarity_measure_type}
         percent_validation={percent_validation}
     """.format(
-        max_seq_length=variables["max_seq_length"],
-        embedding_dim=variables["embedding_dim"],
-        gpus=variables["gpus"],
-        batch_size=variables["batch_size"],
-        n_epochs=variables["n_epochs"],
-        n_hidden=variables["n_hidden"],
-        neural_network_type=variables["neural_network_type"],
-        similarity_measure_type=variables["similarity_measure_type"],
-        percent_validation=variables["percent_validation"]
+        max_seq_length=hyperparameters["max_seq_length"],
+        embedding_dim=hyperparameters["embedding_dim"],
+        gpus=hyperparameters["gpus"],
+        batch_size=hyperparameters["batch_size"],
+        n_epochs=hyperparameters["n_epochs"],
+        n_hidden=hyperparameters["n_hidden"],
+        neural_network_type=hyperparameters["neural_network_type"].name,
+        similarity_measure_type=hyperparameters["similarity_measure_type"].name,
+        percent_validation=hyperparameters["percent_validation"]
     )
 
     content = content.replace(' ', '')
@@ -287,7 +292,7 @@ def save_model_variables_file(filename, variables):
         print(err)
 
 
-def get_model_variables(filename):
+def get_hyperparameters(filename):
     try:
         f = open(filename, 'r')
         content = f.read()

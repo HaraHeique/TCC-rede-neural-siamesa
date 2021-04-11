@@ -6,6 +6,7 @@
 """
 
 import os
+import src.user_interface.cli_output as uo
 from src.enums.Stage import Stage
 from src.enums.SimilarityMeasureType import SimilarityMeasureType
 from src.enums.NeuralNetworkType import NeuralNetworkType
@@ -90,6 +91,19 @@ def insert_max_seq_length():
 
         if __try_parse_int_positive(max_seq_length) and int(max_seq_length) > 0:
             return int(max_seq_length)
+
+
+def insert_hyperparameters_variables(hyperparameters):
+    hyperparameters['neural_network_type'] = insert_neural_network_type()
+    uo.break_lines(1)
+    hyperparameters['similarity_measure_type'] = insert_similarity_measure_type()
+    uo.break_lines(1)
+    hyperparameters['percent_validation'] = insert_percent_validation()
+    uo.break_lines(1)
+    hyperparameters['n_epochs'] = insert_number_epochs()
+    uo.break_lines(1)
+    hyperparameters['max_seq_length'] = insert_max_seq_length()
+    uo.break_lines(1)
 
 
 def __try_parse_int_positive(str_int):

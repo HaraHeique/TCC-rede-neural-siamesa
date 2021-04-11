@@ -8,7 +8,6 @@ import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import src.core.helper as helper
-from src.models.ManhattanDistance import ManhattanDistance
 
 
 def load_prediction_dataframe(filename):

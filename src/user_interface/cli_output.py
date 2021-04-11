@@ -7,8 +7,8 @@
 import os
 
 
-def show_training_finished_message(n_epoch, training_start_time, training_end_time):
-    print("Training time finished.\n%d epochs in %12.2f sec" % (n_epoch, training_end_time - training_start_time))
+def show_training_finished_message(n_epochs, training_start_time, training_end_time):
+    print("Training time finished.\n%d epochs in %12.2f sec" % (n_epochs, training_end_time - training_start_time))
 
 
 def show_leaving_message():
