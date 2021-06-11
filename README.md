@@ -57,17 +57,24 @@ TCC-rede-neural-siamesa
        |_ *arquivos de documentação*
     |_ src
        |_ core
+          |_ data_structuring.py
           |_ helper.py
-          |_ prediction.py 
+          |_ prediction.py
+          |_ similarity_measure.py
           |_ training.py
        |_ data
           |_ prediction
-             |_ *arquivos de entrada de predição*
+             |_ *arquivos CSV de predição*
           |_ training
-             |_ *arquivos de entrada de treinamento*
+             |_ *arquivos CSV de treinamento*
+          |_ works
+             *obras literárias em texto bruto para treinamento e predição*
           |_ GoogleNews-vectors-negative300.bin.gz
           |_ *arquivos de modelos da rede neural*.h5
+          |_ training_variables.txt
        |_ enums
+          |_ NeuralNetworkType.py
+          |_ SimilarityMeasureType.py
           |_ Stage.py
        |_ models
           |_ ManhattanDistance.py
@@ -79,6 +86,7 @@ TCC-rede-neural-siamesa
     |_ main.py
     |_ README.md
     |_ dependencies.sh
+    |_ requirements.txt
 ```
 
 #### Descrição geral dos arquivosCampus
@@ -87,8 +95,9 @@ Descrição geral dos principais arquivos contidos nesta aplicação:
 Arquivo|Path|Descrição
 ---|---|---
 **ManhattanDistance.py**|src/models/ManhattanDistance.py|Classe que representa a medida/função de similaridade da distância de Manhattan. São necessárias pois servem para realizar o processo de merge da saída das subredes siamesas.
-**Stage.py**|src/enums/Stage.py|É a classe enumerada em que seus valores determina qual dos estágios o usuário deseja executar da rede no processo de interação com a interface. Os valores são: NONE(0), TRAINING(1) e PREDICTION(2), os quais suas nomenclaturas são auto-explicativas.
-**helper.py**|src/core/helper.py|É o módulo responsável por conter funções auxiliares para os módulos principais da aplicação: *prediction.py* e *traning.py*.
+**Stage.py**|src/enums/Stage.py|É a classe enumerada em que seus valores determinam qual dos estágios o usuário deseja executar da rede no processo de interação com a interface. Os valores são: NONE(0), TRAINING(1) e PREDICTION(2), os quais suas nomenclaturas são auto-explicativas.
+**helper.py**|src/core/helper.py|É o módulo responsável por conter variáveis e funções auxiliares para os módulos principais da aplicação: *data_structuring.py*, *prediction.py* e *training.py*.
+**data_structuring.py**|src/core/data_structuring.py|É o módulo que contém um conjunto de funções responsáveis por ler os dados brutos das obras literárias, aplicar o pré-processamento de filtragem e normalização e preparar os datasets de treinamento e predição da rede.
 **training.py**|src/core/prediction.py|É o módulo que contém funções para realização de todo o processo de treinamento da rede neural, ou seja, pré-processamento dos dados, criação da matrix incorporada, normalização/preparação dos dados, criação do modelo com suas camadas (criação da rede neural siamesa com uma arquitetura e medida de similaridade previamente escolhidas), execução do treinamento e seus resultados.
 **prediction.py**|src/core/training.py|Este módulo contém funções para realização do processo de predição dado um conjunto de dados de entrada na rede previamente treinada, determinando assim o indíce de similiridade existente entre pares de entredas distintos.
 **cli_input.py**|src/user_interface/cli_input.py|É um módulo que interage com o usuário fazendo o papel de receber, tratar e validar as entradas de informações requeridas pelo usuário.
