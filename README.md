@@ -39,14 +39,14 @@ trabalho que são valores de 0 a 1, em que quanto mais próximo de 1 maior é a 
 mais distante são eles, implicando que tendem a serem assimilares.  
 
 <p align="center">
-    <img src="https://github.com/HaraHeique/TCC-rede-neural-siamesa/blob/master/docs/images/arquitetura_rede_padrao_siamesa.png?raw=true" alt="arquitetura-RNS" title="Arquitetura Rede Neural Siamesa"/>
+    <img src="./docs/images/arquitetura_rede_padrao_siamesa.png" alt="arquitetura-RNS" title="Arquitetura Rede Neural Siamesa"/>
 </p>
 
-Já na figura abaixo demonstra o fluxo de funcionamento principal da Rede Neural Siamesa utilizada neste trabalho de conclusão. 
-Note que ela contém diversas etapas, onde na primeira é realizada a **obtenção dos dados**, que neste caso são os textos literários de autores da literatura inglesa. 
-Logo depois é realizado a **estruturação dos dados**, os quais são selecionadas frases das obras literárias e transformados em colunas em arquivos do formato *CSV*. 
-Após isto é realizado o **pré-processamento dos dados**, retirando palavras indesejadas (sem influência) e criação dos vetores de indíces de cada frase lida do arquivo *CSV*. 
-Dado isto na etapa seguinte é realizado o processo de **normalização/preparação dos dados** de entrada da rede neural, onde são basicamente criados e separados os dados de *treinamento* e *validação* para o lado esquerdo e direito da rede. Já na quinta etapa é realizada a entrada dos dados e seu **processamento** nas camadas escondidas (hidden) do modelo de uma rede neural *LSTM (Long Short Term Memory)* ou *CNN (Convolutional Neural Network)*, ambas previamente criadas e modeladas, sendo esta uma etapa fundamental no treinamento e predição. Na sexta etapa é realizada **chamada da medida/função de similaridade**, o qual pode ser a medida de *Manhattan*, *Cosseno* ou *Euclidiana*, nas saídas da rede neural, sendo ela responsável pelo processo de merge das duas subredes utilizadas. Por fim na etapa de **resultado** é apresentado um valor entre 0 e 1 (intervalo fechado) que determina o índice de similaridade entre os diferentes pares.
+Já na figura abaixo demonstra o fluxo de funcionamento principal da Rede Neural Siamesa utilizada neste trabalho de conclusão, onde na primeira etapa é basicamente realizada a captura dos dados, que neste caso são os textos literários de autores renomados da literatura inglesa. Em sequência são selecionadas sentenças de textos das obras que passam por um pré-processamento, realizando assim filtragem e normalização dos dados. Cada uma das frases selecionadas são armazenadas e transformadas em linhas em arquivos do formato _comma-separated values (CSV)_ no processo de estruturação dos dados.
+
+Na próxima etapa é realizada o processo de normalização e preparação dos dados de entrada lidas de cada frase dos arquivos CSV, com a criação dos vetores de índices, dos _embeddings_ das palavras, definição de hiperparâmetros da rede e separação dos dados de treinamento e validação das sub-redes, que são alimentadas na próxima etapa por pares de entradas. Após isto a rede realiza o processamento dos dados nas camadas escondidas, aprendendo as _features_ dos estilos de escritas dos autores selecionados, sendo considerada uma etapa fundamental tanto no processo de treinamento quanto no de predição. Ambos os modelos utilizados das subredes são idênticos, podendo ser ambas CNNs ou LSTMs, as quais são previamente configuradas e modeladas.
+
+Por fim, as saídas de ambas subredes, que são representações vetoriais das entradas, são submetidas por uma medida de similaridade, que é uma função matemática responsável por realizar o processo de _merge_ entre as duas subredes utilizadas. O resultado de saída da função determina o quão próximo são as saídas por meio de um valor numérico entre 0 e 1 (intervalo fechado) chamado índice de similaridade, onde quanto mais próximo de 1 maior a semelhança entre os diferentes pares de entrada, caso contrário maior a tendência de serem assimilares. As medidas de similaridade aplicadas para análise da rede siamesa no trabalho em questão são: distância de Manhattan, distância Euclidiana e similaridade por Cosseno.
 
 <p align="center">
     <img src="./docs/images/etapas-processo-RNS.png" alt="processo-RNS" title="Fluxo de funcionamento principal da Rede Neural Siamesa"/>
@@ -100,7 +100,7 @@ Arquivo|Path|Descrição
 ---|---|---
 **ManhattanDistance.py**|src/models/ManhattanDistance.py|Classe que representa a medida/função de similaridade da distância de Manhattan. São necessárias pois servem para realizar o processo de merge da saída das subredes siamesas.
 **Stage.py**|src/enums/Stage.py|É a classe enumerada em que seus valores determinam qual dos estágios o usuário deseja executar da rede no processo de interação com a interface. Os valores são: NONE(0), TRAINING(1) e PREDICTION(2), os quais suas nomenclaturas são auto-explicativas.
-**NeuralNetworkType.py**|src/enums/NeuralNetworkType.py|É a classe enumerada em que seus valores determinam quais serão os tipos das subredes siamesas ao criar os modelos artificiais internos.
+**NeuralNetworkType.py**|src/enums/NeuralNetworkType.py|É a classe enumerada em que seus valores determinam quais serão os tipos das subredes siamesas ao criar os modelos artificiais internos, o qual no trabalho pode ser: CNN ou LSTM.
 **SimilarityMeasureType.py**|src/enums/SimilarityMeasureType.py|É a classe enumerada em que seus valores determinam qual será a medida de similaridade utilizada saída da rede neural.
 **helper.py**|src/core/helper.py|É o módulo responsável por conter variáveis e funções auxiliares para os módulos principais da aplicação: *data_structuring.py*, *prediction.py* e *training.py*.
 **data_structuring.py**|src/core/data_structuring.py|É o módulo que contém um conjunto de funções responsáveis por ler os dados brutos das obras literárias, aplicar o pré-processamento de filtragem e normalização e preparar os datasets de treinamento e predição da rede.
