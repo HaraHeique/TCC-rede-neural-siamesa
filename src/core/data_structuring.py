@@ -23,15 +23,34 @@ def extract_works_sentence_data(dic_works, n_sentences_per_author):
     sent_tokenizer = __get_sent_tokenizer()
 
     for author, paths_works in dic_works.items():
-        for path in paths_works:
-            raw_data = __read_data(path)
+        n_sentences_per_work = math.ceil(n_sentences_per_author / len(paths_works))
+        works_greater_n_sentences_per_work = []
+
+        for work in paths_works:
+            raw_data = __read_data(work)
             sent_tokens = sent_tokenizer.tokenize(raw_data)
             filtered_tokens = __filter_sentence_tokens(sent_tokens)
-            dic_data[author] = dic_data[author] + filtered_tokens if author in dic_data else [] + filtered_tokens
 
-            if len(dic_data[author]) >= n_sentences_per_author:
-                dic_data[author] = dic_data[author][0:n_sentences_per_author]
-                break
+            if author in dic_data:
+                dic_data[author] = dic_data[author] + filtered_tokens[0:n_sentences_per_work]
+            else:
+                dic_data[author] = [] + filtered_tokens[0:n_sentences_per_work]
+
+            if len(filtered_tokens) > n_sentences_per_work:
+                works_greater_n_sentences_per_work.append(work)
+
+        if len(dic_data[author]) > n_sentences_per_author:
+            dic_works[author] = dic_works[author][0:n_sentences_per_author]
+        elif len(dic_data[author]) < n_sentences_per_author:
+            for work in works_greater_n_sentences_per_work:
+                raw_data = __read_data(work)
+                sent_tokens = sent_tokenizer.tokenize(raw_data)
+                filtered_tokens = __filter_sentence_tokens(sent_tokens)
+                dic_data[author] = dic_data[author] + filtered_tokens[n_sentences_per_work:]
+
+                if len(dic_data[author]) >= n_sentences_per_author:
+                    dic_data[author] = dic_data[author][0:n_sentences_per_author]
+                    break
 
     # __export_length_sentences(sum(dic_data.values(), []), 100)
 
@@ -153,7 +172,7 @@ def dic_works_by_authors(path_authors):
 
 def __read_data(filename):
     try:
-        with open(filename, mode='r') as f:
+        with open(filename, encoding="utf8", mode='r') as f:
             raw_data = f.read()
     except FileNotFoundError as err:
         print(err)
