@@ -23,6 +23,7 @@ def extract_works_sentence_data(dic_works, n_sentences_per_author):
     sent_tokenizer = __get_sent_tokenizer()
 
     for author, paths_works in dic_works.items():
+        paths_works.sort()
         n_sentences_per_work = math.ceil(n_sentences_per_author / len(paths_works))
         works_greater_n_sentences_per_work = []
 
@@ -244,11 +245,11 @@ def __filter_sentence_tokens(sent_tokens):
         # tokens = [stemmer.stem(w) for w in tokens]
 
         # Lemmatization of words
-        tokens = [lemmatizer.lemmatize(w, __get_wordnet_pos(w)) for w in tokens]
+        tokens_lemmatized = [lemmatizer.lemmatize(w, __get_wordnet_pos(w)) for w in tokens]
 
         # Remove punctuation from each word
         table = str.maketrans('', '', string.punctuation)
-        stripped = [w.translate(table) for w in tokens]
+        stripped = [w.translate(table) for w in tokens_lemmatized]
 
         # Remove remaining tokens that are not alphabetic
         word_list = [word for word in stripped if word.isalpha()]
