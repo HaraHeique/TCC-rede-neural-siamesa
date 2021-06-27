@@ -36,6 +36,7 @@ def __execute_data_structuring():
     # ----- TRAINING data structuring -----
 
     authors_dir_training = "./data/works/training"
+    quantity_sentences_filename = "quantity-sentences-by-works-{}"
 
     # User input variables
     n_sentences_training = ui.insert_number_sentences("Enter the number of sentences of each author to structure data TRAINING: ")
@@ -44,10 +45,10 @@ def __execute_data_structuring():
     # Extract the data from dataset
     authors = structuring.list_dir_authors(authors_dir_training)
     dic_works = structuring.dic_works_by_authors(authors)
-    dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_training)
+    dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_training, quantity_sentences_filename.format("training"))
 
     # Save TRAINING csv file with the extracted data
-    structuring.save_training_sentences_as_csv(dic_data_works, n_sentences_training)
+    structuring.save_training_sentences_as_csv(dic_data_works, n_sentences_training, 4)
 
     # Plot histogram from training dataset
     print("Plotting and saving sentences histogram...")
@@ -67,10 +68,10 @@ def __execute_data_structuring():
     # Extract the data from dataset
     authors = structuring.list_dir_authors(authors_dir_prediction)
     dic_works = structuring.dic_works_by_authors(authors)
-    dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_prediction)
+    dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_prediction, quantity_sentences_filename.format("prediction"))
 
     # Save PREDICTION csv file with the extracted data
-    structuring.save_prediction_sentences_as_csv(dic_data_works, n_sentences_prediction)
+    structuring.save_prediction_sentences_as_csv(dic_data_works, n_sentences_prediction, 4)
 
 
 def __execute_training():
