@@ -36,7 +36,7 @@ def __execute_data_structuring():
     # ----- TRAINING data structuring -----
 
     authors_dir_training = "./data/works/training"
-    quantity_sentences_filename = "quantity-sentences-by-works-{}"
+    quantity_sentences_filename = "quantity-sentences-by-works-{}.csv"
 
     # User input variables
     n_sentences_training = ui.insert_number_sentences("Enter the number of sentences of each author to structure data TRAINING: ")

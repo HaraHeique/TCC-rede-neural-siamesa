@@ -253,7 +253,7 @@ def __filter_sentence_tokens(sent_tokens):
             continue
 
         # Split into words
-        tokens = tokenize.word_tokenize(sentence)
+        tokens = tokenize.word_tokenize(sentence.strip())
 
         # Convert to lower case
         tokens = [w.lower() for w in tokens]
@@ -291,7 +291,7 @@ def __valid_sentence_token(sent_token):
     if '\n' in sent_token:
         return False
 
-    if len(sent_token.strip()) <= 0 or len(sent_token.split()) > 150:
+    if len(sent_token.split()) <= 1 or len(sent_token.split()) > 150:
         return False
 
     return True
