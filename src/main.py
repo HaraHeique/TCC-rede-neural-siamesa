@@ -6,6 +6,7 @@ import src.core.helper as helper
 import src.core.data_structuring as structuring
 import src.core.training as training
 import src.core.prediction as prediction
+from src.enums.DatasetType import DatasetType
 from src.enums.Stage import Stage
 
 
@@ -34,48 +35,49 @@ def _execute_stage(stage):
 
 
 def __execute_data_structuring():
-    # ----- TRAINING data structuring -----
-
-    authors_dir_training = "./data/works/training"
     quantity_sentences_filename = "quantity-sentences-by-works-{}.csv"
-
-    # User input variables
-    dataset_type = ui.insert_dataset_type()
-    uo.break_lines(1)
-    n_sentences_training = ui.insert_number_sentences("Enter the number of sentences of each author to structure data TRAINING: ")
-    uo.break_lines(1)
-    print("Structuring and saving TRAINING csv file...")
-
-    # Extract the data from dataset
-    authors = structuring.list_dir_authors(authors_dir_training)
-    dic_works = structuring.dic_works_by_authors(authors)
-    dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_training, dataset_type, quantity_sentences_filename.format("training"))
-
-    # Save TRAINING csv file with the extracted data
-    structuring.save_training_sentences_as_csv(dic_data_works, dataset_type, n_sentences_training, 4)
-
-    # Plot histogram from training dataset
-    print("Plotting and saving sentences histogram...")
-    dataset_training_name = os.path.join(helper.DATA_FILES_TRAINING_PATH, helper.get_dataset_type_filename(dataset_type, "training-sentences-{dataset_type}.csv"))
-    training_dataframe = training.load_training_dataframe(dataset_training_name)
-    training_dataframe = training_dataframe[:int((n_sentences_training * len(authors)) / 2)]
-    structuring.plot_hist_length_dataframe(training_dataframe, dataset_type)
-
-    # ----- PREDICTION data structuring -----
-
+    authors_dir_training = "./data/works/training"
     authors_dir_prediction = "./data/works/prediction"
 
     # User input variables
+    # dataset_type = ui.insert_dataset_type()
+    # uo.break_lines(1)
+    n_sentences_training = ui.insert_number_sentences("Enter the number of sentences of each author to structure data TRAINING: ")
+    uo.break_lines(1)
     n_sentences_prediction = ui.insert_number_sentences("Enter the number of sentences of each author to structure data PREDICTION: ")
-    print("Structuring and saving PREDICTION csv file...")
+    uo.break_lines(1)
 
-    # Extract the data from dataset
-    authors = structuring.list_dir_authors(authors_dir_prediction)
-    dic_works = structuring.dic_works_by_authors(authors)
-    dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_prediction, dataset_type, quantity_sentences_filename.format("prediction"))
+    for dataset_type in list(DatasetType):
+        # ----- TRAINING data structuring -----
+        base_filename_training = "training-sentences-{dataset_type}.csv"
+        print("Structuring and saving TRAINING {} file...".format(helper.get_dataset_type_filename(dataset_type, base_filename_training)))
 
-    # Save PREDICTION csv file with the extracted data
-    structuring.save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_prediction, 4)
+        # Extract the data from dataset
+        authors = structuring.list_dir_authors(authors_dir_training)
+        dic_works = structuring.dic_works_by_authors(authors)
+        dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_training, dataset_type, quantity_sentences_filename.format("training"))
+
+        # Save TRAINING csv file with the extracted data
+        structuring.save_training_sentences_as_csv(dic_data_works, dataset_type, n_sentences_training, 4)
+
+        # Plot histogram from training dataset
+        print("Plotting and saving sentences histogram...")
+        dataset_training_name = os.path.join(helper.DATA_FILES_TRAINING_PATH, helper.get_dataset_type_filename(dataset_type, base_filename_training))
+        training_dataframe = training.load_training_dataframe(dataset_training_name)
+        training_dataframe = training_dataframe[:int((n_sentences_training * len(authors)) / 2)]
+        structuring.plot_hist_length_dataframe(training_dataframe, dataset_type)
+
+        # ----- PREDICTION data structuring -----
+        base_filename_prediction = "prediction-sentences-{dataset_type}.csv"
+        print("Structuring and saving PREDICTION {} file...".format(helper.get_dataset_type_filename(dataset_type, base_filename_prediction)))
+
+        # Extract the data from dataset
+        authors = structuring.list_dir_authors(authors_dir_prediction)
+        dic_works = structuring.dic_works_by_authors(authors)
+        dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_prediction, dataset_type, quantity_sentences_filename.format("prediction"))
+
+        # Save PREDICTION csv file with the extracted data
+        structuring.save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_prediction, 4)
 
 
 def __execute_training():
