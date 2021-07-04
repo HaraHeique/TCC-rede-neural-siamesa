@@ -10,6 +10,7 @@ import src.user_interface.cli_output as uo
 from src.enums.Stage import Stage
 from src.enums.SimilarityMeasureType import SimilarityMeasureType
 from src.enums.NeuralNetworkType import NeuralNetworkType
+from src.enums.DatasetType import DatasetType
 
 _DATA_FILES_PATH = os.path.dirname(os.path.abspath("src")) + "/data"
 _DATA_FILES_TRAINING_PATH = _DATA_FILES_PATH + "/training"
@@ -54,6 +55,16 @@ def insert_similarity_measure_type():
 
         if __try_parse_int_positive(similarity_type) and __is_similarity_type_valid(int(similarity_type)):
             return SimilarityMeasureType(int(similarity_type))
+
+
+def insert_dataset_type():
+    input_message = "Choose the Dataset version:\n 1 - Raw (contain stopwords and no lemmatization)\n 2 - Without stopwords and no lemmatization\n 3 - Without stopwords and with lemmatization\n"
+
+    while True:
+        dataset_type = input(input_message)
+
+        if __try_parse_int_positive(dataset_type) and __is_dataset_type_valid(int(dataset_type)):
+            return DatasetType(int(dataset_type))
 
 
 def insert_percent_validation():
@@ -159,4 +170,12 @@ def __is_similarity_type_valid(similarity_type):
         return True
 
     print("Similarity Measure is invalid. Try again.")
+    return False
+
+
+def __is_dataset_type_valid(dataset_type):
+    if 1 <= dataset_type <= 3:
+        return True
+
+    print("Dataset version is invalid. Try again.")
     return False
