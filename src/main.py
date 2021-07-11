@@ -1,10 +1,12 @@
 import time
+import os
 import src.user_interface.cli_input as ui
 import src.user_interface.cli_output as uo
 import src.core.helper as helper
 import src.core.data_structuring as structuring
 import src.core.training as training
 import src.core.prediction as prediction
+from src.enums.DatasetType import DatasetType
 from src.enums.Stage import Stage
 
 
@@ -33,51 +35,56 @@ def _execute_stage(stage):
 
 
 def __execute_data_structuring():
-    # ----- TRAINING data structuring -----
-
+    quantity_sentences_filename = "quantity-sentences-by-works-{}.csv"
     authors_dir_training = "./data/works/training"
-
-    # User input variables
-    n_sentences_training = ui.insert_number_sentences("Enter the number of sentences of each author to structure data TRAINING: ")
-    print("Structuring and saving TRAINING csv file...")
-
-    # Extract the data from dataset
-    authors = structuring.list_dir_authors(authors_dir_training)
-    dic_works = structuring.dic_works_by_authors(authors)
-    dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_training)
-
-    # Save TRAINING csv file with the extracted data
-    structuring.save_training_sentences_as_csv(dic_data_works, n_sentences_training)
-
-    # Plot histogram from training dataset
-    print("Plotting and saving sentences histogram...")
-    distribution_save_filename = "./results/sentences-distribution.png"
-    training_dataframe = training.load_training_dataframe("./data/training/training-sentences.csv")
-    training_dataframe = training_dataframe[:int((n_sentences_training * len(authors)) / 2)]
-    helper.plot_hist_length_dataframe(training_dataframe, distribution_save_filename)
-
-    # ----- PREDICTION data structuring -----
-
     authors_dir_prediction = "./data/works/prediction"
 
     # User input variables
+    # dataset_type = ui.insert_dataset_type()
+    # uo.break_lines(1)
+    n_sentences_training = ui.insert_number_sentences("Enter the number of sentences of each author to structure data TRAINING: ")
+    uo.break_lines(1)
     n_sentences_prediction = ui.insert_number_sentences("Enter the number of sentences of each author to structure data PREDICTION: ")
-    print("Structuring and saving PREDICTION csv file...")
+    uo.break_lines(1)
 
-    # Extract the data from dataset
-    authors = structuring.list_dir_authors(authors_dir_prediction)
-    dic_works = structuring.dic_works_by_authors(authors)
-    dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_prediction)
+    for dataset_type in list(DatasetType):
+        # ----- TRAINING data structuring -----
+        base_filename_training = "training-sentences-{dataset_type}.csv"
+        print("Structuring and saving TRAINING {} file...".format(helper.get_dataset_type_filename(dataset_type, base_filename_training)))
 
-    # Save PREDICTION csv file with the extracted data
-    structuring.save_prediction_sentences_as_csv(dic_data_works, n_sentences_prediction)
+        # Extract the data from dataset
+        authors = structuring.list_dir_authors(authors_dir_training)
+        dic_works = structuring.dic_works_by_authors(authors)
+        dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_training, dataset_type, quantity_sentences_filename.format("training"))
+
+        # Save TRAINING csv file with the extracted data
+        structuring.save_training_sentences_as_csv(dic_data_works, dataset_type, n_sentences_training, 4)
+
+        # Plot histogram from training dataset
+        print("Plotting and saving sentences histogram...")
+        dataset_training_name = os.path.join(helper.DATA_FILES_TRAINING_PATH, helper.get_dataset_type_filename(dataset_type, base_filename_training))
+        training_dataframe = training.load_training_dataframe(dataset_training_name)
+        training_dataframe = training_dataframe[:int((n_sentences_training * len(authors)) / 2)]
+        structuring.plot_hist_length_dataframe(training_dataframe, dataset_type)
+
+        # ----- PREDICTION data structuring -----
+        base_filename_prediction = "prediction-sentences-{dataset_type}.csv"
+        print("Structuring and saving PREDICTION {} file...".format(helper.get_dataset_type_filename(dataset_type, base_filename_prediction)))
+
+        # Extract the data from dataset
+        authors = structuring.list_dir_authors(authors_dir_prediction)
+        dic_works = structuring.dic_works_by_authors(authors)
+        dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_prediction, dataset_type, quantity_sentences_filename.format("prediction"))
+
+        # Save PREDICTION csv file with the extracted data
+        structuring.save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_prediction, 4)
 
 
 def __execute_training():
     # Filename results
+    base_filename_training = "training-sentences-{dataset_type}.csv"
     hyperparameters_filename = "./data/training_variables.txt"
     model_save_filename = "./data/SiameseLSTM.h5"
-    graph_save_filename = "./results/history-graph-{network_type}-{similarity_type}-{percent_training}-{percent_validation}-{epochs}-{max_seq_length}.png"
 
     # Model variables (hyperparameters)
     gpus = 1
@@ -100,15 +107,20 @@ def __execute_training():
     }
 
     # User input variables
-    filename = ui.insert_training_filename()
+    # filename = ui.insert_training_filename()
+    dataset_type = ui.insert_dataset_type()
+    training_filename = helper.get_dataset_type_path_filename(dataset_type, base_filename_training)
+    uo.break_lines(1)
+    word_embedding_type = ui.insert_word_embedding()
+    word_embedding_file = helper.get_word_embedding_path_filename(word_embedding_type)
     uo.break_lines(1)
     ui.insert_hyperparameters_variables(hyperparameters)
 
     # Data loading
-    training_dataframe = training.load_training_dataframe(filename)
+    training_dataframe = training.load_training_dataframe(training_filename)
 
     # Data pre-processing and creating embedding matrix
-    embedding_matrix = training.make_word2vec_embeddings(training_dataframe, hyperparameters['embedding_dim'])
+    training_dataframe, embedding_matrix = training.make_word_embeddings(word_embedding_file, training_dataframe, hyperparameters['embedding_dim'])
 
     # Data preparation and normalization
     validation_size = training.get_validation_size(training_dataframe, hyperparameters['percent_validation'])
@@ -138,7 +150,8 @@ def __execute_training():
     # Results
     training.set_plot_accuracy(model_trained)
     training.set_plot_loss(model_trained)
-    graph_save_filename = graph_save_filename.format(
+    graph_save_filename = (helper.get_results_path_directory_by_dataset(dataset_type) + "/history-graph-{word_embedding}-{network_type}-{similarity_type}-{percent_training}-{percent_validation}-{epochs}-{max_seq_length}.png").format(
+        word_embedding=word_embedding_type.name,
         network_type=hyperparameters['neural_network_type'].name,
         similarity_type=hyperparameters['similarity_measure_type'].name,
         percent_training=int(training.get_percent_training_size(training_dataframe, training_size)),
@@ -158,23 +171,28 @@ def __execute_training():
 
 def __execute_prediction():
     # Saved model trained
+    base_filename_prediction = "prediction-sentences-{dataset_type}.csv"
     hyperparameters_filename = "./data/training_variables.txt"
     model_saved_filename = "./data/SiameseLSTM.h5"
-    table_title = "Índices de Similaridade ({network_type} - {similarity_type})"
-    table_filename = "./results/similarity-values-{network_type}-{similarity_type}.png"
+    table_title = "Índices de Similaridade ({network_type} - {similarity_type} - {word_embedding_type})"
 
     # Model variables
     hyperparameters = training.get_hyperparameters(hyperparameters_filename)
 
     # User input variables
-    filename = ui.insert_prediction_filename()
+    # filename = ui.insert_prediction_filename()
+    dataset_type = ui.insert_dataset_type()
+    prediction_filename = helper.get_dataset_type_path_filename(dataset_type, base_filename_prediction, training_process=False)
+    uo.break_lines(1)
+    word_embedding_type = ui.insert_word_embedding()
+    word_embedding_file = helper.get_word_embedding_path_filename(word_embedding_type)
     uo.break_lines(1)
 
     # Data loading
-    prediction_dataframe = prediction.load_prediction_dataframe(filename)
+    prediction_dataframe = prediction.load_prediction_dataframe(prediction_filename)
 
     # Data pre-processing and creating embedding matrix
-    embeddings_matrix = prediction.make_word2vec_embeddings(prediction_dataframe, hyperparameters["embedding_dim"])
+    prediction_dataframe, embeddings_matrix = prediction.make_word_embeddings(word_embedding_file, prediction_dataframe, hyperparameters["embedding_dim"])
 
     # Data preparation
     test_normalized_dataframe = prediction.define_prediction_dataframe(prediction_dataframe, hyperparameters["max_seq_length"])
@@ -187,16 +205,20 @@ def __execute_prediction():
     prediction_result = prediction.predict_neural_network(test_model, test_normalized_dataframe)
 
     # Results
+    table_filename = helper.get_results_path_directory_by_dataset(dataset_type) + "/similarity-values-{network_type}-{similarity_type}-{word_embedding_type}.png"
+
     prediction.save_prediction_result(
         prediction_result,
-        100,
+        50,
         table_title.format(
             network_type=hyperparameters["neural_network_type"],
-            similarity_type=hyperparameters["similarity_measure_type"]
+            similarity_type=hyperparameters["similarity_measure_type"],
+            word_embedding_type=word_embedding_type.name
         ),
         table_filename.format(
             network_type=hyperparameters["neural_network_type"],
-            similarity_type=hyperparameters["similarity_measure_type"]
+            similarity_type=hyperparameters["similarity_measure_type"],
+            word_embedding_type=word_embedding_type.name
         )
     )
 

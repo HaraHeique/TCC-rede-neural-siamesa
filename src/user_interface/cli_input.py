@@ -10,6 +10,8 @@ import src.user_interface.cli_output as uo
 from src.enums.Stage import Stage
 from src.enums.SimilarityMeasureType import SimilarityMeasureType
 from src.enums.NeuralNetworkType import NeuralNetworkType
+from src.enums.DatasetType import DatasetType
+from src.enums.WordEmbeddingType import WordEmbeddingType
 
 _DATA_FILES_PATH = os.path.dirname(os.path.abspath("src")) + "/data"
 _DATA_FILES_TRAINING_PATH = _DATA_FILES_PATH + "/training"
@@ -40,6 +42,14 @@ def insert_prediction_filename():
             return os.path.join(_DATA_FILES_PREDICTION_PATH, filename)
 
 
+def insert_word_embedding():
+    while True:
+        word_embedding_choosen = input("Choose the Word Embedding to represent words:\n 1 - Word2vec English Wikipedia\n 2 - Word2vec Google News\n 3 - Glove Wikipedia + Gigaword 5\n 4 - Glove Common Crawl uncased\n")
+
+        if __try_parse_int_positive(word_embedding_choosen) and __is_word_embedding_type_valid(int(word_embedding_choosen)):
+            return WordEmbeddingType(int(word_embedding_choosen))
+
+
 def insert_neural_network_type():
     while True:
         network_type = input("Choose the Neural Network Type:\n 1 - LSTM\n 2 - CNN\n")
@@ -54,6 +64,16 @@ def insert_similarity_measure_type():
 
         if __try_parse_int_positive(similarity_type) and __is_similarity_type_valid(int(similarity_type)):
             return SimilarityMeasureType(int(similarity_type))
+
+
+def insert_dataset_type():
+    input_message = "Choose the Dataset version:\n 1 - Raw (contain stopwords and no lemmatization)\n 2 - Without stopwords and no lemmatization\n 3 - Without stopwords and with lemmatization\n"
+
+    while True:
+        dataset_type = input(input_message)
+
+        if __try_parse_int_positive(dataset_type) and __is_dataset_type_valid(int(dataset_type)):
+            return DatasetType(int(dataset_type))
 
 
 def insert_percent_validation():
@@ -159,4 +179,20 @@ def __is_similarity_type_valid(similarity_type):
         return True
 
     print("Similarity Measure is invalid. Try again.")
+    return False
+
+
+def __is_dataset_type_valid(dataset_type):
+    if 1 <= dataset_type <= 3:
+        return True
+
+    print("Dataset version is invalid. Try again.")
+    return False
+
+
+def __is_word_embedding_type_valid(word_embedding):
+    if 1 <= word_embedding <= 4:
+        return True
+
+    print("Word embedding version is invalid. Try again.")
     return False
