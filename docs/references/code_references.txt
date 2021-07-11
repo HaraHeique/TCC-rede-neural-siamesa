@@ -1,3 +1,7 @@
+Word embeddings:
+http://vectors.nlpl.eu/explore/embeddings/en/models/
+https://github.com/mmihaltz/word2vec-GoogleNews-vectors
+
 Deep LSTM siamese network for text similarity:
 https://github.com/dhwajraj/deep-siamese-text-similarity
 

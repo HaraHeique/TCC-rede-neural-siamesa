@@ -82,9 +82,9 @@ def __execute_data_structuring():
 
 def __execute_training():
     # Filename results
+    base_filename_training = "training-sentences-{dataset_type}.csv"
     hyperparameters_filename = "./data/training_variables.txt"
     model_save_filename = "./data/SiameseLSTM.h5"
-    graph_save_filename = "./results/history-graph-{network_type}-{similarity_type}-{percent_training}-{percent_validation}-{epochs}-{max_seq_length}.png"
 
     # Model variables (hyperparameters)
     gpus = 1
@@ -107,15 +107,20 @@ def __execute_training():
     }
 
     # User input variables
-    filename = ui.insert_training_filename()
+    # filename = ui.insert_training_filename()
+    dataset_type = ui.insert_dataset_type()
+    training_filename = helper.get_dataset_type_path_filename(dataset_type, base_filename_training)
+    uo.break_lines(1)
+    word_embedding_type = ui.insert_word_embedding()
+    word_embedding_file = helper.get_word_embedding_path_filename(word_embedding_type)
     uo.break_lines(1)
     ui.insert_hyperparameters_variables(hyperparameters)
 
     # Data loading
-    training_dataframe = training.load_training_dataframe(filename)
+    training_dataframe = training.load_training_dataframe(training_filename)
 
     # Data pre-processing and creating embedding matrix
-    embedding_matrix = training.make_word2vec_embeddings(training_dataframe, hyperparameters['embedding_dim'])
+    training_dataframe, embedding_matrix = training.make_word_embeddings(word_embedding_file, training_dataframe, hyperparameters['embedding_dim'])
 
     # Data preparation and normalization
     validation_size = training.get_validation_size(training_dataframe, hyperparameters['percent_validation'])
@@ -145,7 +150,8 @@ def __execute_training():
     # Results
     training.set_plot_accuracy(model_trained)
     training.set_plot_loss(model_trained)
-    graph_save_filename = graph_save_filename.format(
+    graph_save_filename = (helper.get_results_path_directory_by_dataset(dataset_type) + "/history-graph-{word_embedding}-{network_type}-{similarity_type}-{percent_training}-{percent_validation}-{epochs}-{max_seq_length}.png").format(
+        word_embedding=word_embedding_type.name,
         network_type=hyperparameters['neural_network_type'].name,
         similarity_type=hyperparameters['similarity_measure_type'].name,
         percent_training=int(training.get_percent_training_size(training_dataframe, training_size)),
@@ -165,23 +171,28 @@ def __execute_training():
 
 def __execute_prediction():
     # Saved model trained
+    base_filename_prediction = "prediction-sentences-{dataset_type}.csv"
     hyperparameters_filename = "./data/training_variables.txt"
     model_saved_filename = "./data/SiameseLSTM.h5"
-    table_title = "Índices de Similaridade ({network_type} - {similarity_type})"
-    table_filename = "./results/similarity-values-{network_type}-{similarity_type}.png"
+    table_title = "Índices de Similaridade ({network_type} - {similarity_type} - {word_embedding_type})"
 
     # Model variables
     hyperparameters = training.get_hyperparameters(hyperparameters_filename)
 
     # User input variables
-    filename = ui.insert_prediction_filename()
+    # filename = ui.insert_prediction_filename()
+    dataset_type = ui.insert_dataset_type()
+    prediction_filename = helper.get_dataset_type_path_filename(dataset_type, base_filename_prediction, training_process=False)
+    uo.break_lines(1)
+    word_embedding_type = ui.insert_word_embedding()
+    word_embedding_file = helper.get_word_embedding_path_filename(word_embedding_type)
     uo.break_lines(1)
 
     # Data loading
-    prediction_dataframe = prediction.load_prediction_dataframe(filename)
+    prediction_dataframe = prediction.load_prediction_dataframe(prediction_filename)
 
     # Data pre-processing and creating embedding matrix
-    embeddings_matrix = prediction.make_word2vec_embeddings(prediction_dataframe, hyperparameters["embedding_dim"])
+    prediction_dataframe, embeddings_matrix = prediction.make_word_embeddings(word_embedding_file, prediction_dataframe, hyperparameters["embedding_dim"])
 
     # Data preparation
     test_normalized_dataframe = prediction.define_prediction_dataframe(prediction_dataframe, hyperparameters["max_seq_length"])
@@ -194,16 +205,20 @@ def __execute_prediction():
     prediction_result = prediction.predict_neural_network(test_model, test_normalized_dataframe)
 
     # Results
+    table_filename = helper.get_results_path_directory_by_dataset(dataset_type) + "/similarity-values-{network_type}-{similarity_type}-{word_embedding_type}.png"
+
     prediction.save_prediction_result(
         prediction_result,
-        100,
+        50,
         table_title.format(
             network_type=hyperparameters["neural_network_type"],
-            similarity_type=hyperparameters["similarity_measure_type"]
+            similarity_type=hyperparameters["similarity_measure_type"],
+            word_embedding_type=word_embedding_type.name
         ),
         table_filename.format(
             network_type=hyperparameters["neural_network_type"],
-            similarity_type=hyperparameters["similarity_measure_type"]
+            similarity_type=hyperparameters["similarity_measure_type"],
+            word_embedding_type=word_embedding_type.name
         )
     )
 

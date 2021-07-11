@@ -11,6 +11,7 @@ from src.enums.Stage import Stage
 from src.enums.SimilarityMeasureType import SimilarityMeasureType
 from src.enums.NeuralNetworkType import NeuralNetworkType
 from src.enums.DatasetType import DatasetType
+from src.enums.WordEmbeddingType import WordEmbeddingType
 
 _DATA_FILES_PATH = os.path.dirname(os.path.abspath("src")) + "/data"
 _DATA_FILES_TRAINING_PATH = _DATA_FILES_PATH + "/training"
@@ -39,6 +40,14 @@ def insert_prediction_filename():
 
         if __check_file_existence(_DATA_FILES_PREDICTION_PATH, filename):
             return os.path.join(_DATA_FILES_PREDICTION_PATH, filename)
+
+
+def insert_word_embedding():
+    while True:
+        word_embedding_choosen = input("Choose the Word Embedding to represent words:\n 1 - Word2vec English Wikipedia\n 2 - Word2vec Google News\n 3 - Glove Wikipedia + Gigaword 5\n 4 - Glove Common Crawl uncased\n")
+
+        if __try_parse_int_positive(word_embedding_choosen) and __is_word_embedding_type_valid(int(word_embedding_choosen)):
+            return WordEmbeddingType(int(word_embedding_choosen))
 
 
 def insert_neural_network_type():
@@ -178,4 +187,12 @@ def __is_dataset_type_valid(dataset_type):
         return True
 
     print("Dataset version is invalid. Try again.")
+    return False
+
+
+def __is_word_embedding_type_valid(word_embedding):
+    if 1 <= word_embedding <= 4:
+        return True
+
+    print("Word embedding version is invalid. Try again.")
     return False

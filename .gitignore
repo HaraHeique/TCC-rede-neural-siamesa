@@ -132,4 +132,6 @@ dmypy.json
 
 # Removing compact files
 src/data/*.bin.gz
+src/data/*.zip
 src/data/*.h5
+src/data/word_embeddings

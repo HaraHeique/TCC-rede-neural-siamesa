@@ -1,10 +1,10 @@
 
-max_seq_length=10
+max_seq_length=9
 embedding_dim=300
 gpus=1
 batch_size=128
-n_epochs=20
+n_epochs=50
 n_hidden=50
-neural_network_type=CNN
+neural_network_type=LSTM
 similarity_measure_type=MANHATTAN
 percent_validation=30.0
