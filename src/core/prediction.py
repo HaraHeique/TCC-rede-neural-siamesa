@@ -19,14 +19,6 @@ def load_prediction_dataframe(filename):
     return prediction_dataframe
 
 
-def make_word_embeddings(word_embedding_filename, prediction_dataframe, embedding_dim=300, empty_w2v=False):
-    prediction_dataframe, embeddings = helper.make_word_embeddings(word_embedding_filename,
-                                                                   prediction_dataframe,
-                                                                   embedding_dim=embedding_dim,
-                                                                   empty_w2v=empty_w2v)
-    return prediction_dataframe, embeddings
-
-
 def find_max_seq_length(train_dataframe):
     return helper.find_max_seq_length(train_dataframe)
 

@@ -7,6 +7,7 @@ import src.core.data_structuring as structuring
 import src.core.training as training
 import src.core.prediction as prediction
 from src.enums.DatasetType import DatasetType
+from src.enums.WordEmbeddingType import WordEmbeddingType
 from src.enums.Stage import Stage
 
 
@@ -40,8 +41,6 @@ def __execute_data_structuring():
     authors_dir_prediction = "./data/works/prediction"
 
     # User input variables
-    # dataset_type = ui.insert_dataset_type()
-    # uo.break_lines(1)
     n_sentences_training = ui.insert_number_sentences("Enter the number of sentences of each author to structure data TRAINING: ")
     uo.break_lines(1)
     n_sentences_prediction = ui.insert_number_sentences("Enter the number of sentences of each author to structure data PREDICTION: ")
@@ -49,8 +48,8 @@ def __execute_data_structuring():
 
     for dataset_type in list(DatasetType):
         # ----- TRAINING data structuring -----
-        base_filename_training = "training-sentences-{dataset_type}.csv"
-        print("Structuring and saving TRAINING {} file...".format(helper.get_dataset_type_filename(dataset_type, base_filename_training)))
+        filename_training = helper.get_dataset_type_filename(dataset_type, "training-sentences-{dataset_type}.csv")
+        print("Structuring and saving TRAINING {} file...".format(filename_training))
 
         # Extract the data from dataset
         authors = structuring.list_dir_authors(authors_dir_training)
@@ -58,18 +57,18 @@ def __execute_data_structuring():
         dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_training, dataset_type, quantity_sentences_filename.format("training"))
 
         # Save TRAINING csv file with the extracted data
-        structuring.save_training_sentences_as_csv(dic_data_works, dataset_type, n_sentences_training, 4)
+        df_training = structuring.save_training_sentences_as_csv(dic_data_works, dataset_type, n_sentences_training, 4)
 
         # Plot histogram from training dataset
         print("Plotting and saving sentences histogram...")
-        dataset_training_name = os.path.join(helper.DATA_FILES_TRAINING_PATH, helper.get_dataset_type_filename(dataset_type, base_filename_training))
+        dataset_training_name = os.path.join(helper.DATA_FILES_TRAINING_PATH, filename_training)
         training_dataframe = training.load_training_dataframe(dataset_training_name)
         training_dataframe = training_dataframe[:int((n_sentences_training * len(authors)) / 2)]
         structuring.plot_hist_length_dataframe(training_dataframe, dataset_type)
 
         # ----- PREDICTION data structuring -----
-        base_filename_prediction = "prediction-sentences-{dataset_type}.csv"
-        print("Structuring and saving PREDICTION {} file...".format(helper.get_dataset_type_filename(dataset_type, base_filename_prediction)))
+        filename_prediction = helper.get_dataset_type_filename(dataset_type, "prediction-sentences-{dataset_type}.csv")
+        print("Structuring and saving PREDICTION {} file...".format(filename_training))
 
         # Extract the data from dataset
         authors = structuring.list_dir_authors(authors_dir_prediction)
@@ -77,12 +76,31 @@ def __execute_data_structuring():
         dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_prediction, dataset_type, quantity_sentences_filename.format("prediction"))
 
         # Save PREDICTION csv file with the extracted data
-        structuring.save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_prediction, 4)
+        df_prediction = structuring.save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_prediction, 4)
+
+        for word_embedding_type in list(WordEmbeddingType):
+            # Create index vectors and embeddings matrix
+            word_embedding = helper.load_word_embedding(word_embedding_type)
+
+            index_vector_message = "Creating and saving index vector of {} file for {} word embedding..."
+
+            print(index_vector_message.format(filename_training, word_embedding_type.name))
+            index_vector_training, vocabs_training = helper.create_index_vector(df_training, word_embedding)
+            helper.save_index_vector(index_vector_training, dataset_type, word_embedding_type, training_process=True)
+
+            print(index_vector_message.format(filename_prediction, word_embedding_type.name))
+            index_vector_prediction, _ = helper.create_index_vector(df_prediction, word_embedding)
+            helper.save_index_vector(index_vector_prediction, dataset_type, word_embedding_type, training_process=False)
+
+            print("Creating and saving embedding matrix file for {} word embedding...".format(word_embedding_type.name))
+            embedding_matrix = helper.create_embedding_matrix(word_embedding, vocabs_training, embedding_dim=300)
+            helper.save_embedding_matrix(embedding_matrix, dataset_type, word_embedding_type)
+
+            helper.delete_word_embedding(word_embedding)
 
 
 def __execute_training():
     # Filename results
-    base_filename_training = "training-sentences-{dataset_type}.csv"
     hyperparameters_filename = "./data/training_variables.txt"
     model_save_filename = "./data/SiameseLSTM.h5"
 
@@ -107,20 +125,18 @@ def __execute_training():
     }
 
     # User input variables
-    # filename = ui.insert_training_filename()
     dataset_type = ui.insert_dataset_type()
-    training_filename = helper.get_dataset_type_path_filename(dataset_type, base_filename_training)
     uo.break_lines(1)
     word_embedding_type = ui.insert_word_embedding()
-    word_embedding_file = helper.get_word_embedding_path_filename(word_embedding_type)
     uo.break_lines(1)
     ui.insert_hyperparameters_variables(hyperparameters)
 
-    # Data loading
-    training_dataframe = training.load_training_dataframe(training_filename)
+    # Loading index vector and embedding matrix
+    index_vector_filename = helper.get_index_vector_filename(dataset_type, word_embedding_type, training_process=True)
+    embedding_matrix_filename = helper.get_embedding_matrix_filename(dataset_type, word_embedding_type)
 
-    # Data pre-processing and creating embedding matrix
-    training_dataframe, embedding_matrix = training.make_word_embeddings(word_embedding_file, training_dataframe, hyperparameters['embedding_dim'])
+    training_dataframe = helper.load_index_vector_dataframe(index_vector_filename)
+    embedding_matrix = helper.load_embedding_matrix(embedding_matrix_filename)
 
     # Data preparation and normalization
     validation_size = training.get_validation_size(training_dataframe, hyperparameters['percent_validation'])
@@ -171,7 +187,6 @@ def __execute_training():
 
 def __execute_prediction():
     # Saved model trained
-    base_filename_prediction = "prediction-sentences-{dataset_type}.csv"
     hyperparameters_filename = "./data/training_variables.txt"
     model_saved_filename = "./data/SiameseLSTM.h5"
     table_title = "Índices de Similaridade ({network_type} - {similarity_type} - {word_embedding_type})"
@@ -180,19 +195,14 @@ def __execute_prediction():
     hyperparameters = training.get_hyperparameters(hyperparameters_filename)
 
     # User input variables
-    # filename = ui.insert_prediction_filename()
     dataset_type = ui.insert_dataset_type()
-    prediction_filename = helper.get_dataset_type_path_filename(dataset_type, base_filename_prediction, training_process=False)
     uo.break_lines(1)
     word_embedding_type = ui.insert_word_embedding()
-    word_embedding_file = helper.get_word_embedding_path_filename(word_embedding_type)
     uo.break_lines(1)
 
-    # Data loading
-    prediction_dataframe = prediction.load_prediction_dataframe(prediction_filename)
-
-    # Data pre-processing and creating embedding matrix
-    prediction_dataframe, embeddings_matrix = prediction.make_word_embeddings(word_embedding_file, prediction_dataframe, hyperparameters["embedding_dim"])
+    # Loading index vector and embedding matrix
+    index_vector_filename = helper.get_index_vector_filename(dataset_type, word_embedding_type, training_process=False)
+    prediction_dataframe = helper.load_index_vector_dataframe(index_vector_filename)
 
     # Data preparation
     test_normalized_dataframe = prediction.define_prediction_dataframe(prediction_dataframe, hyperparameters["max_seq_length"])

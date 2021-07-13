@@ -8,6 +8,7 @@ import itertools
 import re
 import os
 import numpy as np
+import pandas as pd
 from gensim.models import KeyedVectors
 from gensim.scripts.glove2word2vec import glove2word2vec
 from tensorflow.python.keras.preprocessing.sequence import pad_sequences
@@ -19,6 +20,8 @@ DATA_FILES_PATH = SOURCE_PATH + "/data"
 DATA_FILES_WORD_EMBEDDINGS_PATH = DATA_FILES_PATH + "/word_embeddings"
 DATA_FILES_TRAINING_PATH = DATA_FILES_PATH + "/training"
 DATA_FILES_PREDICTION_PATH = DATA_FILES_PATH + "/prediction"
+DATA_FILES_INDEX_VECTORS_PATH = DATA_FILES_PATH + "/processed/index_vectors"
+DATA_FILES_EMBEDDING_MATRICES_PATH = DATA_FILES_PATH + "/processed/embedding_matrices"
 DATA_FILES_RESULTS_PATH = SOURCE_PATH + "/results"
 
 
@@ -62,18 +65,36 @@ def get_word_embedding_path_filename(word_embedding_type):
     return os.path.join(DATA_FILES_WORD_EMBEDDINGS_PATH, word_embedding_files[word_embedding_type])
 
 
-def make_word_embeddings(word_embedding_filename, dataframe, embedding_dim=300, empty_w2v=False):
+def get_index_vector_filename(dataset_type, word_embedding_type, training_process=True):
+    base_filename = "{}-{}-{}.csv"
+    dic_dataset_type = __get_dic_abbreviation_dataset_type()
+    dic_word_embedding_type = __get_dic_abbreviation_word_embedding_type()
+    process_name = "training" if training_process else "prediction"
+    filename = base_filename.format(process_name, dic_dataset_type[dataset_type], dic_word_embedding_type[word_embedding_type])
+
+    return os.path.join(DATA_FILES_INDEX_VECTORS_PATH, filename)
+
+
+def get_embedding_matrix_filename(dataset_type, word_embedding_type):
+    base_filename = "{}-{}.npy"
+    dic_abbr_word_embedding_type = __get_dic_abbreviation_word_embedding_type()
+    dic_abbr_dataset_type = __get_dic_abbreviation_dataset_type()
+    filename = base_filename.format(
+        dic_abbr_dataset_type[dataset_type],
+        dic_abbr_word_embedding_type[word_embedding_type]
+    )
+
+    return os.path.join(DATA_FILES_EMBEDDING_MATRICES_PATH, filename)
+
+
+def create_index_vector(df_raw, word_embedding):
     vocabs = {}
     vocabs_cnt = 0
 
     vocabs_not_w2v = {}
     vocabs_not_w2v_cnt = 0
 
-    print("Loading word embedding model (It may take a while)...")
-    word2vec = __load_word_embedding(word_embedding_filename, empty_w2v)
-    print("word embedding loaded")
-
-    for index, row in dataframe.iterrows():
+    for index, row in df_raw.iterrows():
         # Print the number of embedded sentences.
         if index != 0 and index % 1000 == 0:
             print("{:,} sentences embedded.".format(index), flush=True)
@@ -86,7 +107,7 @@ def make_word_embeddings(word_embedding_filename, dataframe, embedding_dim=300, 
 
             for word in __text_to_word_list(row[phrase]):
                 # If a word is missing from word2vec model.
-                if word not in word2vec.vocab:
+                if word not in word_embedding.vocab:
                     if word not in vocabs_not_w2v:
                         vocabs_not_w2v_cnt += 1
                         vocabs_not_w2v[word] = 1
@@ -100,8 +121,25 @@ def make_word_embeddings(word_embedding_filename, dataframe, embedding_dim=300, 
                     q2n.append(vocabs[word])
 
             # Append phrase as number representation
-            dataframe.at[index, phrase + '_n'] = q2n
+            df_raw.at[index, phrase] = q2n
 
+    return df_raw, vocabs
+
+
+def load_index_vector_dataframe(filename):
+    dataframe = pd.read_csv(filename)
+
+    for q in ['phrase1', 'phrase2']:
+        dataframe[q + '_n'] = dataframe[q].apply(lambda x: [int(i) for i in x.replace('[', '').replace(']', '').split(',')])
+
+    return dataframe
+
+
+def load_embedding_matrix(filename):
+    return np.load(filename)
+
+
+def create_embedding_matrix(word_embedding, vocabs, embedding_dim=300):
     # This will be the embedding matrix
     embeddings = 1 * np.random.randn(len(vocabs) + 1, embedding_dim)
 
@@ -110,12 +148,36 @@ def make_word_embeddings(word_embedding_filename, dataframe, embedding_dim=300, 
 
     # Build the embedding matrix
     for word, index in vocabs.items():
-        if word in word2vec.vocab:
-            embeddings[index] = word2vec.word_vec(word)
+        if word in word_embedding.vocab:
+            embeddings[index] = word_embedding.word_vec(word)
 
-    del word2vec
+    # del word_embedding
 
-    return dataframe, embeddings
+    return embeddings
+
+
+def load_word_embedding(word_embedding_type, empty_w2v=False):
+    word_embedding_file = get_word_embedding_path_filename(word_embedding_type)
+
+    print("Loading {} word embedding model (It may take a while)...".format(word_embedding_file))
+    word2vec = __load_word_embedding(word_embedding_file, empty_w2v)
+    print("word embedding loaded")
+
+    return word2vec
+
+
+def delete_word_embedding(word_embedding):
+    del word_embedding
+
+
+def save_embedding_matrix(embedding_matrix, dataset_type, word_embedding_type):
+    filename = get_embedding_matrix_filename(dataset_type, word_embedding_type)
+    np.save(filename, embedding_matrix)
+
+
+def save_index_vector(df_index_vector, dataset_type, word_embedding_type, training_process=True):
+    filename = get_index_vector_filename(dataset_type, word_embedding_type, training_process)
+    df_index_vector.to_csv(filename, index=False, header=True)
 
 
 def split_and_zero_padding(dataframe, max_seq_length):
@@ -139,6 +201,23 @@ def find_max_seq_length(dataframe):
         max_seq_length = (max_value if max_value > max_seq_length else max_seq_length)
 
     return int(max_seq_length)
+
+
+def __get_dic_abbreviation_dataset_type():
+    return {
+        DatasetType.RAW: "raw",
+        DatasetType.WITHOUT_SW: "sw",
+        DatasetType.WITHOUT_SW_WITH_LEMMA: "sw-lemmatization"
+    }
+
+
+def __get_dic_abbreviation_word_embedding_type():
+    return {
+        WordEmbeddingType.WORD2VEC_WIKIPEDIA: "w2v_WIKI",
+        WordEmbeddingType.WORD2VEC_GOOGLE_NEWS: "w2v_GN",
+        WordEmbeddingType.GLOVE_WIKIPEDIA_GIGAWORD: "glove_WIKI_GIGA",
+        WordEmbeddingType.GLOVE_COMMON_CRAWL_UNCASED: "glove_CC"
+    }
 
 
 def __text_to_word_list(text):
