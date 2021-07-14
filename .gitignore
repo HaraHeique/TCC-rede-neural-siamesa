@@ -134,4 +134,8 @@ dmypy.json
 src/data/*.bin.gz
 src/data/*.zip
 src/data/*.h5
-src/data/word_embeddings
+src/data/word_embeddings/*.bin
+src/data/word_embeddings/*.bin.gz
+src/data/word_embeddings/*.txt
+src/data/processed/embedding_matrices/*.npy
+src/data/processed/index_vectors/*.csv

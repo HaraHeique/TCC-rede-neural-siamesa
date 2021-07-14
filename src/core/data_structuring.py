@@ -121,6 +121,8 @@ def save_training_sentences_as_csv(dic_data_works, dataset_type, n_sentences_per
     dataframe = pd.DataFrame(dic_dataframe, columns=columns)
     dataframe.to_csv(os.path.join(helper.DATA_FILES_TRAINING_PATH, csv_filename), index=False, header=True)
 
+    return dataframe
+
 
 def save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_per_author, n_partitions):
     if not bool(dic_data_works):
@@ -134,7 +136,7 @@ def save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_p
     # Phrases of the same authors
     for author, sentences in dic_data_works.items():
         length_sentences = n_sentences_per_partition * 2
-        random.shuffle(sentences)
+        # random.shuffle(sentences)
 
         for i in range(0, length_sentences, 2):
             dic_dataframe['phrase1'].append(sentences.pop(0))
@@ -158,6 +160,8 @@ def save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_p
     # Export to csv file
     dataframe = pd.DataFrame(dic_dataframe, columns=columns)
     dataframe.to_csv(os.path.join(helper.DATA_FILES_PREDICTION_PATH, csv_filename), index=False, header=True)
+
+    return dataframe
 
 
 def plot_hist_length_dataframe(dataframe, dataset_type):

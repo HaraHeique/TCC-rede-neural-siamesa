@@ -31,16 +31,6 @@ def load_training_dataframe(filename):
     return train_dataframe
 
 
-def make_word_embeddings(word_embedding_filename, train_dataframe, embedding_dim=300, empty_w2v=False):
-    train_df, embeddings = helper.make_word_embeddings(word_embedding_filename,
-                                                       train_dataframe,
-                                                       embedding_dim=embedding_dim,
-                                                       empty_w2v=empty_w2v)
-    train_dataframe = train_df
-
-    return train_dataframe, embeddings
-
-
 def find_max_seq_length(train_dataframe):
     return helper.find_max_seq_length(train_dataframe)
 
