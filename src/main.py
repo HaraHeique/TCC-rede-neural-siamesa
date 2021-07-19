@@ -1,13 +1,18 @@
 import time
 import os
+import tensorflow as tf
+import tensorflow_addons as tfa
 import src.user_interface.cli_input as ui
 import src.user_interface.cli_output as uo
 import src.core.helper as helper
 import src.core.data_structuring as structuring
 import src.core.training as training
 import src.core.prediction as prediction
+from datetime import datetime
 from src.enums.DatasetType import DatasetType
 from src.enums.WordEmbeddingType import WordEmbeddingType
+from src.enums.NeuralNetworkType import  NeuralNetworkType
+from src.enums.SimilarityMeasureType import SimilarityMeasureType
 from src.enums.Stage import Stage
 
 
@@ -107,21 +112,41 @@ def __execute_training():
     # Model variables (hyperparameters)
     gpus = 1
 
+    # hyperparameters = {
+    #     'embedding_dim': 300,
+    #     'gpus': gpus,
+    #     'batch_size': 128 * gpus,
+    #     'n_epochs': 50,
+    #     'n_hidden': 50,
+    #     'conv1d_filters': 250,
+    #     'kernel_size': 5,
+    #     'dense_units_relu': 250,
+    #     'dense_units_sigmoid': 1,
+    #     'activation_relu': "relu",
+    #     'activation_sigmoid': "sigmoid",
+    #     'dropout_rate': 0.3,
+    #     'loss': "mean_squared_error",
+    #     'optimizer': "adam"
+    # }
+
     hyperparameters = {
         'embedding_dim': 300,
-        'gpus': gpus,
-        'batch_size': 128 * gpus,
-        'n_epochs': 50,
-        'n_hidden': 50,
-        'conv1d_filters': 250,
-        'kernel_size': 5,
-        'dense_units_relu': 250,
-        'dense_units_sigmoid': 1,
-        'activation_relu': "relu",
-        'activation_sigmoid': "sigmoid",
-        'dropout_rate': 0.3,
-        'loss': "mean_squared_error",
-        'optimizer': "adam"
+        'max_seq_length': 30,
+        'batch_size': 16 * gpus,
+        'n_epochs': 20,
+        'n_hidden': 256,
+        'neural_network_type': NeuralNetworkType.LSTM,
+        'similarity_measure_type': SimilarityMeasureType.MANHATTAN,
+        'kernel_initializer': tf.keras.initializers.VarianceScaling(scale=1.0, mode='fan_in', distribution='truncated_normal', seed=1),
+        'activation': "softsign",
+        'recurrent_activation': "sigmoid",
+        'dropout': 0.15,
+        'recurrent_dropout': 0.47,
+        'activation_layer': "selu",
+        'activation_dense_layer': "sigmoid",
+        'loss': tf.keras.losses.MeanSquaredError(),
+        'optimizer': tf.keras.optimizers.RMSprop(learning_rate=0.1),
+        'gpus': gpus
     }
 
     # User input variables
@@ -157,16 +182,17 @@ def __execute_training():
 
     # Training the neural network based on model
     training_start_time = time.time()
-    model_trained = training.train_neural_network(model, normalized_dataframe, hyperparameters)
+    training_history = training.train_neural_network(model, normalized_dataframe, hyperparameters)
     training_end_time = time.time()
     uo.show_training_finished_message(hyperparameters['n_epochs'], training_start_time, training_end_time)
 
     training.save_model(model, model_save_filename)
 
     # Results
-    training.set_plot_accuracy(model_trained)
-    training.set_plot_loss(model_trained)
-    graph_save_filename = (helper.get_results_path_directory_by_dataset(dataset_type) + "/history-graph-{word_embedding}-{network_type}-{similarity_type}-{percent_training}-{percent_validation}-{epochs}-{max_seq_length}.png").format(
+    training.set_plot_accuracy(training_history)
+    training.set_plot_loss(training_history)
+    graph_save_filename = (helper.get_results_path_directory_by_dataset(dataset_type) + "/history-graph-{date_now}-{word_embedding}-{network_type}-{similarity_type}-{percent_training}-{percent_validation}-{epochs}-{max_seq_length}.png").format(
+        date_now=datetime.now().strftime("%d_%m_%Y-%H_%M_%S"),
         word_embedding=word_embedding_type.name,
         network_type=hyperparameters['neural_network_type'].name,
         similarity_type=hyperparameters['similarity_measure_type'].name,
@@ -178,7 +204,7 @@ def __execute_training():
     training.save_plot_graph(graph_save_filename)
     training.clear_plot_graph()
     # training.show_plot_graph()
-    training.report_max_accuracy(model_trained)
+    training.report_max_accuracy(training_history)
     # training.report_size_data(training_dataframe, training_size, validation_size)
 
     # Save config file
