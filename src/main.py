@@ -112,49 +112,53 @@ def __execute_training():
     # Model variables (hyperparameters)
     gpus = 1
 
-    # hyperparameters = {
-    #     'embedding_dim': 300,
-    #     'gpus': gpus,
-    #     'batch_size': 128 * gpus,
-    #     'n_epochs': 50,
-    #     'n_hidden': 50,
-    #     'conv1d_filters': 250,
-    #     'kernel_size': 5,
-    #     'dense_units_relu': 250,
-    #     'dense_units_sigmoid': 1,
-    #     'activation_relu': "relu",
-    #     'activation_sigmoid': "sigmoid",
-    #     'dropout_rate': 0.3,
-    #     'loss': "mean_squared_error",
-    #     'optimizer': "adam"
-    # }
-
-    hyperparameters = {
-        'embedding_dim': 300,
-        'max_seq_length': 30,
-        'batch_size': 16 * gpus,
-        'n_epochs': 20,
-        'n_hidden': 256,
-        'neural_network_type': NeuralNetworkType.LSTM,
-        'similarity_measure_type': SimilarityMeasureType.MANHATTAN,
-        'kernel_initializer': tf.keras.initializers.VarianceScaling(scale=1.0, mode='fan_in', distribution='truncated_normal', seed=1),
-        'activation': "softsign",
-        'recurrent_activation': "sigmoid",
-        'dropout': 0.15,
-        'recurrent_dropout': 0.47,
-        'activation_layer': "selu",
-        'activation_dense_layer': "sigmoid",
-        'loss': tf.keras.losses.MeanSquaredError(),
-        'optimizer': tf.keras.optimizers.RMSprop(learning_rate=0.1),
-        'gpus': gpus
-    }
-
     # User input variables
     dataset_type = ui.insert_dataset_type()
     uo.break_lines(1)
     word_embedding_type = ui.insert_word_embedding()
     uo.break_lines(1)
-    ui.insert_hyperparameters_variables(hyperparameters)
+    hyperparameters = ui.insert_hyperparameters_variables()
+
+    # merge hyperparameters dicts based on neural network architecture
+    if (hyperparameters['neural_network_type']) == NeuralNetworkType.LSTM:
+        hyperparameters_lstm = {
+            'embedding_dim': 300,
+            'max_seq_length': 30,
+            'batch_size': 128 * gpus,
+            'n_epochs': 10,
+            'n_hidden': 256,
+            'kernel_initializer': tf.keras.initializers.glorot_normal(seed=1),
+            'activation': "softsign",
+            'recurrent_activation': "sigmoid",
+            'dropout': 0.9,
+            'recurrent_dropout': 0.03,
+            'activation_layer': "elu",
+            'activation_dense_layer': "sigmoid",
+            'loss': tf.keras.losses.MeanSquaredError(),
+            'optimizer': tf.keras.optimizers.SGD(learning_rate=0.1, momentum=0.0, nesterov=False, name='SGD'),
+            'gpus': gpus
+        }
+        hyperparameters_lstm.update(hyperparameters)
+        hyperparameters = hyperparameters_lstm
+    else:
+        hyperparameters_cnn = {
+            'embedding_dim': 300,
+            'gpus': gpus,
+            'batch_size': 128 * gpus,
+            'n_epochs': 20,
+            'n_hidden': 300,
+            'conv1d_filters': 250,
+            'kernel_size': 5,
+            'dense_units_relu': 250,
+            'dense_units_sigmoid': 1,
+            'activation_relu': "relu",
+            'activation_sigmoid': "sigmoid",
+            'dropout_rate': 0.3,
+            'loss': tfa.losses.ContrastiveLoss(),
+            'optimizer': tf.keras.optimizers.Adam(learning_rate=0.001)
+        }
+        hyperparameters_cnn.update(hyperparameters)
+        hyperparameters = hyperparameters_cnn
 
     # Loading index vector and embedding matrix
     index_vector_filename = helper.get_index_vector_filename(dataset_type, word_embedding_type, training_process=True)

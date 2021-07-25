@@ -5,6 +5,7 @@
 """
 
 import pandas as pd
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -15,7 +16,7 @@ import src.core.similarity_measure as similarity_measure
 from keras.layers.pooling import GlobalMaxPool1D
 from sklearn.model_selection import train_test_split
 from tensorflow.python.keras.models import Model, Sequential
-from tensorflow.python.keras.layers import Input, Embedding, LSTM, Lambda, Conv1D, Dense, Dropout, Activation
+from tensorflow.python.keras.layers import Input, Embedding, LSTM, Lambda, Conv1D, Dense, Dropout, Activation, MaxPooling1D, Flatten, Bidirectional
 from src.enums.SimilarityMeasureType import SimilarityMeasureType
 from src.enums.NeuralNetworkType import NeuralNetworkType
 
@@ -88,28 +89,36 @@ def define_shared_model(embeddings, hyperparameters):
                                input_shape=(hyperparameters['max_seq_length'],),
                                trainable=False))
 
+    np.random.seed(1)
+
     if hyperparameters['neural_network_type'] == NeuralNetworkType.CNN:
         # CNN - Convolutional Neural Network
-        shared_model.add(Conv1D(hyperparameters['conv1d_filters'], kernel_size=hyperparameters['kernel_size'], activation=hyperparameters['activation_relu']))
-        shared_model.add(GlobalMaxPool1D())
-        shared_model.add(Dense(hyperparameters['dense_units_relu'], activation=hyperparameters['activation_relu']))
-        shared_model.add(Dropout(hyperparameters['dropout_rate']))
-        shared_model.add(Dense(hyperparameters['dense_units_sigmoid'], activation=hyperparameters['activation_sigmoid']))
+        # shared_model.add(Conv1D(hyperparameters['conv1d_filters'], kernel_size=hyperparameters['kernel_size'], activation=hyperparameters['activation_relu']))
+        # shared_model.add(GlobalMaxPool1D())
+        # shared_model.add(Dense(hyperparameters['dense_units_relu'], activation=hyperparameters['activation_relu']))
+        # shared_model.add(Dropout(hyperparameters['dropout_rate']))
+        # shared_model.add(Dense(hyperparameters['dense_units_sigmoid'], activation=hyperparameters['activation_sigmoid']))
+        shared_model.add(Conv1D(filters=300, kernel_size=5, activation='elu', use_bias=True, kernel_initializer=tf.keras.initializers.VarianceScaling()))
+        shared_model.add(MaxPooling1D(pool_size=3))
+        shared_model.add(Flatten())
+        shared_model.add(Dense(300, activation='elu', kernel_initializer=tf.initializers.VarianceScaling(), bias_initializer=tf.initializers.VarianceScaling()))
+        shared_model.add(Dense(1, activation='sigmoid'))
+        shared_model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
     else:
         # LSTM - Long Short Term Memory
-        # shared_model.add(Dropout(hyperparameters['dropout']))
-        # shared_model.add(LSTM(
-        #     hyperparameters['n_hidden'],
-        #     kernel_initializer=hyperparameters['kernel_initializer'],
-        #     activation=hyperparameters['activation'],
-        #     recurrent_activation=hyperparameters['recurrent_activation'],
-        #     dropout=0.0,
-        #     recurrent_dropout=hyperparameters['recurrent_dropout'],
-        #     implementation=1
-        # ))
-        # shared_model.add(Activation(hyperparameters['activation_layer']))
-        # shared_model.add(Dense(1, activation=hyperparameters['activation_dense_layer']))
-        shared_model.add(LSTM(hyperparameters['n_hidden']))
+        shared_model.add(Dropout(hyperparameters['dropout']))
+        shared_model.add(Bidirectional(LSTM(
+            hyperparameters['n_hidden'],
+            kernel_initializer=hyperparameters['kernel_initializer'],
+            activation=hyperparameters['activation'],
+            recurrent_activation=hyperparameters['recurrent_activation'],
+            dropout=0.0,
+            recurrent_dropout=hyperparameters['recurrent_dropout'],
+            implementation=1
+        )))
+        shared_model.add(Activation(hyperparameters['activation_layer']))
+        shared_model.add(Dense(1, activation=hyperparameters['activation_dense_layer']))
+        # shared_model.add(LSTM(hyperparameters['n_hidden']))
 
     return shared_model
 
