@@ -113,7 +113,9 @@ def insert_max_seq_length():
             return int(max_seq_length)
 
 
-def insert_hyperparameters_variables(hyperparameters):
+def insert_hyperparameters_variables():
+    hyperparameters = {}
+
     hyperparameters['neural_network_type'] = insert_neural_network_type()
     uo.break_lines(1)
     hyperparameters['similarity_measure_type'] = insert_similarity_measure_type()
@@ -124,6 +126,8 @@ def insert_hyperparameters_variables(hyperparameters):
     uo.break_lines(1)
     hyperparameters['max_seq_length'] = insert_max_seq_length()
     uo.break_lines(1)
+
+    return hyperparameters
 
 
 def __try_parse_int_positive(str_int):

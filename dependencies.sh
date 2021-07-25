@@ -26,6 +26,9 @@ pip3 install matplotlib
 # scikit learn
 pip3 install scikit-learn
 
+# jupyter notebook
+pip install jupyter
+
 echo "\n"
 echo "The packages has been successfully installed:"
 pip3 list

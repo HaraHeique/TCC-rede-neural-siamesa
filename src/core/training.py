@@ -5,17 +5,18 @@
 """
 
 import pandas as pd
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow_addons as tfa
-from keras.layers.pooling import GlobalMaxPool1D
-
 import src.core.helper as helper
 import src.core.similarity_measure as similarity_measure
+
+from keras.layers.pooling import GlobalMaxPool1D
 from sklearn.model_selection import train_test_split
 from tensorflow.python.keras.models import Model, Sequential
-from tensorflow.python.keras.layers import Input, Embedding, LSTM, Lambda, Conv1D, Dense, Dropout
+from tensorflow.python.keras.layers import Input, Embedding, LSTM, Lambda, Conv1D, Dense, Dropout, Activation, MaxPooling1D, Flatten, Bidirectional
 from src.enums.SimilarityMeasureType import SimilarityMeasureType
 from src.enums.NeuralNetworkType import NeuralNetworkType
 
@@ -52,13 +53,13 @@ def get_percent_training_size(train_dataframe, training_size):
 
 
 def split_data_train(train_dataframe):
-    x_questions = train_dataframe[['phrase1_n', 'phrase2_n']]
+    x_phrases = train_dataframe[['phrase1_n', 'phrase2_n']]
 
     train_dataframe.label = pd.Categorical(train_dataframe.label)
     train_dataframe['label'] = train_dataframe.label.cat.codes
     y_labels = train_dataframe['label']
 
-    return {'phrases': x_questions, 'labels': y_labels}
+    return {'phrases': x_phrases, 'labels': y_labels}
 
 
 def define_train_and_validation_dataframe(x_phrases, y_labels, validation_size, max_seq_length):
@@ -88,16 +89,36 @@ def define_shared_model(embeddings, hyperparameters):
                                input_shape=(hyperparameters['max_seq_length'],),
                                trainable=False))
 
+    np.random.seed(1)
+
     if hyperparameters['neural_network_type'] == NeuralNetworkType.CNN:
         # CNN - Convolutional Neural Network
-        shared_model.add(Conv1D(hyperparameters['conv1d_filters'], kernel_size=hyperparameters['kernel_size'], activation=hyperparameters['activation_relu']))
-        shared_model.add(GlobalMaxPool1D())
-        shared_model.add(Dense(hyperparameters['dense_units_relu'], activation=hyperparameters['activation_relu']))
-        shared_model.add(Dropout(hyperparameters['dropout_rate']))
-        shared_model.add(Dense(hyperparameters['dense_units_sigmoid'], activation=hyperparameters['activation_sigmoid']))
+        # shared_model.add(Conv1D(hyperparameters['conv1d_filters'], kernel_size=hyperparameters['kernel_size'], activation=hyperparameters['activation_relu']))
+        # shared_model.add(GlobalMaxPool1D())
+        # shared_model.add(Dense(hyperparameters['dense_units_relu'], activation=hyperparameters['activation_relu']))
+        # shared_model.add(Dropout(hyperparameters['dropout_rate']))
+        # shared_model.add(Dense(hyperparameters['dense_units_sigmoid'], activation=hyperparameters['activation_sigmoid']))
+        shared_model.add(Conv1D(filters=300, kernel_size=5, activation='elu', use_bias=True, kernel_initializer=tf.keras.initializers.VarianceScaling()))
+        shared_model.add(MaxPooling1D(pool_size=3))
+        shared_model.add(Flatten())
+        shared_model.add(Dense(300, activation='elu', kernel_initializer=tf.initializers.VarianceScaling(), bias_initializer=tf.initializers.VarianceScaling()))
+        shared_model.add(Dense(1, activation='sigmoid'))
+        shared_model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
     else:
         # LSTM - Long Short Term Memory
-        shared_model.add(LSTM(hyperparameters['n_hidden']))
+        shared_model.add(Dropout(hyperparameters['dropout']))
+        shared_model.add(Bidirectional(LSTM(
+            hyperparameters['n_hidden'],
+            kernel_initializer=hyperparameters['kernel_initializer'],
+            activation=hyperparameters['activation'],
+            recurrent_activation=hyperparameters['recurrent_activation'],
+            dropout=0.0,
+            recurrent_dropout=hyperparameters['recurrent_dropout'],
+            implementation=1
+        )))
+        shared_model.add(Activation(hyperparameters['activation_layer']))
+        shared_model.add(Dense(1, activation=hyperparameters['activation_dense_layer']))
+        # shared_model.add(LSTM(hyperparameters['n_hidden']))
 
     return shared_model
 
@@ -149,9 +170,9 @@ def define_euclidean_model(shared_model, max_seq_length):
         similarity_measure.calculate_euclidean_distance,
         output_shape=similarity_measure.dist_output_shape
     )([shared_model(left_input), shared_model(right_input)])
-    cosine_model = Model(inputs=[left_input, right_input], outputs=[euclidean_distance])
+    euclidean_model = Model(inputs=[left_input, right_input], outputs=[euclidean_distance])
 
-    return cosine_model
+    return euclidean_model
 
 
 def define_jaccard_model(shared_model, max_seq_length):
@@ -177,6 +198,7 @@ def compile_model(model, hyperparameters):
     # model.compile(loss=tfa.losses.ContrastiveLoss(), optimizer=tf.keras.optimizers.RMSprop(), metrics=['accuracy'])
     # model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(), metrics=['accuracy'])
     # model.compile(loss='binary_crossentropy', optimizer='nadam', metrics=['accuracy'])
+    # model.compile(loss=tf.keras.losses.MeanSquaredError(), optimizer=hyperparameters['optimizer'], metrics=['accuracy'])
     model.compile(loss=hyperparameters['loss'], optimizer=hyperparameters['optimizer'], metrics=['accuracy'])
 
 
@@ -204,22 +226,22 @@ def save_model(model, filename):
     model.save(filename)
 
 
-def set_plot_accuracy(network_trained):
+def set_plot_accuracy(training_history):
     # Plot accuracy
     plt.subplot(211)
-    plt.plot(network_trained.history['accuracy'])
-    plt.plot(network_trained.history['val_accuracy'])
+    plt.plot(training_history.history['accuracy'])
+    plt.plot(training_history.history['val_accuracy'])
     plt.title('Model Accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
     plt.legend(['Training', 'Validation'], loc='upper left')
 
 
-def set_plot_loss(network_trained):
+def set_plot_loss(training_history):
     # Plot loss
     plt.subplot(212)
-    plt.plot(network_trained.history['loss'])
-    plt.plot(network_trained.history['val_loss'])
+    plt.plot(training_history.history['loss'])
+    plt.plot(training_history.history['val_loss'])
     plt.title('Model Loss')
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
