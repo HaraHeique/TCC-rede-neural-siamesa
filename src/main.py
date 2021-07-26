@@ -41,7 +41,6 @@ def _execute_stage(stage):
 
 
 def __execute_data_structuring():
-    quantity_sentences_filename = "quantity-sentences-by-works-{}.csv"
     authors_dir_training = "./data/works/training"
     authors_dir_prediction = "./data/works/prediction"
 
@@ -50,6 +49,8 @@ def __execute_data_structuring():
     uo.break_lines(1)
     n_sentences_prediction = ui.insert_number_sentences("Enter the number of sentences of each author to structure data PREDICTION: ")
     uo.break_lines(1)
+    number_authors = ui.insert_number_of_authors()
+    uo.break_lines(1)
 
     for dataset_type in list(DatasetType):
         # ----- TRAINING data structuring -----
@@ -57,12 +58,13 @@ def __execute_data_structuring():
         print("Structuring and saving TRAINING {} file...".format(filename_training))
 
         # Extract the data from dataset
-        authors = structuring.list_dir_authors(authors_dir_training)
+        authors = structuring.list_dir_authors(authors_dir_training, number_authors)
         dic_works = structuring.dic_works_by_authors(authors)
-        dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_training, dataset_type, quantity_sentences_filename.format("training"))
+        dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_training, dataset_type, True)
 
         # Save TRAINING csv file with the extracted data
-        df_training = structuring.save_training_sentences_as_csv(dic_data_works, dataset_type, n_sentences_training, 4)
+        structuring.validate_total_number_of_sentences(dic_data_works, n_sentences_training, number_authors, dataset_type, True)
+        df_training = structuring.save_training_sentences_as_csv(dic_data_works, dataset_type, n_sentences_training)
 
         # Plot histogram from training dataset
         print("Plotting and saving sentences histogram...")
@@ -76,12 +78,13 @@ def __execute_data_structuring():
         print("Structuring and saving PREDICTION {} file...".format(filename_training))
 
         # Extract the data from dataset
-        authors = structuring.list_dir_authors(authors_dir_prediction)
+        authors = structuring.list_dir_authors(authors_dir_prediction, number_authors)
         dic_works = structuring.dic_works_by_authors(authors)
-        dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_prediction, dataset_type, quantity_sentences_filename.format("prediction"))
+        dic_data_works = structuring.extract_works_sentence_data(dic_works, n_sentences_prediction, dataset_type, False)
 
         # Save PREDICTION csv file with the extracted data
-        df_prediction = structuring.save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_prediction, 4)
+        structuring.validate_total_number_of_sentences(dic_data_works, n_sentences_prediction, number_authors, dataset_type, False)
+        df_prediction = structuring.save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_prediction)
 
         for word_embedding_type in list(WordEmbeddingType):
             # Create index vectors and embeddings matrix

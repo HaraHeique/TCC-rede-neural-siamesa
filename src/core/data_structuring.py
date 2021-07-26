@@ -22,7 +22,7 @@ import src.core.helper as helper
 from src.enums.DatasetType import DatasetType
 
 
-def extract_works_sentence_data(dic_works, n_sentences_per_author, dataset_type, qnt_sentences_by_works_filename):
+def extract_works_sentence_data(dic_works, n_sentences_per_author, dataset_type, isTraining):
     dic_data = {}
     qnt_works_by_author = {}
     __download_text_processing_depedencies()
@@ -70,36 +70,40 @@ def extract_works_sentence_data(dic_works, n_sentences_per_author, dataset_type,
                     break
 
     # __export_length_sentences(sum(dic_data.values(), []), 100)
-    __export_qnt_sentences_by_works(qnt_works_by_author, qnt_sentences_by_works_filename)
+    __export_qnt_sentences_by_works(qnt_works_by_author, dataset_type, isTraining)
 
     return dic_data
 
 
-def save_training_sentences_as_csv(dic_data_works, dataset_type, n_sentences_per_author, n_partitions):
+def save_training_sentences_as_csv(dic_data_works, dataset_type, n_sentences_per_author):
     if not bool(dic_data_works):
         return
 
     csv_filename = helper.get_dataset_type_filename(dataset_type, "training-sentences-{dataset_type}.csv")
     id_count = 1
-    columns = ['qd1', 'qd2', 'phrase1', 'phrase2', 'label']
-    dic_dataframe = {'qd1': [], 'qd2': [], 'phrase1': [], 'phrase2': [], 'label': []}
-    n_sentences_per_partition = math.floor(n_sentences_per_author / n_partitions)
+    columns = ['qd1', 'qd2', 'phrase1', 'phrase2', 'label', 'author1', 'author2']
+    dic_dataframe = {'qd1': [], 'qd2': [], 'phrase1': [], 'phrase2': [], 'label': [], 'author1': [], 'author2': []}
 
     # Phrases of the same author (similarity = 1)
+    n_sentences_by_same_author = math.floor(n_sentences_per_author / 2)
+
     for author, sentences in dic_data_works.items():
-        length_sentences = n_sentences_per_partition * 2
         # random.shuffle(sentences)
 
-        for i in range(0, length_sentences, 2):
+        for i in range(0, n_sentences_by_same_author, 2):
             dic_dataframe['qd1'].append(id_count)
             dic_dataframe['qd2'].append(id_count + 1)
             dic_dataframe['phrase1'].append(sentences.pop(0))
             dic_dataframe['phrase2'].append(sentences.pop(0))
             dic_dataframe['label'].append(1)
+            dic_dataframe['author1'].append(author)
+            dic_dataframe['author2'].append(author)
             id_count += 2
 
     # Phrases of the different author (similarity = 0)
-    author_combinations = __get_author_combinations(list(dic_data_works.keys()))
+    author_combinations, n_combination_per_author = __get_author_combinations(list(dic_data_works.keys()))
+    n_sentences_by_combination = math.floor(
+        (n_sentences_per_author - n_sentences_by_same_author) / n_combination_per_author)
 
     for combination in author_combinations:
         author_a = combination[0]
@@ -109,12 +113,14 @@ def save_training_sentences_as_csv(dic_data_works, dataset_type, n_sentences_per
         # random.shuffle(sentences_author_a)
         # random.shuffle(sentences_author_b)
 
-        for i in range(0, n_sentences_per_partition, 1):
+        for i in range(0, n_sentences_by_combination, 1):
             dic_dataframe['qd1'].append(id_count)
             dic_dataframe['qd2'].append(id_count + 1)
             dic_dataframe['phrase1'].append(sentences_author_a.pop(0))
             dic_dataframe['phrase2'].append(sentences_author_b.pop(0))
             dic_dataframe['label'].append(0)
+            dic_dataframe['author1'].append(author_a)
+            dic_dataframe['author2'].append(author_b)
             id_count += 2
 
     # Export to csv file
@@ -124,26 +130,30 @@ def save_training_sentences_as_csv(dic_data_works, dataset_type, n_sentences_per
     return dataframe
 
 
-def save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_per_author, n_partitions):
+def save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_per_author):
     if not bool(dic_data_works):
         return
 
     csv_filename = helper.get_dataset_type_filename(dataset_type, "prediction-sentences-{dataset_type}.csv")
-    columns = ['phrase1', 'phrase2']
-    dic_dataframe = {'phrase1': [], 'phrase2': []}
-    n_sentences_per_partition = math.floor(n_sentences_per_author / n_partitions)
+    columns = ['phrase1', 'phrase2', 'author1', 'author2']
+    dic_dataframe = {'phrase1': [], 'phrase2': [], 'author1': [], 'author2': []}
 
     # Phrases of the same authors
+    n_sentences_by_same_author = math.floor(n_sentences_per_author / 2)
+
     for author, sentences in dic_data_works.items():
-        length_sentences = n_sentences_per_partition * 2
         # random.shuffle(sentences)
 
-        for i in range(0, length_sentences, 2):
+        for i in range(0, n_sentences_by_same_author, 2):
             dic_dataframe['phrase1'].append(sentences.pop(0))
             dic_dataframe['phrase2'].append(sentences.pop(0))
+            dic_dataframe['author1'].append(author)
+            dic_dataframe['author2'].append(author)
 
     # Phrases of different authors
-    author_combinations = __get_author_combinations(list(dic_data_works.keys()))
+    author_combinations, n_combination_per_author = __get_author_combinations(list(dic_data_works.keys()))
+    n_sentences_by_combination = math.floor(
+        (n_sentences_per_author - n_sentences_by_same_author) / n_combination_per_author)
 
     for combination in author_combinations:
         author_a = combination[0]
@@ -153,9 +163,11 @@ def save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_p
         # random.shuffle(sentences_author_a)
         # random.shuffle(sentences_author_b)
 
-        for i in range(0, n_sentences_per_partition):
+        for i in range(0, n_sentences_by_combination):
             dic_dataframe['phrase1'].append(sentences_author_a.pop(0))
             dic_dataframe['phrase2'].append(sentences_author_b.pop(0))
+            dic_dataframe['author1'].append(author_a)
+            dic_dataframe['author2'].append(author_b)
 
     # Export to csv file
     dataframe = pd.DataFrame(dic_dataframe, columns=columns)
@@ -165,7 +177,8 @@ def save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_p
 
 
 def plot_hist_length_dataframe(dataframe, dataset_type):
-    distribution_save_filename = helper.get_dataset_type_filename(dataset_type, "sentences-distribution-{dataset_type}.png")
+    distribution_save_filename = helper.get_dataset_type_filename(dataset_type,
+                                                                  "sentences-distribution-{dataset_type}.png")
     data = __phrases_dataframe_size(dataframe)
 
     plt.figure(figsize=[10, 8])
@@ -177,13 +190,36 @@ def plot_hist_length_dataframe(dataframe, dataset_type):
     plt.ylabel("Frequency", fontsize=15)
     plt.title("Sentences Distribution Histogram", fontsize=15)
     plt.legend(handles=__statistics_mpatches(data), handlelength=0, handletextpad=0, fancybox=True)
-    plt.savefig(os.path.join(helper.DATA_FILES_RESULTS_PATH, distribution_save_filename))
+    plt.savefig(os.path.join(helper.get_results_path_directory_by_dataset(dataset_type), distribution_save_filename))
 
 
-def list_dir_authors(directory_name):
+def validate_total_number_of_sentences(dic_data_works, n_sentences_per_author, n_authors, dataset_type, isTraining):
+    process_name = "training" if isTraining else "prediction"
+    total_sentences = n_sentences_per_author * n_authors
+    total_extracted_sentences = len(sum(dic_data_works.values(), []))
+
+    if total_extracted_sentences < total_sentences:
+        raise Exception('''
+            Dataset Type: {dataset_type}
+            
+            The number of {process_name} sentences from authors is not enough. 
+            Please enter a number of sentences for each author that supports the amount of extracted sentences.
+            
+            - Total sentences: {total_sentences}
+            - Total extracted sentences: {extracted_sentences}'''
+                        .format(dataset_type=dataset_type.name, process_name=process_name,
+                                total_sentences=total_sentences,
+                                extracted_sentences=total_extracted_sentences)
+                        )
+
+
+def list_dir_authors(directory_name, number_authors):
     dir_authors = []
 
     for dir in os.listdir(directory_name):
+        if len(dir_authors) == number_authors:
+            break
+
         if os.path.isdir(os.path.join(directory_name, dir)):
             dir_authors.append(os.path.join(directory_name, dir))
 
@@ -354,7 +390,17 @@ def __get_author_combinations(authors):
     combinations_object = itertools.combinations(authors, 2)
     combinations = list(combinations_object)
 
-    return combinations
+    # checking the number of times a token of a combination appears
+    n_combinations_per_token = 0
+
+    if len(combinations) > 0:
+        token_to_check = combinations[0][0]
+
+        for combination in combinations:
+            is_in_combination = combination[0] == token_to_check or combination[1] == token_to_check
+            n_combinations_per_token += 1 if is_in_combination else 0
+
+    return combinations, n_combinations_per_token
 
 
 def __export_length_sentences(tokens, length_sentences):
@@ -373,14 +419,19 @@ def __export_length_sentences(tokens, length_sentences):
     dataframe.to_csv(os.path.join(helper.DATA_FILES_RESULTS_PATH, csv_filename), index=False, header=True)
 
 
-def __export_qnt_sentences_by_works(qnt_works_by_author, csv_filename):
+def __export_qnt_sentences_by_works(qnt_works_by_author, dataset_type, isTraining):
     csv_data = []
+
+    csv_template_filename = "quantity-sentences-by-works-{}.csv"
+    csv_filename = csv_template_filename.format("training") if isTraining else csv_template_filename.format(
+        "prediction")
 
     for author, works_obj in qnt_works_by_author.items():
         csv_data += list(map(lambda work: [author, work, works_obj[work]], works_obj))
 
     dataframe = pd.DataFrame(csv_data, columns=['author', 'work', 'sentences quantity'])
-    dataframe.to_csv(os.path.join(helper.DATA_FILES_RESULTS_PATH, csv_filename), index=False)
+    dataframe.to_csv(os.path.join(helper.get_results_path_directory_by_dataset(dataset_type), csv_filename),
+                     index=False)
 
 
 def __statistics_mpatches(data):

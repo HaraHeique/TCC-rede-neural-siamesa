@@ -97,6 +97,14 @@ def insert_number_sentences(input_message=None):
             return int(number_sentences)
 
 
+def insert_number_of_authors():
+    while True:
+        number_authors = input("Enter the number of authors to structure data: ")
+
+        if __try_parse_int_positive(number_authors) and int(number_authors) > 0:
+            return int(number_authors)
+
+
 def insert_number_epochs():
     while True:
         number_epochs = input("Enter the number of epochs to train: ")
