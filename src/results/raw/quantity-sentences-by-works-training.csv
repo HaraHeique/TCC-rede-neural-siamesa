@@ -1,0 +1,21 @@
+author,work,sentences quantity
+faulkner,./data/works/training/faulkner/A Fable (1954).txt,4554
+faulkner,"./data/works/training/faulkner/Absalom, Absalom! (1936).txt",2670
+faulkner,./data/works/training/faulkner/As I Lay Dying (1930).txt,3981
+faulkner,./data/works/training/faulkner/Intruder in the Dust (1949).txt,868
+faulkner,./data/works/training/faulkner/Light in August (1932).txt,4927
+faulkner,./data/works/training/faulkner/Sanctuary (1931).txt,3400
+faulkner,./data/works/training/faulkner/Soldiers Pay (1926).txt,3400
+faulkner,./data/works/training/faulkner/The Hamlet (1940).txt,3400
+faulkner,./data/works/training/faulkner/The Mansion (1959).txt,3400
+faulkner,./data/works/training/faulkner/The Reivers (1962).txt,3400
+hemingway,./data/works/training/hemingway/A Farewell to Arms (1929).txt,4786
+hemingway,./data/works/training/hemingway/A Moveable Feast (1964).txt,1609
+hemingway,./data/works/training/hemingway/Across the River and Into the Trees (1950).txt,5537
+hemingway,./data/works/training/hemingway/Death in the Afternoon (1932).txt,4327
+hemingway,./data/works/training/hemingway/For Whom the Bell Tolls (1940).txt,2517
+hemingway,./data/works/training/hemingway/Green Hills of Africa (1936).txt,2790
+hemingway,./data/works/training/hemingway/Men Without Woman (1926).txt,2385
+hemingway,./data/works/training/hemingway/The Garden of Eden (1986).txt,4585
+hemingway,./data/works/training/hemingway/The Old Man and the Sea (1952).txt,2064
+hemingway,./data/works/training/hemingway/The Sun Also Rises (1926).txt,3400
