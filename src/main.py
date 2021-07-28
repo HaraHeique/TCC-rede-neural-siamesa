@@ -125,12 +125,16 @@ def __execute_training():
     # merge hyperparameters dicts based on neural network architecture
     if (hyperparameters['neural_network_type']) == NeuralNetworkType.LSTM:
         hyperparameters_lstm = {
+            'gpus': gpus,
             'embedding_dim': 300,
             'max_seq_length': 30,
             'batch_size': 128 * gpus,
             'n_epochs': 10,
             'n_hidden': 256,
             'kernel_initializer': tf.keras.initializers.glorot_normal(seed=1),
+            'kernel_regularizer': tf.keras.regularizers.l1_l2(l1=1e-5, l2=1e-4),
+            'bias_regularizer': tf.keras.regularizers.l2(1e-4),
+            'activity_regularizer': tf.keras.regularizers.l2(1e-5),
             'activation': "softsign",
             'recurrent_activation': "sigmoid",
             'dropout': 0.9,
@@ -139,14 +143,13 @@ def __execute_training():
             'activation_dense_layer': "sigmoid",
             'loss': tf.keras.losses.MeanSquaredError(),
             'optimizer': tf.keras.optimizers.SGD(learning_rate=0.1, momentum=0.0, nesterov=False, name='SGD'),
-            'gpus': gpus
         }
         hyperparameters_lstm.update(hyperparameters)
         hyperparameters = hyperparameters_lstm
     else:
         hyperparameters_cnn = {
-            'embedding_dim': 300,
             'gpus': gpus,
+            'embedding_dim': 300,
             'batch_size': 128 * gpus,
             'n_epochs': 20,
             'n_hidden': 300,
@@ -250,20 +253,20 @@ def __execute_prediction():
     # Results
     table_filename = helper.get_results_path_directory_by_dataset(dataset_type) + "/similarity-values-{network_type}-{similarity_type}-{word_embedding_type}.png"
 
-    prediction.save_prediction_result(
-        prediction_result,
-        50,
-        table_title.format(
-            network_type=hyperparameters["neural_network_type"],
-            similarity_type=hyperparameters["similarity_measure_type"],
-            word_embedding_type=word_embedding_type.name
-        ),
-        table_filename.format(
-            network_type=hyperparameters["neural_network_type"],
-            similarity_type=hyperparameters["similarity_measure_type"],
-            word_embedding_type=word_embedding_type.name
-        )
-    )
+    # prediction.save_prediction_result(
+    #     prediction_result,
+    #     50,
+    #     table_title.format(
+    #         network_type=hyperparameters["neural_network_type"],
+    #         similarity_type=hyperparameters["similarity_measure_type"],
+    #         word_embedding_type=word_embedding_type.name
+    #     ),
+    #     table_filename.format(
+    #         network_type=hyperparameters["neural_network_type"],
+    #         similarity_type=hyperparameters["similarity_measure_type"],
+    #         word_embedding_type=word_embedding_type.name
+    #     )
+    # )
 
 
 if __name__ == '__main__':
