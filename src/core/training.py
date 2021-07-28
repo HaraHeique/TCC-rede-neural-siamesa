@@ -110,6 +110,9 @@ def define_shared_model(embeddings, hyperparameters):
         shared_model.add(Bidirectional(LSTM(
             hyperparameters['n_hidden'],
             kernel_initializer=hyperparameters['kernel_initializer'],
+            kernel_regularizer=hyperparameters['kernel_regularizer'],
+            bias_regularizer=hyperparameters['bias_regularizer'],
+            activity_regularizer=hyperparameters['activity_regularizer'],
             activation=hyperparameters['activation'],
             recurrent_activation=hyperparameters['recurrent_activation'],
             dropout=0.0,

@@ -4,6 +4,8 @@
     Contains a set of functions to predict the Neural Network.
 """
 
+import sklearn.metrics
+import scipy.stats
 import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
@@ -91,3 +93,11 @@ def save_prediction_result(prediction, n_pairs, title, filename):
     plt.tight_layout()
     plt.savefig(filename)
     plt.clf()
+
+
+def calculate_prediction_metrics(y_true, y_pred):
+    pearson_val = scipy.stats.pearsonr(y_true, y_pred)[0]
+    spearman_val = scipy.stats.spearmanr(y_true, y_pred)[0]
+    mse_val = sklearn.metrics.mean_squared_error(y_true, y_pred)
+
+    return {'pearson': pearson_val, 'spearman': spearman_val, 'mse': mse_val}
