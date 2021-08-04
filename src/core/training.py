@@ -6,6 +6,7 @@
 
 import pandas as pd
 import numpy as np
+import os
 import matplotlib
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -89,7 +90,7 @@ def define_shared_model(embeddings, hyperparameters):
                                input_shape=(hyperparameters['max_seq_length'],),
                                trainable=False))
 
-    np.random.seed(1)
+    #np.random.seed(1)
 
     if hyperparameters['neural_network_type'] == NeuralNetworkType.CNN:
         # CNN - Convolutional Neural Network
@@ -110,6 +111,9 @@ def define_shared_model(embeddings, hyperparameters):
         shared_model.add(Bidirectional(LSTM(
             hyperparameters['n_hidden'],
             kernel_initializer=hyperparameters['kernel_initializer'],
+            kernel_regularizer=hyperparameters['kernel_regularizer'],
+            bias_regularizer=hyperparameters['bias_regularizer'],
+            activity_regularizer=hyperparameters['activity_regularizer'],
             activation=hyperparameters['activation'],
             recurrent_activation=hyperparameters['recurrent_activation'],
             dropout=0.0,
@@ -305,6 +309,56 @@ def save_model_variables_file(filename, hyperparameters):
         f.close()
     except Exception as err:
         print(err)
+
+
+def save_model_training_results(hyperparameters, configs):
+    dataset_type = configs['dataset_type']
+
+    columns = [
+        'start_time', 'end_time', 'partition', 'neural_network_type',
+        'similarity_type', 'embedding_type', 'embedding_dim', 'max_seq_length',
+        'batch_size', 'n_epochs', 'n_hidden', 'kernel_initializer',
+        'kernel_regularizer', 'bias_regularizer', 'activity_regularizer', 'activation',
+        'recurrent_activation', 'dropout', 'recurrent_dropout', 'activation_layer',
+        'activation_dense_layer', 'loss', 'optimizer', 'learning_rate',
+        'clipnorm',
+        'accuracy_training', 'accuracy_validation', 'loss_training', 'loss_validation'
+    ]
+
+    start_time = configs['start_time'].strftime("%d/%m/%Y %H:%M:%S")
+    end_time = configs['end_time'].strftime("%d/%m/%Y %H:%M:%S")
+    partition = "{}/{}".format(100 - hyperparameters['percent_validation'], hyperparameters['percent_validation'])
+    kernel_initializer = str(hyperparameters['kernel_initializer'])
+    kernel_regularizer = None if hyperparameters['kernel_regularizer'] is None else str(hyperparameters['kernel_regularizer'].l1.max(), hyperparameters['kernel_regularizer'].l2.max())
+    bias_regularizer = None if hyperparameters['bias_regularizer'] is None else str(hyperparameters['bias_regularizer'].l1.max(), hyperparameters['bias_regularizer'].l2.max())
+    activity_regularizer = None if hyperparameters['activity_regularizer'] is None else str(hyperparameters['activity_regularizer'].l1.max(), hyperparameters['bias_regularizer'].l2.max())
+    loss = hyperparameters['loss'].name
+    optimizer = hyperparameters['optimizer']._name
+    learning_rate = hyperparameters['learning_rate']
+    clipnorm = hyperparameters['optimizer'].clipnorm
+    accuracy_training = str(configs['training_history'].history['accuracy'][-1])[:6]
+    accuracy_validation = str(configs['training_history'].history['val_accuracy'][-1])[:6]
+    loss_training = str(configs['training_history'].history['loss'][-1])[:6]
+    loss_validation = str(configs['training_history'].history['val_loss'][-1])[:6]
+
+    row_data = [
+        start_time, end_time, partition, hyperparameters['neural_network_type'].name,
+        hyperparameters['similarity_measure_type'].name, configs['embedding_type'].name, hyperparameters['embedding_dim'], hyperparameters['max_seq_length'],
+        hyperparameters['batch_size'], hyperparameters['n_epochs'], hyperparameters['n_hidden'], kernel_initializer,
+        kernel_regularizer, bias_regularizer, activity_regularizer, hyperparameters['activation'],
+        hyperparameters['recurrent_activation'], hyperparameters['dropout'], hyperparameters['recurrent_dropout'], hyperparameters['activation_layer'],
+        hyperparameters['activation_dense_layer'], loss, optimizer, learning_rate,
+        clipnorm,
+        accuracy_training, accuracy_validation, loss_training, loss_validation
+    ]
+
+    base_filename = helper.get_dataset_type_filename(dataset_type, "{dataset_type}-model-training-results.csv")
+    path_file = os.path.join(helper.get_results_path_directory_by_dataset(dataset_type), base_filename)
+    mode_file = 'a' if os.path.exists(path_file) else 'w'
+    has_header = mode_file == 'w'
+
+    dataframe = pd.DataFrame([row_data], columns=columns)
+    dataframe.to_csv(path_file, index=False, mode=mode_file, header=has_header)
 
 
 def get_hyperparameters(filename):

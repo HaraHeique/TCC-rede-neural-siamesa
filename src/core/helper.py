@@ -22,6 +22,7 @@ DATA_FILES_TRAINING_PATH = DATA_FILES_PATH + "/training"
 DATA_FILES_PREDICTION_PATH = DATA_FILES_PATH + "/prediction"
 DATA_FILES_INDEX_VECTORS_PATH = DATA_FILES_PATH + "/processed/index_vectors"
 DATA_FILES_EMBEDDING_MATRICES_PATH = DATA_FILES_PATH + "/processed/embedding_matrices"
+DATA_FILES_NETWORKS_MODELS_PATH = DATA_FILES_PATH + "/processed/networks_models"
 DATA_FILES_RESULTS_PATH = SOURCE_PATH + "/results"
 
 
@@ -85,6 +86,21 @@ def get_embedding_matrix_filename(dataset_type, word_embedding_type):
     )
 
     return os.path.join(DATA_FILES_EMBEDDING_MATRICES_PATH, filename)
+
+
+def get_saved_model_filename(network_type, similarity_measure_type, dataset_type, word_embedding_type):
+    base_filename = "Siamese-{}-{}-{}-{}.h5"
+    dic_abbr_word_embedding_type = __get_dic_abbreviation_word_embedding_type()
+    dic_abbr_dataset_type = __get_dic_abbreviation_dataset_type()
+
+    filename = base_filename.format(
+        network_type.name,
+        similarity_measure_type.name,
+        dic_abbr_dataset_type[dataset_type],
+        dic_abbr_word_embedding_type[word_embedding_type]
+    )
+
+    return os.path.join(DATA_FILES_NETWORKS_MODELS_PATH, filename)
 
 
 def create_index_vector(df_raw, word_embedding):
