@@ -1,5 +1,6 @@
 import time
 import os
+import keras.backend as K
 import tensorflow as tf
 import tensorflow_addons as tfa
 import src.user_interface.cli_input as ui
@@ -110,7 +111,6 @@ def __execute_data_structuring():
 def __execute_training():
     # Filename results
     hyperparameters_filename = "./data/training_variables.txt"
-    model_save_filename = "./data/SiameseLSTM.h5"
 
     # Model variables (hyperparameters)
     gpus = 1
@@ -128,21 +128,21 @@ def __execute_training():
             'gpus': gpus,
             'embedding_dim': 300,
             'max_seq_length': 30,
-            'batch_size': 32 * gpus,
+            'batch_size': 256 * gpus,
             'n_epochs': 20,
-            'n_hidden': 128,
-            'kernel_initializer': tf.keras.initializers.VarianceScaling(scale=1.0, mode='fan_in', distribution='truncated_normal',seed=1),
+            'n_hidden': 256,
+            'kernel_initializer': tf.keras.initializers.GlorotNormal(),
             'kernel_regularizer': None,
             'bias_regularizer': None,
             'activity_regularizer': None,
             'activation': "softsign",
             'recurrent_activation': "sigmoid",
-            'dropout': 0.11,
-            'recurrent_dropout': 0.32,
-            'activation_layer': "selu",
+            'dropout': 0.59,
+            'recurrent_dropout': 0.37,
+            'activation_layer': "elu",
             'activation_dense_layer': "sigmoid",
             'loss': tf.keras.losses.MeanSquaredError(),
-            'optimizer': tf.keras.optimizers.Adamax(learning_rate=0.1, beta_1=0.9, beta_2=0.999, epsilon=1e-07, name="Adamax")
+            'optimizer': tf.keras.optimizers.SGD(learning_rate=0.1, momentum=0.0, nesterov=False, name='SGD')
         }
         hyperparameters_lstm.update(hyperparameters)
         hyperparameters = hyperparameters_lstm
@@ -191,18 +191,22 @@ def __execute_training():
     training.show_summary_model(model)
 
     # Training the neural network based on model
-    training_start_time = time.time()
+    training_start_time = datetime.now()
     training_history = training.train_neural_network(model, normalized_dataframe, hyperparameters)
-    training_end_time = time.time()
+    training_end_time = datetime.now()
     uo.show_training_finished_message(hyperparameters['n_epochs'], training_start_time, training_end_time)
 
+    model_save_filename = helper.get_saved_model_filename(
+        hyperparameters['neural_network_type'], hyperparameters['similarity_measure_type'],
+        dataset_type, word_embedding_type
+    )
     training.save_model(model, model_save_filename)
 
     # Results
     training.set_plot_accuracy(training_history)
     training.set_plot_loss(training_history)
     graph_save_filename = (helper.get_results_path_directory_by_dataset(dataset_type) + "/history-graph-{date_now}-{word_embedding}-{network_type}-{similarity_type}-{percent_training}-{percent_validation}-{epochs}-{max_seq_length}.png").format(
-        date_now=datetime.now().strftime("%d_%m_%Y-%H_%M_%S"),
+        date_now=training_end_time.strftime("%d_%m_%Y-%H_%M_%S"),
         word_embedding=word_embedding_type.name,
         network_type=hyperparameters['neural_network_type'].name,
         similarity_type=hyperparameters['similarity_measure_type'].name,
@@ -217,23 +221,29 @@ def __execute_training():
     training.report_max_accuracy(training_history)
     # training.report_size_data(training_dataframe, training_size, validation_size)
 
-    # Save config file
+    # Save config file and trained parameters
     training.save_model_variables_file(hyperparameters_filename, hyperparameters)
+
+    configs_save_model_training = {
+        'dataset_type': dataset_type, 'embedding_type': word_embedding_type,
+        'start_time': training_start_time, 'end_time': training_end_time,
+        'training_history': training_history
+    }
+    hyperparameters["learning_rate"] = K.eval(model.optimizer.lr)
+    training.save_model_training_results(hyperparameters, configs_save_model_training)
 
 
 def __execute_prediction():
-    # Saved model trained
-    hyperparameters_filename = "./data/training_variables.txt"
-    model_saved_filename = "./data/SiameseLSTM.h5"
-    table_title = "Índices de Similaridade ({network_type} - {similarity_type} - {word_embedding_type})"
-
-    # Model variables
-    hyperparameters = training.get_hyperparameters(hyperparameters_filename)
-
     # User input variables
     dataset_type = ui.insert_dataset_type()
     uo.break_lines(1)
     word_embedding_type = ui.insert_word_embedding()
+    uo.break_lines(1)
+    neural_network_type = ui.insert_neural_network_type()
+    uo.break_lines(1)
+    similarity_type = ui.insert_similarity_measure_type()
+    uo.break_lines(1)
+    max_seq_length = ui.insert_max_seq_length()
     uo.break_lines(1)
 
     # Loading index vector and embedding matrix
@@ -241,9 +251,10 @@ def __execute_prediction():
     prediction_dataframe = helper.load_index_vector_dataframe(index_vector_filename)
 
     # Data preparation
-    test_normalized_dataframe = prediction.define_prediction_dataframe(prediction_dataframe, hyperparameters["max_seq_length"])
+    test_normalized_dataframe = prediction.define_prediction_dataframe(prediction_dataframe, max_seq_length)
 
     # Loading the model trained
+    model_saved_filename = helper.get_saved_model_filename(neural_network_type, similarity_type, dataset_type, word_embedding_type)
     test_model = prediction.load_model(model_saved_filename)
     prediction.show_summary_model(test_model)
 
@@ -251,22 +262,17 @@ def __execute_prediction():
     prediction_result = prediction.predict_neural_network(test_model, test_normalized_dataframe)
 
     # Results
-    table_filename = helper.get_results_path_directory_by_dataset(dataset_type) + "/similarity-values-{network_type}-{similarity_type}-{word_embedding_type}.png"
+    configs_prediction_result = {
+        'dataset_type': dataset_type,
+        'date': datetime.now(),
+        'neural_network_type': neural_network_type,
+        'word_embedding_type': word_embedding_type,
+        'similarity_type': similarity_type,
+        'max_seq_length': max_seq_length
+    }
 
-    # prediction.save_prediction_result(
-    #     prediction_result,
-    #     50,
-    #     table_title.format(
-    #         network_type=hyperparameters["neural_network_type"],
-    #         similarity_type=hyperparameters["similarity_measure_type"],
-    #         word_embedding_type=word_embedding_type.name
-    #     ),
-    #     table_filename.format(
-    #         network_type=hyperparameters["neural_network_type"],
-    #         similarity_type=hyperparameters["similarity_measure_type"],
-    #         word_embedding_type=word_embedding_type.name
-    #     )
-    # )
+    prediction.save_prediction_result(prediction_result, 50, configs_prediction_result)
+    prediction.save_prediction_metrics(prediction_dataframe, prediction_result, configs_prediction_result)
 
 
 if __name__ == '__main__':

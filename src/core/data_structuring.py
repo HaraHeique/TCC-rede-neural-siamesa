@@ -135,8 +135,8 @@ def save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_p
         return
 
     csv_filename = helper.get_dataset_type_filename(dataset_type, "prediction-sentences-{dataset_type}.csv")
-    columns = ['phrase1', 'phrase2', 'author1', 'author2']
-    dic_dataframe = {'phrase1': [], 'phrase2': [], 'author1': [], 'author2': []}
+    columns = ['phrase1', 'phrase2', 'author1', 'author2', 'label']
+    dic_dataframe = {'phrase1': [], 'phrase2': [], 'author1': [], 'author2': [], 'label': []}
 
     # Phrases of the same authors
     n_sentences_by_same_author = math.floor(n_sentences_per_author / 2)
@@ -149,6 +149,7 @@ def save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_p
             dic_dataframe['phrase2'].append(sentences.pop(0))
             dic_dataframe['author1'].append(author)
             dic_dataframe['author2'].append(author)
+            dic_dataframe['label'].append(1)
 
     # Phrases of different authors
     author_combinations, n_combination_per_author = __get_author_combinations(list(dic_data_works.keys()))
@@ -168,6 +169,7 @@ def save_prediction_sentences_as_csv(dic_data_works, dataset_type, n_sentences_p
             dic_dataframe['phrase2'].append(sentences_author_b.pop(0))
             dic_dataframe['author1'].append(author_a)
             dic_dataframe['author2'].append(author_b)
+            dic_dataframe['label'].append(0)
 
     # Export to csv file
     dataframe = pd.DataFrame(dic_dataframe, columns=columns)
@@ -430,8 +432,7 @@ def __export_qnt_sentences_by_works(qnt_works_by_author, dataset_type, isTrainin
         csv_data += list(map(lambda work: [author, work, works_obj[work]], works_obj))
 
     dataframe = pd.DataFrame(csv_data, columns=['author', 'work', 'sentences quantity'])
-    dataframe.to_csv(os.path.join(helper.get_results_path_directory_by_dataset(dataset_type), csv_filename),
-                     index=False)
+    dataframe.to_csv(os.path.join(helper.get_results_path_directory_by_dataset(dataset_type), csv_filename), index=False)
 
 
 def __statistics_mpatches(data):
