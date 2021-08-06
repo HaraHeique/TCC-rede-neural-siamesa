@@ -1,33 +1,33 @@
 author,work,sentences quantity
-faulkner,./data/works/training/faulkner/A Fable (1954).txt,3932
-faulkner,"./data/works/training/faulkner/Absalom, Absalom! (1936).txt",2400
-faulkner,./data/works/training/faulkner/As I Lay Dying (1930).txt,2400
-faulkner,./data/works/training/faulkner/Intruder in the Dust (1949).txt,868
-faulkner,./data/works/training/faulkner/Light in August (1932).txt,2400
-faulkner,./data/works/training/faulkner/Sanctuary (1931).txt,2400
-faulkner,./data/works/training/faulkner/Soldiers Pay (1926).txt,2400
-faulkner,./data/works/training/faulkner/The Hamlet (1940).txt,2400
-faulkner,./data/works/training/faulkner/The Mansion (1959).txt,2400
-faulkner,./data/works/training/faulkner/The Reivers (1962).txt,2400
-hemingway,./data/works/training/hemingway/A Farewell to Arms (1929).txt,3542
-hemingway,./data/works/training/hemingway/A Moveable Feast (1964).txt,1609
-hemingway,./data/works/training/hemingway/Across the River and Into the Trees (1950).txt,2400
-hemingway,./data/works/training/hemingway/Death in the Afternoon (1932).txt,2400
-hemingway,./data/works/training/hemingway/For Whom the Bell Tolls (1940).txt,2400
-hemingway,./data/works/training/hemingway/Green Hills of Africa (1936).txt,2400
-hemingway,./data/works/training/hemingway/Men Without Woman (1926).txt,2385
-hemingway,./data/works/training/hemingway/The Garden of Eden (1986).txt,2400
-hemingway,./data/works/training/hemingway/The Old Man and the Sea (1952).txt,2064
-hemingway,./data/works/training/hemingway/The Sun Also Rises (1926).txt,2400
-roth,./data/works/training/roth/American Pastoral (1997).txt,2981
-roth,./data/works/training/roth/Everyman (2006).txt,1847
-roth,"./data/works/training/roth/Goodbye, Columbus (and Five Short Stories) (1959).txt",2000
-roth,./data/works/training/roth/I Married a Communist (1998).txt,2000
-roth,./data/works/training/roth/Operation Shylock (1983).txt,2000
-roth,./data/works/training/roth/Our Gang (1971).txt,1360
-roth,./data/works/training/roth/Patrimony - A True Story (1991).txt,1812
-roth,./data/works/training/roth/Portnoy's Complaint (1969).txt,2000
-roth,./data/works/training/roth/Sabbaths Theater (1995).txt,2000
-roth,./data/works/training/roth/The Counterlife (1986).txt,2000
-roth,./data/works/training/roth/The Professor of Desire (1977).txt,2000
-roth,./data/works/training/roth/When She Was Good (1967).txt,2000
+training\faulkner,./data/works/training\faulkner\A Fable (1954).txt,3932
+training\faulkner,"./data/works/training\faulkner\Absalom, Absalom! (1936).txt",2400
+training\faulkner,./data/works/training\faulkner\As I Lay Dying (1930).txt,2400
+training\faulkner,./data/works/training\faulkner\Intruder in the Dust (1949).txt,868
+training\faulkner,./data/works/training\faulkner\Light in August (1932).txt,2400
+training\faulkner,./data/works/training\faulkner\Sanctuary (1931).txt,2400
+training\faulkner,./data/works/training\faulkner\Soldiers Pay (1926).txt,2400
+training\faulkner,./data/works/training\faulkner\The Hamlet (1940).txt,2400
+training\faulkner,./data/works/training\faulkner\The Mansion (1959).txt,2400
+training\faulkner,./data/works/training\faulkner\The Reivers (1962).txt,2400
+training\hemingway,./data/works/training\hemingway\A Farewell to Arms (1929).txt,3542
+training\hemingway,./data/works/training\hemingway\A Moveable Feast (1964).txt,1609
+training\hemingway,./data/works/training\hemingway\Across the River and Into the Trees (1950).txt,2400
+training\hemingway,./data/works/training\hemingway\Death in the Afternoon (1932).txt,2400
+training\hemingway,./data/works/training\hemingway\For Whom the Bell Tolls (1940).txt,2400
+training\hemingway,./data/works/training\hemingway\Green Hills of Africa (1936).txt,2400
+training\hemingway,./data/works/training\hemingway\Men Without Woman (1926).txt,2385
+training\hemingway,./data/works/training\hemingway\The Garden of Eden (1986).txt,2400
+training\hemingway,./data/works/training\hemingway\The Old Man and the Sea (1952).txt,2064
+training\hemingway,./data/works/training\hemingway\The Sun Also Rises (1926).txt,2400
+training\roth,./data/works/training\roth\American Pastoral (1997).txt,2981
+training\roth,./data/works/training\roth\Everyman (2006).txt,1847
+training\roth,"./data/works/training\roth\Goodbye, Columbus (and Five Short Stories) (1959).txt",2000
+training\roth,./data/works/training\roth\I Married a Communist (1998).txt,2000
+training\roth,./data/works/training\roth\Operation Shylock (1983).txt,2000
+training\roth,./data/works/training\roth\Our Gang (1971).txt,1360
+training\roth,./data/works/training\roth\Patrimony - A True Story (1991).txt,1812
+training\roth,./data/works/training\roth\Portnoy's Complaint (1969).txt,2000
+training\roth,./data/works/training\roth\Sabbaths Theater (1995).txt,2000
+training\roth,./data/works/training\roth\The Counterlife (1986).txt,2000
+training\roth,./data/works/training\roth\The Professor of Desire (1977).txt,2000
+training\roth,./data/works/training\roth\When She Was Good (1967).txt,2000

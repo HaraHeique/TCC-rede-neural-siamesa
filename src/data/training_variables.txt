@@ -2,8 +2,8 @@
 max_seq_length=17
 embedding_dim=300
 gpus=1
-batch_size=256
-n_epochs=20
+batch_size=16
+n_epochs=15
 n_hidden=256
 neural_network_type=LSTM
 similarity_measure_type=MANHATTAN
