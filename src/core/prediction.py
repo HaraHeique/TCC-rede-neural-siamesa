@@ -53,7 +53,7 @@ def predict_neural_network(model, x_prediction):
     return prediction
 
 
-def save_prediction_result(prediction, n_pairs, configs):
+def save_prediction_metrics_by_author_combination(predictions, n_pairs, configs):
     dataset_type = configs['dataset_type']
 
     # LÓGICA REUTILIZÁVEL PARA CRIAR OS RESULTADOS DINÂMICOS PARA N AUTORES, POIS LÓGICA ATUAL É ESTÁTICA
@@ -94,7 +94,7 @@ def save_prediction_result(prediction, n_pairs, configs):
     )
 
     # Extracting data
-    data_list = [pred[0] for pred in prediction.tolist()]
+    data_list = [pred[0] for pred in predictions.tolist()]
     mean_list = [(sum(data_list[i:i + n_pairs]) / n_pairs) for i in range(0, len(data_list), n_pairs) if
                  (i + n_pairs) <= len(data_list)]
 
@@ -161,7 +161,7 @@ def save_prediction_result(prediction, n_pairs, configs):
     dataframe.to_csv(path_file, index=False, mode=mode_file, header=has_header)
 
 
-def save_prediction_metrics(df_prediction, predictions, configs):
+def save_prediction_metrics_global(df_prediction, predictions, configs):
     columns = [
         'date', 'neural_network_type',
         'similarity_type', 'embedding_type', 'max_seq_length',

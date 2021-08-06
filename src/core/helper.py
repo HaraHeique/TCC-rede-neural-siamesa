@@ -103,9 +103,8 @@ def get_saved_model_filename(network_type, similarity_measure_type, dataset_type
     return os.path.join(DATA_FILES_NETWORKS_MODELS_PATH, filename)
 
 
-def create_index_vector(df_raw, word_embedding):
-    vocabs = {}
-    vocabs_cnt = 0
+def create_index_vector(df_raw, word_embedding, vocabs={}):
+    vocabs_cnt = len(vocabs.keys())
 
     vocabs_not_w2v = {}
     vocabs_not_w2v_cnt = 0

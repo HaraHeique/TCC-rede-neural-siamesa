@@ -94,15 +94,15 @@ def __execute_data_structuring():
             index_vector_message = "Creating and saving index vector of {} file for {} word embedding..."
 
             print(index_vector_message.format(filename_training, word_embedding_type.name))
-            index_vector_training, vocabs_training = helper.create_index_vector(df_training, word_embedding)
+            index_vector_training, vocabs = helper.create_index_vector(df_training, word_embedding)
             helper.save_index_vector(index_vector_training, dataset_type, word_embedding_type, training_process=True)
 
             print(index_vector_message.format(filename_prediction, word_embedding_type.name))
-            index_vector_prediction, _ = helper.create_index_vector(df_prediction, word_embedding)
+            index_vector_prediction, vocabs = helper.create_index_vector(df_prediction, word_embedding, vocabs)
             helper.save_index_vector(index_vector_prediction, dataset_type, word_embedding_type, training_process=False)
 
             print("Creating and saving embedding matrix file for {} word embedding...".format(word_embedding_type.name))
-            embedding_matrix = helper.create_embedding_matrix(word_embedding, vocabs_training, embedding_dim=300)
+            embedding_matrix = helper.create_embedding_matrix(word_embedding, vocabs, embedding_dim=300)
             helper.save_embedding_matrix(embedding_matrix, dataset_type, word_embedding_type)
 
             helper.delete_word_embedding(word_embedding)
@@ -128,21 +128,22 @@ def __execute_training():
             'gpus': gpus,
             'embedding_dim': 300,
             'max_seq_length': 30,
-            'batch_size': 256 * gpus,
+            'batch_size': 16 * gpus,
             'n_epochs': 20,
             'n_hidden': 256,
             'kernel_initializer': tf.keras.initializers.GlorotNormal(),
-            'kernel_regularizer': None,
-            'bias_regularizer': None,
-            'activity_regularizer': None,
-            'activation': "softsign",
-            'recurrent_activation': "sigmoid",
-            'dropout': 0.59,
-            'recurrent_dropout': 0.37,
+            'kernel_regularizer': tf.keras.regularizers.l1_l2(l1=0.001, l2=0.01),
+            'bias_regularizer': tf.keras.regularizers.l2(0.01),
+            'activity_regularizer': tf.keras.regularizers.l2(0.01),
+            'activation': "tanh",
+            'recurrent_activation': "hard_sigmoid",
+            'dropout': 0.44,
+            'dropout_lstm': 0.44,
+            'recurrent_dropout': 0.44,
             'activation_layer': "elu",
             'activation_dense_layer': "sigmoid",
             'loss': tf.keras.losses.MeanSquaredError(),
-            'optimizer': tf.keras.optimizers.SGD(learning_rate=0.1, momentum=0.0, nesterov=False, name='SGD')
+            'optimizer': tf.keras.optimizers.Adadelta(learning_rate=0.1, rho=0.95, epsilon=1e-07, name='Adadelta', clipnorm=1.5)
         }
         hyperparameters_lstm.update(hyperparameters)
         hyperparameters = hyperparameters_lstm
@@ -271,8 +272,8 @@ def __execute_prediction():
         'max_seq_length': max_seq_length
     }
 
-    prediction.save_prediction_result(prediction_result, 50, configs_prediction_result)
-    prediction.save_prediction_metrics(prediction_dataframe, prediction_result, configs_prediction_result)
+    prediction.save_prediction_metrics_by_author_combination(prediction_result, 50, configs_prediction_result)
+    prediction.save_prediction_metrics_global(prediction_dataframe, prediction_result, configs_prediction_result)
 
 
 if __name__ == '__main__':

@@ -116,9 +116,8 @@ def define_shared_model(embeddings, hyperparameters):
             activity_regularizer=hyperparameters['activity_regularizer'],
             activation=hyperparameters['activation'],
             recurrent_activation=hyperparameters['recurrent_activation'],
-            dropout=0.0,
-            recurrent_dropout=hyperparameters['recurrent_dropout'],
-            implementation=1
+            dropout=hyperparameters['dropout_lstm'],
+            recurrent_dropout=hyperparameters['recurrent_dropout']
         )))
         shared_model.add(Activation(hyperparameters['activation_layer']))
         shared_model.add(Dense(1, activation=hyperparameters['activation_dense_layer']))
@@ -329,9 +328,9 @@ def save_model_training_results(hyperparameters, configs):
     end_time = configs['end_time'].strftime("%d/%m/%Y %H:%M:%S")
     partition = "{}/{}".format(100 - hyperparameters['percent_validation'], hyperparameters['percent_validation'])
     kernel_initializer = str(hyperparameters['kernel_initializer'])
-    kernel_regularizer = None if hyperparameters['kernel_regularizer'] is None else str(hyperparameters['kernel_regularizer'].l1.max(), hyperparameters['kernel_regularizer'].l2.max())
-    bias_regularizer = None if hyperparameters['bias_regularizer'] is None else str(hyperparameters['bias_regularizer'].l1.max(), hyperparameters['bias_regularizer'].l2.max())
-    activity_regularizer = None if hyperparameters['activity_regularizer'] is None else str(hyperparameters['activity_regularizer'].l1.max(), hyperparameters['bias_regularizer'].l2.max())
+    kernel_regularizer = None if hyperparameters['kernel_regularizer'] is None else "({},{})".format(hyperparameters['kernel_regularizer'].l1.max(), hyperparameters['kernel_regularizer'].l2.max())
+    bias_regularizer = None if hyperparameters['bias_regularizer'] is None else hyperparameters['bias_regularizer'].l2.max()
+    activity_regularizer = None if hyperparameters['activity_regularizer'] is None else hyperparameters['activity_regularizer'].l2.max()
     loss = hyperparameters['loss'].name
     optimizer = hyperparameters['optimizer']._name
     learning_rate = hyperparameters['learning_rate']
