@@ -5,6 +5,8 @@
 """
 
 import os
+import statistics
+import itertools
 import sklearn.metrics
 import scipy.stats
 import pandas as pd
@@ -53,39 +55,18 @@ def predict_neural_network(model, x_prediction):
     return prediction
 
 
-def save_prediction_metrics_by_author_combination(predictions, n_pairs, configs):
+def save_authors_prediction_matrix(df_prediction, predictions, configs):
     dataset_type = configs['dataset_type']
 
-    # LÓGICA REUTILIZÁVEL PARA CRIAR OS RESULTADOS DINÂMICOS PARA N AUTORES, POIS LÓGICA ATUAL É ESTÁTICA
-    # authors_predictions = {}
-    # predictions_list = [pred[0] for pred in predictions.tolist()]
-    #
-    # for index, row in df_prediction.iterrows():
-    #     author1 = row['author1']
-    #     author2 = row['author2']
-    #
-    #     authors_key = author1 + "-" + author2
-    #
-    #     if authors_key not in authors_predictions:
-    #         authors_predictions[authors_key] = {
-    #             'author1': author1,
-    #             'author2': author2,
-    #             'y_true': [],
-    #             'y_pred': []
-    #         }
-    #
-    #     dic_pred = authors_predictions[authors_key]
-    #     dic_pred['y_true'].append(float(row['label']))
-    #     dic_pred['y_pred'].append(float(predictions_list[index]))
-
     # CONFIGURING TABLE
-    table_title = "Índices de Similaridade \n({network_type} - {similarity_type} - {word_embedding_type})".format(
+    table_title = "Índices de Similaridade \n({network_type} - {similarity_type} - {dataset_type})".format(
         network_type=configs['neural_network_type'].name,
         similarity_type=configs['similarity_type'].name,
-        word_embedding_type=configs['word_embedding_type'].name
+        dataset_type=dataset_type.name
     )
 
-    table_filename = helper.get_results_path_directory_by_dataset(dataset_type) + "/prediction-similarity-values-{date}-{network_type}-{similarity_type}-{word_embedding_type}.png"
+    table_filename = helper.get_results_path_directory_by_dataset(
+        dataset_type) + "/prediction-similarity-values-{date}-{network_type}-{similarity_type}-{word_embedding_type}.png"
     table_filename = table_filename.format(
         date=configs['date'].strftime("%d_%m_%Y-%H_%M_%S"),
         network_type=configs['neural_network_type'].name,
@@ -93,27 +74,26 @@ def save_prediction_metrics_by_author_combination(predictions, n_pairs, configs)
         word_embedding_type=configs['word_embedding_type'].name
     )
 
-    # Extracting data
-    data_list = [pred[0] for pred in predictions.tolist()]
-    mean_list = [(sum(data_list[i:i + n_pairs]) / n_pairs) for i in range(0, len(data_list), n_pairs) if
-                 (i + n_pairs) <= len(data_list)]
+    # Extracting and structuring data
+    authors_combinations_predictions = __extract_authors_combinations_predictions(df_prediction, predictions)
+    mean_authors_combinations = {}
+    all_authors = []
 
-    # Structuring data
-    dic_data = {
-        'faulkner-faulkner': "{:.2f}".format(mean_list[0]),
-        'hemingway-hemingway': "{:.2f}".format(mean_list[1]),
-        'roth-roth': "{:.2f}".format(mean_list[2]),
-        'faulkner-hemingway': "{:.2f}".format(mean_list[3]),
-        'faulkner-roth': "{:.2f}".format(mean_list[4]),
-        'hemingway-roth': "{:.2f}".format(mean_list[5]),
-    }
+    for author_combination, dic_pred in authors_combinations_predictions.items():
+        pred_lst = dic_pred['y_pred']
+        mean_authors_combinations[author_combination] = statistics.mean(pred_lst)
+        all_authors += [dic_pred['author1'], dic_pred['author2']]
 
-    table_columns = ["Faulkner", "Hemingway", "Roth"]
-    table_data = [
-        [dic_data['faulkner-faulkner'], dic_data['faulkner-hemingway'], dic_data['faulkner-roth']],
-        [dic_data['faulkner-hemingway'], dic_data['hemingway-hemingway'], dic_data['hemingway-roth']],
-        [dic_data['faulkner-roth'], dic_data['hemingway-roth'], dic_data['roth-roth']]
-    ]
+    all_authors = list(set(all_authors))
+
+    # Create table data
+    table_columns = all_authors
+    table_data = []
+
+    for author in all_authors:
+        for author_combination, mean_pred in mean_authors_combinations.items():
+            if author in author_combination.split('-'):
+                table_data.append(mean_pred)
 
     # Save as a table image file
     fig, ax = plt.subplots()
@@ -148,20 +128,65 @@ def save_prediction_metrics_by_author_combination(predictions, n_pairs, configs)
     ]
 
     rows_data = []
-    for author_combination, pred in dic_data.items():
+    for author_combination, mean_pred in mean_authors_combinations.items():
         authors_splited = author_combination.split('-')
-
         rows_data.append([
             configs['date'].strftime("%d/%m/%Y %H:%M:%S"), configs['neural_network_type'].name,
             configs['similarity_type'].name, configs['word_embedding_type'].name,
-            configs['max_seq_length'], authors_splited[0], authors_splited[1], pred
+            configs['max_seq_length'], authors_splited[0], authors_splited[1], mean_pred
         ])
 
     dataframe = pd.DataFrame(rows_data, columns=columns)
     dataframe.to_csv(path_file, index=False, mode=mode_file, header=has_header)
 
 
-def save_prediction_metrics_global(df_prediction, predictions, configs):
+def save_authors_prediction_matrix_by_all_combinations(model, df_prediction, configs):
+    # LOGIC OF PREDICTIONS OF COMBINATIONS AMONG PHRASES
+    authors_index_vector_phrases = __extract_authors_phrases_vectors(df_prediction)
+    authors = list(authors_index_vector_phrases.keys())
+    authors_prod_combinations = list(itertools.product(authors, authors))
+    mean_list = []
+
+    for author_combination in authors_prod_combinations:
+        author1 = author_combination[0]
+        author2 = author_combination[1]
+
+        if author1 == author2:
+            dic_combination_inputs = __combination_between_same_authors(authors_index_vector_phrases[author1])
+        else:
+            dic_combination_inputs = _combination_between_different_authors(
+                authors_index_vector_phrases[author1],
+                authors_index_vector_phrases[author2]
+            )
+
+        df_data = [dic_combination_inputs['author1'], dic_combination_inputs['author2']]
+        df_author_combination = pd.DataFrame(df_data, columns=['phrase1_n', 'phrase2_n'])
+        input_normalized_data = define_prediction_dataframe(df_author_combination, configs['max_seq_length'])
+
+        predictions_list = __to_predictions_list(predict_neural_network(model, input_normalized_data))
+        mean_pred = statistics.mean(predictions_list)
+        mean_list.append(mean_pred)
+
+    # CONFIGURING TABLE
+    dataset_type = configs['dataset_type']
+
+    table_title = "Índices de similaridade entre todas combinações de frases\n({network_type} - {similarity_type} - {dataset_type})".format(
+        network_type=configs['neural_network_type'].name,
+        similarity_type=configs['similarity_type'].name,
+        dataset_type=dataset_type.name
+    )
+
+    table_filename = helper.get_results_path_directory_by_dataset(
+        dataset_type) + "/prediction-similarity-values-all-combinations-{date}-{network_type}-{similarity_type}-{word_embedding_type}.png"
+    table_filename = table_filename.format(
+        date=configs['date'].strftime("%d_%m_%Y-%H_%M_%S"),
+        network_type=configs['neural_network_type'].name,
+        similarity_type=configs['similarity_type'].name,
+        word_embedding_type=configs['word_embedding_type'].name
+    )
+
+
+def save_correlation_metrics(df_prediction, predictions, configs):
     columns = [
         'date', 'neural_network_type',
         'similarity_type', 'embedding_type', 'max_seq_length',
@@ -195,3 +220,78 @@ def calculate_prediction_metrics(y_true, y_pred):
     mse_val = sklearn.metrics.mean_squared_error(y_true, y_pred)
 
     return {'pearson': pearson_val, 'spearman': spearman_val, 'mse': mse_val}
+
+
+def __extract_authors_combinations_predictions(df_prediction, predictions_result):
+    authors_predictions = {}
+    predictions_list = __to_predictions_list(predictions_result)
+
+    for index, row in df_prediction.iterrows():
+        author1 = row['author1']
+        author2 = row['author2']
+
+        authors_key = author1 + "-" + author2
+
+        if authors_key not in authors_predictions:
+            authors_predictions[authors_key] = {
+                'author1': author1,
+                'author2': author2,
+                'y_true': [],
+                'y_pred': []
+            }
+
+        dic_pred = authors_predictions[authors_key]
+        dic_pred['y_true'].append(float(row['label']))
+        dic_pred['y_pred'].append(float(predictions_list[index]))
+
+    return authors_predictions
+
+
+def __extract_authors_phrases_vectors(df_prediction):
+    # Phrases as a indices of vectors
+    authors_phrases = {}
+
+    for index, row in df_prediction.iterrows():
+        author1 = row['author1']
+        author2 = row['author2']
+
+        for author in [author1, author2]:
+            if author not in authors_phrases:
+                authors_phrases[author] = []
+
+        phrase_author1 = df_prediction['phrase1_n']
+        phrase_author2 = df_prediction['phrase2_n']
+        authors_phrases[author1].append(phrase_author1)
+        authors_phrases[author2].append(phrase_author2)
+
+    return authors_phrases
+
+
+def __combination_between_same_authors(author_indices_vectors_phrases):
+    left_side_input = []
+    right_side_input = []
+    start_index_inner_loop = 0
+
+    for index_vector in author_indices_vectors_phrases:
+        for i in range(start_index_inner_loop, len(author_indices_vectors_phrases), 1):
+            left_side_input.append(index_vector)
+            right_side_input.append(author_indices_vectors_phrases[i])
+
+        start_index_inner_loop += 1
+
+    return {'author1': left_side_input, 'author2': right_side_input}
+
+
+def _combination_between_different_authors(author1_indices_vectors_phrases, author2_indices_vectors_phrases):
+    author1_input = []
+    author2_input = []
+
+    for author1_phrases in author1_indices_vectors_phrases:
+        for author2_phrases in author2_indices_vectors_phrases:
+            pass
+
+    return {'author1': author1_input, 'author2': author2_input}
+
+
+def __to_predictions_list(predictions_result):
+    return [pred[0] for pred in predictions_result.tolist()]
