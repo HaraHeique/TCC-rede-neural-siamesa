@@ -91,14 +91,17 @@ def __execute_data_structuring():
             # Create index vectors and embeddings matrix
             word_embedding = helper.load_word_embedding(word_embedding_type)
 
+            df_training_copy = df_training.copy()
+            df_prediction_copy = df_prediction.copy()
+
             index_vector_message = "Creating and saving index vector of {} file for {} word embedding..."
 
             print(index_vector_message.format(filename_training, word_embedding_type.name))
-            index_vector_training, vocabs = helper.create_index_vector(df_training, word_embedding)
+            index_vector_training, vocabs = helper.create_index_vector(df_training_copy, word_embedding)
             helper.save_index_vector(index_vector_training, dataset_type, word_embedding_type, training_process=True)
 
             print(index_vector_message.format(filename_prediction, word_embedding_type.name))
-            index_vector_prediction, vocabs = helper.create_index_vector(df_prediction, word_embedding, vocabs)
+            index_vector_prediction, vocabs = helper.create_index_vector(df_prediction_copy, word_embedding, vocabs)
             helper.save_index_vector(index_vector_prediction, dataset_type, word_embedding_type, training_process=False)
 
             print("Creating and saving embedding matrix file for {} word embedding...".format(word_embedding_type.name))
@@ -272,8 +275,9 @@ def __execute_prediction():
         'max_seq_length': max_seq_length
     }
 
-    prediction.save_prediction_metrics_by_author_combination(prediction_result, 50, configs_prediction_result)
-    prediction.save_prediction_metrics_global(prediction_dataframe, prediction_result, configs_prediction_result)
+    prediction.save_authors_prediction_matrix(prediction_dataframe, prediction_result, configs_prediction_result)
+    prediction.save_authors_prediction_matrix_by_all_combinations(test_model, prediction_dataframe, configs_prediction_result)
+    prediction.save_correlation_metrics(prediction_dataframe, prediction_result, configs_prediction_result)
 
 
 if __name__ == '__main__':
