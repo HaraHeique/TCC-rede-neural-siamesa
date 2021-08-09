@@ -59,7 +59,7 @@ def save_authors_prediction_matrix(df_prediction, predictions, configs):
     dataset_type = configs['dataset_type']
 
     # CONFIGURING TABLE
-    table_title = "Índices de Similaridade \n({network_type} - {similarity_type} - {dataset_type})".format(
+    table_title = "Índices de similaridade \n({network_type} - {similarity_type} - {dataset_type})".format(
         network_type=configs['neural_network_type'].name,
         similarity_type=configs['similarity_type'].name,
         dataset_type=dataset_type.name
@@ -84,16 +84,21 @@ def save_authors_prediction_matrix(df_prediction, predictions, configs):
         mean_authors_combinations[author_combination] = statistics.mean(pred_lst)
         all_authors += [dic_pred['author1'], dic_pred['author2']]
 
-    all_authors = list(set(all_authors))
+    all_authors = sorted(list(set(all_authors)))
 
     # Create table data
     table_columns = all_authors
     table_data = []
 
-    for author in all_authors:
-        for author_combination, mean_pred in mean_authors_combinations.items():
-            if author in author_combination.split('-'):
-                table_data.append(mean_pred)
+    authors_prod_combinations = list(itertools.product(all_authors, all_authors))  # Combination in correct order
+    for author_combination in authors_prod_combinations:
+        author_combination_key = "{}-{}".format(author_combination[0], author_combination[1])
+
+        if author_combination_key not in mean_authors_combinations:
+            author_combination_key = "{}-{}".format(author_combination[1], author_combination[0])
+
+        mean_pred = mean_authors_combinations[author_combination_key]
+        table_data.append("{:.2f}".format(mean_pred))
 
     # Save as a table image file
     __save_authors_table_image(table_filename, table_title, table_data, table_columns)
@@ -142,7 +147,7 @@ def save_authors_prediction_matrix_by_all_combinations(model, df_prediction, con
                 authors_index_vector_phrases[author2]
             )
 
-        df_data = [dic_combination_inputs['author1'], dic_combination_inputs['author2']]
+        df_data = {'phrase1_n': dic_combination_inputs['author1'], 'phrase2_n': dic_combination_inputs['author2']}
         df_author_combination = pd.DataFrame(df_data, columns=['phrase1_n', 'phrase2_n'])
         input_normalized_data = define_prediction_dataframe(df_author_combination, configs['max_seq_length'])
 
@@ -169,7 +174,7 @@ def save_authors_prediction_matrix_by_all_combinations(model, df_prediction, con
     )
 
     table_columns = authors
-    table_data = all_combinations_mean_pred
+    table_data = ["{:.2f}".format(value) for value in all_combinations_mean_pred]
 
     __save_authors_table_image(table_filename, table_title, table_data, table_columns)
 
@@ -238,12 +243,19 @@ def calculate_prediction_metrics(y_true, y_pred):
 
 
 def __save_authors_table_image(table_filename, table_title, table_data, table_columns):
+    # Structuring table data correctly (array of values to array of array of the same name of columns)
+    table_data_normalized = []
+    n_columns = len(table_columns)
+
+    for i in range(0, len(table_data), n_columns):
+        table_data_normalized.append(table_data[i:i + n_columns])
+
     # Save as a table image file
     fig, ax = plt.subplots()
     ax.set_axis_off()
 
     ax.table(
-        cellText=table_data,
+        cellText=table_data_normalized,
         rowLabels=table_columns,
         colLabels=table_columns,
         rowColours=['#99ddff'] * 10,
@@ -296,8 +308,8 @@ def __extract_authors_phrases_vectors(df_prediction):
             if author not in authors_phrases:
                 authors_phrases[author] = []
 
-        phrase_author1 = df_prediction['phrase1_n']
-        phrase_author2 = df_prediction['phrase2_n']
+        phrase_author1 = row['phrase1_n']
+        phrase_author2 = row['phrase2_n']
         authors_phrases[author1].append(phrase_author1)
         authors_phrases[author2].append(phrase_author2)
 

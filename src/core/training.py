@@ -108,7 +108,7 @@ def define_shared_model(embeddings, hyperparameters):
     else:
         # LSTM - Long Short Term Memory
         shared_model.add(Dropout(hyperparameters['dropout']))
-        shared_model.add(Bidirectional(LSTM(
+        shared_model.add(LSTM(
             hyperparameters['n_hidden'],
             kernel_initializer=hyperparameters['kernel_initializer'],
             kernel_regularizer=hyperparameters['kernel_regularizer'],
@@ -118,7 +118,7 @@ def define_shared_model(embeddings, hyperparameters):
             recurrent_activation=hyperparameters['recurrent_activation'],
             dropout=hyperparameters['dropout_lstm'],
             recurrent_dropout=hyperparameters['recurrent_dropout']
-        )))
+        ))
         shared_model.add(Activation(hyperparameters['activation_layer']))
         shared_model.add(Dense(1, activation=hyperparameters['activation_dense_layer']))
         # shared_model.add(LSTM(hyperparameters['n_hidden']))
