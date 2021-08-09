@@ -96,24 +96,7 @@ def save_authors_prediction_matrix(df_prediction, predictions, configs):
                 table_data.append(mean_pred)
 
     # Save as a table image file
-    fig, ax = plt.subplots()
-    ax.set_axis_off()
-
-    ax.table(
-        cellText=table_data,
-        rowLabels=table_columns,
-        colLabels=table_columns,
-        rowColours=['#99ddff'] * 10,
-        colColours=['#99ddff'] * 10,
-        cellLoc='center',
-        loc='upper left'
-    )
-
-    ax.set_title(table_title, fontweight="bold")
-
-    plt.tight_layout()
-    plt.savefig(table_filename)
-    plt.clf()
+    __save_authors_table_image(table_filename, table_title, table_data, table_columns)
 
     # CONFIGURING CSV FILE
     base_filename = "prediction-similarity-values.csv"
@@ -145,7 +128,7 @@ def save_authors_prediction_matrix_by_all_combinations(model, df_prediction, con
     authors_index_vector_phrases = __extract_authors_phrases_vectors(df_prediction)
     authors = list(authors_index_vector_phrases.keys())
     authors_prod_combinations = list(itertools.product(authors, authors))
-    mean_list = []
+    all_combinations_mean_pred = []
 
     for author_combination in authors_prod_combinations:
         author1 = author_combination[0]
@@ -165,7 +148,7 @@ def save_authors_prediction_matrix_by_all_combinations(model, df_prediction, con
 
         predictions_list = __to_predictions_list(predict_neural_network(model, input_normalized_data))
         mean_pred = statistics.mean(predictions_list)
-        mean_list.append(mean_pred)
+        all_combinations_mean_pred.append(mean_pred)
 
     # CONFIGURING TABLE
     dataset_type = configs['dataset_type']
@@ -184,6 +167,38 @@ def save_authors_prediction_matrix_by_all_combinations(model, df_prediction, con
         similarity_type=configs['similarity_type'].name,
         word_embedding_type=configs['word_embedding_type'].name
     )
+
+    table_columns = authors
+    table_data = all_combinations_mean_pred
+
+    __save_authors_table_image(table_filename, table_title, table_data, table_columns)
+
+    # CONFIGURING CSV FILE
+    base_filename = "prediction-similarity-values-all-combinations.csv"
+    path_file = os.path.join(helper.get_results_path_directory_by_dataset(dataset_type), base_filename)
+    mode_file = 'a' if os.path.exists(path_file) else 'w'
+    has_header = mode_file == 'w'
+
+    csv_columns = [
+        'date', 'neural_network_type',
+        'similarity_type', 'embedding_type',
+        'max_seq_length', 'author1', 'author2', 'all_combination_mean_prediction'
+    ]
+
+    rows_data = []
+    for i in range(len(authors_prod_combinations)):
+        author1 = authors_prod_combinations[i][0]
+        author2 = authors_prod_combinations[i][1]
+        mean_pred = all_combinations_mean_pred[i]
+
+        rows_data.append([
+            configs['date'].strftime("%d/%m/%Y %H:%M:%S"), configs['neural_network_type'].name,
+            configs['similarity_type'].name, configs['word_embedding_type'].name,
+            configs['max_seq_length'], author1, author2, mean_pred
+        ])
+
+    dataframe = pd.DataFrame(rows_data, columns=csv_columns)
+    dataframe.to_csv(path_file, index=False, mode=mode_file, header=has_header)
 
 
 def save_correlation_metrics(df_prediction, predictions, configs):
@@ -220,6 +235,28 @@ def calculate_prediction_metrics(y_true, y_pred):
     mse_val = sklearn.metrics.mean_squared_error(y_true, y_pred)
 
     return {'pearson': pearson_val, 'spearman': spearman_val, 'mse': mse_val}
+
+
+def __save_authors_table_image(table_filename, table_title, table_data, table_columns):
+    # Save as a table image file
+    fig, ax = plt.subplots()
+    ax.set_axis_off()
+
+    ax.table(
+        cellText=table_data,
+        rowLabels=table_columns,
+        colLabels=table_columns,
+        rowColours=['#99ddff'] * 10,
+        colColours=['#99ddff'] * 10,
+        cellLoc='center',
+        loc='upper left'
+    )
+
+    ax.set_title(table_title, fontweight="bold")
+
+    plt.tight_layout()
+    plt.savefig(table_filename)
+    plt.clf()
 
 
 def __extract_authors_combinations_predictions(df_prediction, predictions_result):
@@ -288,7 +325,8 @@ def _combination_between_different_authors(author1_indices_vectors_phrases, auth
 
     for author1_phrases in author1_indices_vectors_phrases:
         for author2_phrases in author2_indices_vectors_phrases:
-            pass
+            author1_input.append(author1_phrases)
+            author2_input.append(author2_phrases)
 
     return {'author1': author1_input, 'author2': author2_input}
 
