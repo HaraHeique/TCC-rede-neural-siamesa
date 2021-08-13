@@ -113,9 +113,11 @@ def insert_number_epochs():
             return int(number_epochs)
 
 
-def insert_max_seq_length():
+def insert_max_seq_length(isTraining=True):
+    process_message = "train" if isTraining else "predict"
+
     while True:
-        max_seq_length = input("Enter the number of max sequence length to train: ")
+        max_seq_length = input("Enter the number of max sequence length to {}: ".format(process_message))
 
         if __try_parse_int_positive(max_seq_length) and int(max_seq_length) > 0:
             return int(max_seq_length)

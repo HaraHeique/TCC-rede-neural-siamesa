@@ -131,22 +131,23 @@ def __execute_training():
             'gpus': gpus,
             'embedding_dim': 300,
             'max_seq_length': 30,
-            'batch_size': 32 * gpus,
-            'n_epochs': 15,
+            'batch_size': 64 * gpus,
+            'n_epochs': 20,
             'n_hidden': 128,
             'kernel_initializer': tf.keras.initializers.glorot_normal(seed=1),
             'kernel_regularizer': None,
             'bias_regularizer': None,
             'activity_regularizer': None,
-            'activation': "tanh",
+            'activation': "softsign",
             'recurrent_activation': "hard_sigmoid",
-            'dropout': 0.065,
-            'dropout_lstm': 0.736,
-            'recurrent_dropout': 0.787,
-            'activation_layer': "relu",
-            'activation_dense_layer': "hard_sigmoid",
+            'dropout': 0.24697647633830466,
+            'dropout_lstm': 0.8228431108922754,
+            'recurrent_dropout': 0.06536980304050743,
+            'activation_layer': "selu",
+            'activation_dense_layer': "sigmoid",
             'loss': tf.keras.losses.MeanSquaredError(),
-            'optimizer': tf.keras.optimizers.Adam(learning_rate=0.1, beta_1=0.9, beta_2=0.999, epsilon=1e-07, amsgrad=False, name='Adam', clipnorm=1.5)
+            'optimizer': tf.keras.optimizers.Adadelta(learning_rate=0.1, rho=0.95, epsilon=1e-07, name='Adadelta',
+                                                      clipnorm=1.5)
         }
         hyperparameters_lstm.update(hyperparameters)
         hyperparameters = hyperparameters_lstm
@@ -247,7 +248,7 @@ def __execute_prediction():
     uo.break_lines(1)
     similarity_type = ui.insert_similarity_measure_type()
     uo.break_lines(1)
-    max_seq_length = ui.insert_max_seq_length()
+    max_seq_length = ui.insert_max_seq_length(False)
     uo.break_lines(1)
 
     # Loading index vector and embedding matrix
