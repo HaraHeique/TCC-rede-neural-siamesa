@@ -1,0 +1,10 @@
+
+max_seq_length=7
+embedding_dim=300
+gpus=1
+batch_size=64
+n_epochs=20
+n_hidden=128
+neural_network_type=LSTM
+similarity_measure_type=MANHATTAN
+percent_validation=30.0
