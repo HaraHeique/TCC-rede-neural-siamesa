@@ -75,7 +75,7 @@ def save_authors_prediction_matrix(df_prediction, predictions, configs):
     )
 
     # Extracting and structuring data
-    authors_combinations_predictions = __extract_authors_combinations_predictions(df_prediction, predictions)
+    authors_combinations_predictions = extract_authors_combinations_predictions(df_prediction, predictions)
     mean_authors_combinations = {}
     all_authors = []
 
@@ -101,7 +101,7 @@ def save_authors_prediction_matrix(df_prediction, predictions, configs):
         table_data.append("{:.2f}".format(mean_pred))
 
     # Save as a table image file
-    __save_authors_table_image(table_filename, table_title, table_data, table_columns)
+    save_authors_table_image(table_filename, table_title, table_data, table_columns)
 
     # CONFIGURING CSV FILE
     base_filename = "prediction-similarity-values.csv"
@@ -142,7 +142,7 @@ def save_authors_prediction_matrix_by_all_combinations(model, df_prediction, con
         if author1 == author2:
             dic_combination_inputs = __combination_between_same_authors(authors_index_vector_phrases[author1])
         else:
-            dic_combination_inputs = _combination_between_different_authors(
+            dic_combination_inputs = __combination_between_different_authors(
                 authors_index_vector_phrases[author1],
                 authors_index_vector_phrases[author2]
             )
@@ -176,7 +176,7 @@ def save_authors_prediction_matrix_by_all_combinations(model, df_prediction, con
     table_columns = authors
     table_data = ["{:.2f}".format(value) for value in all_combinations_mean_pred]
 
-    __save_authors_table_image(table_filename, table_title, table_data, table_columns)
+    save_authors_table_image(table_filename, table_title, table_data, table_columns)
 
     # CONFIGURING CSV FILE
     base_filename = "prediction-similarity-values-all-combinations.csv"
@@ -242,7 +242,32 @@ def calculate_prediction_metrics(y_true, y_pred):
     return {'pearson': pearson_val, 'spearman': spearman_val, 'mse': mse_val}
 
 
-def __save_authors_table_image(table_filename, table_title, table_data, table_columns):
+def extract_authors_combinations_predictions(df_prediction, predictions_result):
+    authors_predictions = {}
+    predictions_list = __to_predictions_list(predictions_result)
+
+    for index, row in df_prediction.iterrows():
+        author1 = row['author1']
+        author2 = row['author2']
+
+        authors_key = author1 + "-" + author2
+
+        if authors_key not in authors_predictions:
+            authors_predictions[authors_key] = {
+                'author1': author1,
+                'author2': author2,
+                'y_true': [],
+                'y_pred': []
+            }
+
+        dic_pred = authors_predictions[authors_key]
+        dic_pred['y_true'].append(float(row['label']))
+        dic_pred['y_pred'].append(float(predictions_list[index]))
+
+    return authors_predictions
+
+
+def save_authors_table_image(table_filename, table_title, table_data, table_columns):
     # Structuring table data correctly (array of values to array of array of the same name of columns)
     table_data_normalized = []
     n_columns = len(table_columns)
@@ -269,31 +294,6 @@ def __save_authors_table_image(table_filename, table_title, table_data, table_co
     plt.tight_layout()
     plt.savefig(table_filename)
     plt.clf()
-
-
-def __extract_authors_combinations_predictions(df_prediction, predictions_result):
-    authors_predictions = {}
-    predictions_list = __to_predictions_list(predictions_result)
-
-    for index, row in df_prediction.iterrows():
-        author1 = row['author1']
-        author2 = row['author2']
-
-        authors_key = author1 + "-" + author2
-
-        if authors_key not in authors_predictions:
-            authors_predictions[authors_key] = {
-                'author1': author1,
-                'author2': author2,
-                'y_true': [],
-                'y_pred': []
-            }
-
-        dic_pred = authors_predictions[authors_key]
-        dic_pred['y_true'].append(float(row['label']))
-        dic_pred['y_pred'].append(float(predictions_list[index]))
-
-    return authors_predictions
 
 
 def __extract_authors_phrases_vectors(df_prediction):
@@ -331,7 +331,7 @@ def __combination_between_same_authors(author_indices_vectors_phrases):
     return {'author1': left_side_input, 'author2': right_side_input}
 
 
-def _combination_between_different_authors(author1_indices_vectors_phrases, author2_indices_vectors_phrases):
+def __combination_between_different_authors(author1_indices_vectors_phrases, author2_indices_vectors_phrases):
     author1_input = []
     author2_input = []
 

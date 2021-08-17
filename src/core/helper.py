@@ -55,6 +55,10 @@ def get_results_path_directory_by_dataset(dataset_type):
         return os.path.join(DATA_FILES_RESULTS_PATH, "sw_lemmatization")
 
 
+def get_experiments_path_directory_by_dataset(dataset_type):
+    return os.path.join(get_results_path_directory_by_dataset(dataset_type), "experiments")
+
+
 def get_word_embedding_path_filename(word_embedding_type):
     word_embedding_files = {
         WordEmbeddingType.GLOVE_COMMON_CRAWL_UNCASED: "glove-CommonCrawl-uncased-42B-300d.txt",

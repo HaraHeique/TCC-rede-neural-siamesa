@@ -90,7 +90,7 @@ def define_shared_model(embeddings, hyperparameters):
                                input_shape=(hyperparameters['max_seq_length'],),
                                trainable=False))
 
-    #np.random.seed(1)
+    np.random.seed(1)
 
     if hyperparameters['neural_network_type'] == NeuralNetworkType.CNN:
         # CNN - Convolutional Neural Network
@@ -265,9 +265,9 @@ def clear_plot_graph():
     plt.clf()
 
 
-def report_max_accuracy(network_trained):
-    print(str(network_trained.history['val_accuracy'][-1])[:6] +
-          "(max: " + str(max(network_trained.history['val_accuracy']))[:6] + ")")
+def report_max_accuracy(training_history):
+    print(str(training_history.history['val_accuracy'][-1])[:6] +
+          "(max: " + str(max(training_history.history['val_accuracy']))[:6] + ")")
 
 
 def report_size_data(training_dataframe, training_size, validation_size):

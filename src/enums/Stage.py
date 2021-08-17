@@ -6,3 +6,4 @@ class Stage(Enum):
     STRUCTURING = 1
     TRAINING = 2
     PREDICTION = 3
+    EXPERIMENTAL = 4

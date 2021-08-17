@@ -1,20 +1,19 @@
-import time
 import os
 import keras.backend as K
 import tensorflow as tf
 import tensorflow_addons as tfa
+import src.core.data_structuring as structuring
+import src.core.helper as helper
+import src.core.prediction as prediction
+import src.core.training as training
+import src.core.experiments as experimental
 import src.user_interface.cli_input as ui
 import src.user_interface.cli_output as uo
-import src.core.helper as helper
-import src.core.data_structuring as structuring
-import src.core.training as training
-import src.core.prediction as prediction
 from datetime import datetime
 from src.enums.DatasetType import DatasetType
-from src.enums.WordEmbeddingType import WordEmbeddingType
-from src.enums.NeuralNetworkType import  NeuralNetworkType
-from src.enums.SimilarityMeasureType import SimilarityMeasureType
+from src.enums.NeuralNetworkType import NeuralNetworkType
 from src.enums.Stage import Stage
+from src.enums.WordEmbeddingType import WordEmbeddingType
 
 
 def main():
@@ -35,6 +34,9 @@ def _execute_stage(stage):
         return 1
     elif stage == Stage.PREDICTION:
         __execute_prediction()
+        return 1
+    elif stage == Stage.EXPERIMENTAL:
+        __execute_experiments()
         return 1
     else:
         uo.show_leaving_message()
@@ -130,7 +132,7 @@ def __execute_training():
         hyperparameters_lstm = {
             'gpus': gpus,
             'embedding_dim': 300,
-            'max_seq_length': 30,
+            'max_seq_length': 17,
             'batch_size': 64 * gpus,
             'n_epochs': 20,
             'n_hidden': 128,
@@ -279,6 +281,12 @@ def __execute_prediction():
     prediction.save_authors_prediction_matrix(prediction_dataframe, prediction_result, configs_prediction_result)
     prediction.save_authors_prediction_matrix_by_all_combinations(test_model, prediction_dataframe, configs_prediction_result)
     prediction.save_correlation_metrics(prediction_dataframe, prediction_result, configs_prediction_result)
+
+
+def __execute_experiments():
+    n_rounds = 20
+
+    experimental.run_experiments(n_rounds)
 
 
 if __name__ == '__main__':
