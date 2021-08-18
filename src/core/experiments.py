@@ -75,10 +75,12 @@ def __get_defined_lstm_hyperparameters(n_epochs, max_seq_length, gpus):
 def __get_defined_configs_per_dataset_type():
     # based sentences distribution (mean, median and mean of mean and median)
     # The tuple is (n_epochs, max_seq_length)
+    MOST_EPOCHS = 2
+
     return {
-        DatasetType.RAW: [(20, 17), (20, 10), (20, 14)],
-        DatasetType.WITHOUT_SW: [(20, 9), (20, 5), (20, 7)],
-        DatasetType.WITHOUT_SW_WITH_LEMMA: [(20, 9), (20, 5), (20, 7)]
+        DatasetType.RAW: [(MOST_EPOCHS, 17), (MOST_EPOCHS, 10), (MOST_EPOCHS, 14)],
+        DatasetType.WITHOUT_SW: [(MOST_EPOCHS, 9), (MOST_EPOCHS, 5), (MOST_EPOCHS, 7)],
+        DatasetType.WITHOUT_SW_WITH_LEMMA: [(MOST_EPOCHS, 9), (MOST_EPOCHS, 5), (MOST_EPOCHS, 7)]
     }
 
 

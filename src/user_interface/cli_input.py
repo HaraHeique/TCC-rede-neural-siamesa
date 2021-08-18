@@ -20,7 +20,7 @@ _DATA_FILES_PREDICTION_PATH = _DATA_FILES_PATH + "/prediction"
 
 def choose_stage():
     while True:
-        option_chosen = input("What would you like to do?\n 0 - Leave\n 1 - Data Structure\n 2 - Train\n 3 - Predict\n")
+        option_chosen = input("What would you like to do?\n 0 - Leave\n 1 - Data Structure\n 2 - Train\n 3 - Predict\n 4 - Experiment\n")
 
         if __try_parse_int_positive(option_chosen) and __check_chosen_option(int(option_chosen)):
             return Stage(int(option_chosen))
@@ -157,10 +157,10 @@ def __try_parse_even_number(str_int):
 
 
 def __check_chosen_option(option):
-    if 0 <= option <= 3:
+    if 0 <= option <= 4:
         return True
 
-    print("Please insert a option 0, 1, 2 or 3")
+    print("Please insert a option 0, 1, 2, 3 or 4")
     return False
 
 
