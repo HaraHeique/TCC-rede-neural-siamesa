@@ -21,12 +21,11 @@ from src.enums.NeuralNetworkType import NeuralNetworkType
 from src.enums.DatasetType import DatasetType
 from src.enums.WordEmbeddingType import WordEmbeddingType
 
-__DATE_EXPERIMENT = None
+__DATE_EXPERIMENT = datetime.now()
 
 
 def run_experiments(n_rounds):
     configs_per_datasets = __get_defined_configs_per_dataset_type()
-    __DATE_EXPERIMENT = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
     for dataset_type in list(DatasetType):
         for config_dataset in configs_per_datasets[dataset_type]:
@@ -123,7 +122,7 @@ def __save_training_experiments_results(round_number, training_history, max_seq_
     columns = ['date', 'round', 'max_seq_length', 'accuracy', 'val_accuracy', 'loss', 'val_loss']
 
     row_data = [
-        __DATE_EXPERIMENT, round_number, max_seq_length,
+        __DATE_EXPERIMENT.strftime("%d/%m/%Y %H:%M:%S"), round_number, max_seq_length,
         training_history.history['accuracy'], training_history.history['val_accuracy'],
         training_history.history['loss'], training_history.history['val_loss']
     ]
@@ -186,7 +185,7 @@ def __save_prediction_experiments_results(round_number, authors_combinations_pre
             author_combination_key = "{}-{}".format(author2, author1)
 
         mean_pred = mean_authors_combinations[author_combination_key]
-        rows_data.append([__DATE_EXPERIMENT, round_number, max_seq_length, author1, author2, mean_pred])
+        rows_data.append([__DATE_EXPERIMENT.strftime("%d/%m/%Y %H:%M:%S"), round_number, max_seq_length, author1, author2, mean_pred])
 
     pathlib.Path(helper.get_experiments_path_directory_by_dataset(dataset_type)).mkdir(parents=True, exist_ok=True)
     path_file = os.path.join(helper.get_experiments_path_directory_by_dataset(dataset_type),
@@ -212,7 +211,7 @@ def __save_training_plot_performance_graph(n_rounds, dataset_type, max_seq_lengt
         df_date = row['date']
         df_max_seq_length = row['max_seq_length']
 
-        if df_date != __DATE_EXPERIMENT or df_max_seq_length != max_seq_length:
+        if df_date != __DATE_EXPERIMENT.strftime("%d/%m/%Y %H:%M:%S") or df_max_seq_length != max_seq_length:
             continue
 
         row_accuracy_lst = __extract_vector_performance(row['accuracy'])
@@ -223,8 +222,8 @@ def __save_training_plot_performance_graph(n_rounds, dataset_type, max_seq_lengt
         for i in range(n_epochs):
             accuracy_lst[i] += row_accuracy_lst[i]
             val_accuracy_lst[i] += row_val_accuracy_lst[i]
-            loss_lst[i] = row_loss_lst[i]
-            val_loss_lst[i] = row_val_loss_lst[i]
+            loss_lst[i] += row_loss_lst[i]
+            val_loss_lst[i] += row_val_loss_lst[i]
 
     accuracy_lst = list(map(lambda val: val / n_rounds, accuracy_lst))
     val_accuracy_lst = list(map(lambda val: val / n_rounds, val_accuracy_lst))
@@ -258,8 +257,8 @@ def __save_graph_performance(accuracy_lst, val_accuracy_lst, loss_lst, val_loss_
     plt.xlabel('Epoch')
     plt.legend(['Training', 'Validation'], loc='upper right')
 
-    base_filename = "history-graph-{date}-{epochs}-{max_seq_length}.csv".format(
-        date=__DATE_EXPERIMENT,
+    base_filename = "history-graph-{date}-{epochs}-{max_seq_length}.png".format(
+        date=__DATE_EXPERIMENT.strftime("%d_%m_%Y-%H_%M_%S"),
         epochs=epochs,
         max_seq_length=max_seq_length
     )
@@ -281,7 +280,7 @@ def __save_prediction_authors_matrix_combinations(n_rounds, dataset_type, epochs
         df_date = row['date']
         df_max_seq_length = row['max_seq_length']
 
-        if df_date != __DATE_EXPERIMENT or df_max_seq_length != max_seq_length:
+        if df_date != __DATE_EXPERIMENT.strftime("%d/%m/%Y %H:%M:%S") or df_max_seq_length != max_seq_length:
             continue
 
         author1 = row['author1']
@@ -291,16 +290,15 @@ def __save_prediction_authors_matrix_combinations(n_rounds, dataset_type, epochs
         author_combination_key = "{}-{}".format(author1, author2)
 
         if author_combination_key not in dic_author_combination:
-            dic_author_combination[author_combination_key] = 0.0
+            dic_author_combination[author_combination_key] = []
 
-        dic_author_combination[author_combination_key] += row['mean_prediction']
+        dic_author_combination[author_combination_key].append(row['mean_prediction'])
 
     all_authors = sorted(list(set(all_authors)))
     table_data = []
 
-    for author_combination, accumulate_pred in dic_author_combination.items():
-        dic_author_combination[author_combination] = accumulate_pred / n_rounds
-        mean_pred = dic_author_combination[author_combination]
+    for author_combination, mean_pred_lst in dic_author_combination.items():
+        mean_pred = statistics.mean(mean_pred_lst)
         table_data.append("{:.2f}".format(mean_pred))
 
     # CONFIGURING TABLE
@@ -308,7 +306,7 @@ def __save_prediction_authors_matrix_combinations(n_rounds, dataset_type, epochs
 
     table_filename = helper.get_experiments_path_directory_by_dataset(dataset_type) + "/prediction-similarity-values-{date}-{epochs}-{max_seq_length}.png"
     table_filename = table_filename.format(
-        date=__DATE_EXPERIMENT,
+        date=__DATE_EXPERIMENT.strftime("%d_%m_%Y-%H_%M_%S"),
         epochs=epochs,
         max_seq_length=max_seq_length
     )
@@ -321,7 +319,7 @@ def __save_final_results_training(accuracy_lst, val_accuracy_lst, loss_lst, val_
     columns = ['date', 'max_seq_length', 'accuracy', 'val_accuracy', 'loss', 'val_loss']
 
     row_data = [
-        __DATE_EXPERIMENT, max_seq_length,
+        __DATE_EXPERIMENT.strftime("%d/%m/%Y %H:%M:%S"), max_seq_length,
         accuracy_lst, val_accuracy_lst, loss_lst, val_loss_lst
     ]
 
@@ -335,15 +333,16 @@ def __save_final_results_training(accuracy_lst, val_accuracy_lst, loss_lst, val_
 
 
 def __save_final_results_prediction(dic_author_combination, dataset_type, max_seq_length):
-    columns = ['date', 'max_seq_length', 'author1', 'author2', 'mean_prediction']
+    columns = ['date', 'max_seq_length', 'author1', 'author2', 'mean_prediction', 'standard_deviation']
     rows_data = []
 
-    for author_combination, mean_pred in dic_author_combination.items():
+    for author_combination, mean_pred_lst in dic_author_combination.items():
         author_combination_splitted = author_combination.split('-')
 
         rows_data.append([
-            __DATE_EXPERIMENT, max_seq_length,
-            author_combination_splitted[0], author_combination_splitted[1], mean_pred
+            __DATE_EXPERIMENT.strftime("%d/%m/%Y %H:%M:%S"), max_seq_length,
+            author_combination_splitted[0], author_combination_splitted[1],
+            statistics.mean(mean_pred_lst), statistics.stdev(mean_pred_lst)
         ])
 
     path_file = os.path.join(helper.get_experiments_path_directory_by_dataset(dataset_type),
