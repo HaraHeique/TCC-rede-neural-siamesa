@@ -77,8 +77,8 @@ def __get_defined_configs_per_dataset_type():
     MOST_EPOCHS = 20
 
     return {
-        DatasetType.RAW: [(MOST_EPOCHS, 17), (MOST_EPOCHS, 10), (MOST_EPOCHS, 14)],
-        DatasetType.WITHOUT_SW: [(MOST_EPOCHS, 9), (MOST_EPOCHS, 5), (MOST_EPOCHS, 7)],
+        DatasetType.RAW: [(MOST_EPOCHS, 17), (50, 10), (MOST_EPOCHS, 14)],
+        DatasetType.WITHOUT_SW: [(MOST_EPOCHS, 9), (MOST_EPOCHS, 5), (50, 7)],
         DatasetType.WITHOUT_SW_WITH_LEMMA: [(MOST_EPOCHS, 9), (MOST_EPOCHS, 5), (MOST_EPOCHS, 7)]
     }
 
