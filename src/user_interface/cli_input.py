@@ -123,6 +123,14 @@ def insert_max_seq_length(isTraining=True):
             return int(max_seq_length)
 
 
+def insert_n_rounds_experiments():
+    while True:
+        number_experiments = input("Enter the number of rounds to run the experiments: ")
+
+        if __try_parse_int_positive(number_experiments) and int(number_experiments) > 0:
+            return int(number_experiments)
+
+
 def insert_hyperparameters_variables():
     hyperparameters = {}
 

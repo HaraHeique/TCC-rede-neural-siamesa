@@ -284,7 +284,7 @@ def __execute_prediction():
 
 
 def __execute_experiments():
-    n_rounds = 20
+    n_rounds = ui.insert_n_rounds_experiments()
 
     experimental.run_experiments(n_rounds)
 

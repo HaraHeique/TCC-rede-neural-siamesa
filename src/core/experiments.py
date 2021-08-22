@@ -84,6 +84,8 @@ def __get_defined_configs_per_dataset_type():
 
 
 def __run_training_process_round(round_number, hyperparameters, dataset_type):
+    start_time = datetime.now()
+
     word_embedding_type = WordEmbeddingType.WORD2VEC_GOOGLE_NEWS
 
     # Loading index vector and embedding matrix
@@ -112,21 +114,35 @@ def __run_training_process_round(round_number, hyperparameters, dataset_type):
     # Training the neural network based on model
     training_history = training.train_neural_network(model, normalized_dataframe, hyperparameters)
 
+    end_time = datetime.now()
+
     # Save data in csv
-    __save_training_experiments_results(round_number, training_history, hyperparameters['max_seq_length'], dataset_type)
+    configs = {
+        "max_seq_length": hyperparameters['max_seq_length'],
+        "dataset_type": dataset_type,
+        "start_time": start_time,
+        "end_time": end_time
+    }
+    __save_training_experiments_results(round_number, training_history, configs)
 
     return model
 
 
-def __save_training_experiments_results(round_number, training_history, max_seq_length, dataset_type):
-    columns = ['date', 'round', 'max_seq_length', 'accuracy', 'val_accuracy', 'loss', 'val_loss']
+def __save_training_experiments_results(round_number, training_history, configs):
+    columns = [
+        'date', 'round', 'start_time', 'end_time', 'max_seq_length',
+        'accuracy', 'val_accuracy', 'loss', 'val_loss'
+    ]
 
     row_data = [
-        __DATE_EXPERIMENT.strftime("%d/%m/%Y %H:%M:%S"), round_number, max_seq_length,
+        __DATE_EXPERIMENT.strftime("%d/%m/%Y %H:%M:%S"), round_number,
+        configs['start_time'].strftime("%d/%m/%Y %H:%M:%S"), configs['end_time'].strftime("%d/%m/%Y %H:%M:%S"),
+        configs['max_seq_length'],
         training_history.history['accuracy'], training_history.history['val_accuracy'],
         training_history.history['loss'], training_history.history['val_loss']
     ]
 
+    dataset_type = configs['dataset_type']
     pathlib.Path(helper.get_experiments_path_directory_by_dataset(dataset_type)).mkdir(parents=True, exist_ok=True)
     path_file = os.path.join(helper.get_experiments_path_directory_by_dataset(dataset_type),
                              "rounds-model-training-results.csv")
@@ -185,7 +201,9 @@ def __save_prediction_experiments_results(round_number, authors_combinations_pre
             author_combination_key = "{}-{}".format(author2, author1)
 
         mean_pred = mean_authors_combinations[author_combination_key]
-        rows_data.append([__DATE_EXPERIMENT.strftime("%d/%m/%Y %H:%M:%S"), round_number, max_seq_length, author1, author2, mean_pred])
+        rows_data.append([
+            __DATE_EXPERIMENT.strftime("%d/%m/%Y %H:%M:%S"), round_number, max_seq_length, author1, author2, mean_pred
+        ])
 
     pathlib.Path(helper.get_experiments_path_directory_by_dataset(dataset_type)).mkdir(parents=True, exist_ok=True)
     path_file = os.path.join(helper.get_experiments_path_directory_by_dataset(dataset_type),
@@ -207,6 +225,9 @@ def __save_training_plot_performance_graph(n_rounds, dataset_type, max_seq_lengt
     loss_lst = [0.0] * n_epochs
     val_loss_lst = [0.0] * n_epochs
 
+    strf_start_time = None
+    strf_end_time = None
+
     for index, row in df_experiment.iterrows():
         df_date = row['date']
         df_max_seq_length = row['max_seq_length']
@@ -225,20 +246,32 @@ def __save_training_plot_performance_graph(n_rounds, dataset_type, max_seq_lengt
             loss_lst[i] += row_loss_lst[i]
             val_loss_lst[i] += row_val_loss_lst[i]
 
+        curr_round = row['round']
+        strf_start_time = row['start_time'] if curr_round == 1 else strf_start_time
+        strf_end_time = row['end_time'] if curr_round == n_rounds else strf_end_time
+
     accuracy_lst = list(map(lambda val: val / n_rounds, accuracy_lst))
     val_accuracy_lst = list(map(lambda val: val / n_rounds, val_accuracy_lst))
     loss_lst = list(map(lambda val: val / n_rounds, loss_lst))
     val_loss_lst = list(map(lambda val: val / n_rounds, val_loss_lst))
 
-    __save_graph_performance(accuracy_lst, val_accuracy_lst, loss_lst, val_loss_lst, dataset_type, n_epochs, max_seq_length)
-    __save_final_results_training(accuracy_lst, val_accuracy_lst, loss_lst, val_loss_lst, dataset_type, max_seq_length)
+    configs = {
+        'dataset_type': dataset_type,
+        'max_seq_length': max_seq_length,
+        'n_epochs': n_epochs,
+        'n_rounds': n_rounds,
+        'strf_start_time': strf_start_time,
+        'strf_end_time': strf_end_time
+    }
+    __save_graph_performance(accuracy_lst, val_accuracy_lst, loss_lst, val_loss_lst, configs)
+    __save_final_results_training(accuracy_lst, val_accuracy_lst, loss_lst, val_loss_lst, configs)
 
 
 def __extract_vector_performance(str_data_experiment):
     return [float(value) for value in str_data_experiment.replace('[', '').replace(']', '').split(',')]
 
 
-def __save_graph_performance(accuracy_lst, val_accuracy_lst, loss_lst, val_loss_lst, dataset_type, epochs, max_seq_length):
+def __save_graph_performance(accuracy_lst, val_accuracy_lst, loss_lst, val_loss_lst, configs):
     # Plot accuracy
     plt.subplot(211)
     plt.plot(accuracy_lst)
@@ -259,13 +292,34 @@ def __save_graph_performance(accuracy_lst, val_accuracy_lst, loss_lst, val_loss_
 
     base_filename = "history-graph-{date}-{epochs}-{max_seq_length}.png".format(
         date=__DATE_EXPERIMENT.strftime("%d_%m_%Y-%H_%M_%S"),
-        epochs=epochs,
-        max_seq_length=max_seq_length
+        epochs=configs['n_epochs'],
+        max_seq_length=configs['max_seq_length']
     )
-    filename = os.path.join(helper.get_experiments_path_directory_by_dataset(dataset_type), base_filename)
+    filename = os.path.join(helper.get_experiments_path_directory_by_dataset(configs['dataset_type']), base_filename)
 
     plt.tight_layout(h_pad=1.0)
     plt.savefig(filename)
+
+
+def __save_final_results_training(accuracy_lst, val_accuracy_lst, loss_lst, val_loss_lst, configs):
+    columns = [
+        'date', 'n_rounds', 'start_time', 'end_time', 'max_seq_length',
+        'accuracy', 'val_accuracy', 'loss', 'val_loss'
+    ]
+
+    row_data = [
+        __DATE_EXPERIMENT.strftime("%d/%m/%Y %H:%M:%S"), configs['n_rounds'],
+        configs['strf_start_time'], configs['strf_end_time'], configs['max_seq_length'],
+        accuracy_lst, val_accuracy_lst, loss_lst, val_loss_lst
+    ]
+
+    path_file = os.path.join(helper.get_experiments_path_directory_by_dataset(configs['dataset_type']),
+                             "final-training-results.csv")
+    mode_file = 'a' if os.path.exists(path_file) else 'w'
+    has_header = mode_file == 'w'
+
+    dataframe = pd.DataFrame([row_data], columns=columns)
+    dataframe.to_csv(path_file, index=False, mode=mode_file, header=has_header)
 
 
 def __save_prediction_authors_matrix_combinations(n_rounds, dataset_type, epochs, max_seq_length):
@@ -313,23 +367,6 @@ def __save_prediction_authors_matrix_combinations(n_rounds, dataset_type, epochs
 
     prediction.save_authors_table_image(table_filename, table_title, table_data, all_authors)
     __save_final_results_prediction(dic_author_combination, dataset_type, max_seq_length)
-
-
-def __save_final_results_training(accuracy_lst, val_accuracy_lst, loss_lst, val_loss_lst, dataset_type, max_seq_length):
-    columns = ['date', 'max_seq_length', 'accuracy', 'val_accuracy', 'loss', 'val_loss']
-
-    row_data = [
-        __DATE_EXPERIMENT.strftime("%d/%m/%Y %H:%M:%S"), max_seq_length,
-        accuracy_lst, val_accuracy_lst, loss_lst, val_loss_lst
-    ]
-
-    path_file = os.path.join(helper.get_experiments_path_directory_by_dataset(dataset_type),
-                             "final-training-results.csv")
-    mode_file = 'a' if os.path.exists(path_file) else 'w'
-    has_header = mode_file == 'w'
-
-    dataframe = pd.DataFrame([row_data], columns=columns)
-    dataframe.to_csv(path_file, index=False, mode=mode_file, header=has_header)
 
 
 def __save_final_results_prediction(dic_author_combination, dataset_type, max_seq_length):
