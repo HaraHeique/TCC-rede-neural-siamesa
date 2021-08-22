@@ -16,8 +16,10 @@ import src.core.similarity_measure as similarity_measure
 
 from keras.layers.pooling import GlobalMaxPool1D
 from sklearn.model_selection import train_test_split
-from tensorflow.python.keras.models import Model, Sequential
-from tensorflow.python.keras.layers import Input, Embedding, LSTM, Lambda, Conv1D, Dense, Dropout, Activation, MaxPooling1D, Flatten, Bidirectional
+# from tensorflow.python.keras.models import Model, Sequential
+# from tensorflow.python.keras.layers import Input, Embedding, LSTM, Lambda, Conv1D, Dense, Dropout, Activation, MaxPooling1D, Flatten, Bidirectional
+from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.layers import Input, Embedding, LSTM, Lambda, Conv1D, Dense, Dropout, Activation, MaxPooling1D, Flatten, Bidirectional
 from src.enums.SimilarityMeasureType import SimilarityMeasureType
 from src.enums.NeuralNetworkType import NeuralNetworkType
 

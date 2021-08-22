@@ -1,3 +1,6 @@
+Resolver problema de módulo principal não encontrado (rodar main.py como módulo):
+https://cursos.alura.com.br/forum/topico-modulenotfounderror-no-module-named-src-138887
+
 Word embeddings:
 http://vectors.nlpl.eu/explore/embeddings/en/models/
 https://github.com/mmihaltz/word2vec-GoogleNews-vectors

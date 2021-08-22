@@ -15,7 +15,8 @@ from tensorflow.python.keras.preprocessing.sequence import pad_sequences
 from src.enums.DatasetType import DatasetType
 from src.enums.WordEmbeddingType import WordEmbeddingType
 
-SOURCE_PATH = os.path.dirname(os.path.abspath("src"))
+# SOURCE_PATH = os.path.dirname(os.path.abspath("src"))
+SOURCE_PATH = os.path.abspath("src")
 DATA_FILES_PATH = SOURCE_PATH + "/data"
 DATA_FILES_WORD_EMBEDDINGS_PATH = DATA_FILES_PATH + "/word_embeddings"
 DATA_FILES_TRAINING_PATH = DATA_FILES_PATH + "/training"
@@ -24,7 +25,6 @@ DATA_FILES_INDEX_VECTORS_PATH = DATA_FILES_PATH + "/processed/index_vectors"
 DATA_FILES_EMBEDDING_MATRICES_PATH = DATA_FILES_PATH + "/processed/embedding_matrices"
 DATA_FILES_NETWORKS_MODELS_PATH = DATA_FILES_PATH + "/processed/networks_models"
 DATA_FILES_RESULTS_PATH = SOURCE_PATH + "/results"
-
 
 def get_dataset_type_filename(dataset_type, base_filename):
     if dataset_type == DatasetType.RAW:
