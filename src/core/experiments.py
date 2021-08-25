@@ -74,12 +74,29 @@ def __get_defined_lstm_hyperparameters(n_epochs, max_seq_length, gpus):
 def __get_defined_configs_per_dataset_type():
     # based sentences distribution (mean, median and mean of mean and median)
     # The tuple is (n_epochs, max_seq_length)
+    # MOST_EPOCHS = 20
+    #
+    # return {
+    #     DatasetType.RAW: [(MOST_EPOCHS, 17), (50, 10), (MOST_EPOCHS, 14)],
+    #     DatasetType.WITHOUT_SW: [(MOST_EPOCHS, 9), (MOST_EPOCHS, 5), (50, 7)],
+    #     DatasetType.WITHOUT_SW_WITH_LEMMA: [(MOST_EPOCHS, 9), (MOST_EPOCHS, 5), (MOST_EPOCHS, 7)]
+    # }
+
     MOST_EPOCHS = 20
 
     return {
-        DatasetType.RAW: [(MOST_EPOCHS, 17), (50, 10), (MOST_EPOCHS, 14)],
-        DatasetType.WITHOUT_SW: [(MOST_EPOCHS, 9), (MOST_EPOCHS, 5), (50, 7)],
-        DatasetType.WITHOUT_SW_WITH_LEMMA: [(MOST_EPOCHS, 9), (MOST_EPOCHS, 5), (MOST_EPOCHS, 7)]
+        DatasetType.RAW: [
+            (MOST_EPOCHS, 5), (MOST_EPOCHS, 10), (MOST_EPOCHS, 15), (MOST_EPOCHS, 20), (MOST_EPOCHS, 25),
+            (MOST_EPOCHS, 30), (MOST_EPOCHS, 35), (MOST_EPOCHS, 50), (MOST_EPOCHS, 75), (MOST_EPOCHS, 100)
+        ],
+        DatasetType.WITHOUT_SW: [
+            (MOST_EPOCHS, 5), (MOST_EPOCHS, 10), (MOST_EPOCHS, 15), (MOST_EPOCHS, 20), (MOST_EPOCHS, 25),
+            (MOST_EPOCHS, 30), (MOST_EPOCHS, 35), (MOST_EPOCHS, 50), (MOST_EPOCHS, 75), (MOST_EPOCHS, 100)
+        ],
+        DatasetType.WITHOUT_SW_WITH_LEMMA: [
+            (MOST_EPOCHS, 5), (MOST_EPOCHS, 10), (MOST_EPOCHS, 15), (MOST_EPOCHS, 20), (MOST_EPOCHS, 25),
+            (MOST_EPOCHS, 30), (MOST_EPOCHS, 35), (MOST_EPOCHS, 50), (MOST_EPOCHS, 75), (MOST_EPOCHS, 100)
+        ]
     }
 
 
