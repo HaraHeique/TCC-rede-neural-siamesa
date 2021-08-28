@@ -142,6 +142,10 @@ def __run_training_process_round(round_number, hyperparameters, dataset_type):
     }
     __save_training_experiments_results(round_number, training_history, configs)
 
+    # Clear memory and close data streams
+    training_dataframe.close()
+    embedding_matrix.close()
+
     return model
 
 
