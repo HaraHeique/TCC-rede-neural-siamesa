@@ -196,6 +196,7 @@ def __execute_training():
     model = training.define_model(shared_model, hyperparameters)
     training.compile_model(model, hyperparameters)
     training.show_summary_model(model)
+    training.save_plot_model(model, helper.get_results_path_directory_by_dataset(dataset_type) + "/model-structure.png")
 
     # Training the neural network based on model
     training_start_time = datetime.now()

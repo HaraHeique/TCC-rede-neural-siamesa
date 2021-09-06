@@ -30,6 +30,9 @@ pip3 install scikit-learn
 # jupyter notebook
 pip install jupyter
 
+# pydot
+pip install pydot
+
 echo "\n"
 echo "The packages has been successfully installed:"
 pip3 list

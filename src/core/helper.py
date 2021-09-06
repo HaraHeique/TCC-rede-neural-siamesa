@@ -26,6 +26,7 @@ DATA_FILES_EMBEDDING_MATRICES_PATH = DATA_FILES_PATH + "/processed/embedding_mat
 DATA_FILES_NETWORKS_MODELS_PATH = DATA_FILES_PATH + "/processed/networks_models"
 DATA_FILES_RESULTS_PATH = SOURCE_PATH + "/results"
 
+
 def get_dataset_type_filename(dataset_type, base_filename):
     if dataset_type == DatasetType.RAW:
         return base_filename.format(dataset_type="raw")

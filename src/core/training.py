@@ -20,6 +20,7 @@ from sklearn.model_selection import train_test_split
 # from tensorflow.python.keras.layers import Input, Embedding, LSTM, Lambda, Conv1D, Dense, Dropout, Activation, MaxPooling1D, Flatten, Bidirectional
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.layers import Input, Embedding, LSTM, Lambda, Conv1D, Dense, Dropout, Activation, MaxPooling1D, Flatten, Bidirectional
+from tensorflow.keras.utils import plot_model
 from src.enums.SimilarityMeasureType import SimilarityMeasureType
 from src.enums.NeuralNetworkType import NeuralNetworkType
 
@@ -229,6 +230,10 @@ def train_neural_network(model, data, hyperparameters):
 
 def save_model(model, filename):
     model.save(filename)
+
+
+def save_plot_model(model, filename):
+    plot_model(model, to_file=filename, show_shapes=True, show_layer_names=True)
 
 
 def set_plot_accuracy(training_history):
