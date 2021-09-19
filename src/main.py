@@ -191,9 +191,11 @@ def __execute_training():
 
     # Creating the model based on a similarity function/measure
     shared_model = training.define_shared_model(embedding_matrix, hyperparameters)
+    training.save_plot_model(shared_model, helper.get_results_path_directory_by_dataset(dataset_type) + "/shared-model-structure.png")
     # training.show_summary_model(shared_model)
 
     model = training.define_model(shared_model, hyperparameters)
+    training.save_plot_model(model, helper.get_results_path_directory_by_dataset(dataset_type) + "/model-structure.png")
     training.compile_model(model, hyperparameters)
     training.show_summary_model(model)
 

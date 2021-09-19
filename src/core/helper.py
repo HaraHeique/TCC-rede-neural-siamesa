@@ -16,6 +16,7 @@ from src.enums.DatasetType import DatasetType
 from src.enums.WordEmbeddingType import WordEmbeddingType
 
 SOURCE_PATH = os.path.dirname(os.path.abspath("src"))
+# SOURCE_PATH = os.path.abspath("src")
 DATA_FILES_PATH = SOURCE_PATH + "/data"
 DATA_FILES_WORD_EMBEDDINGS_PATH = DATA_FILES_PATH + "/word_embeddings"
 DATA_FILES_TRAINING_PATH = DATA_FILES_PATH + "/training"

@@ -75,7 +75,7 @@ def __get_defined_configs_per_dataset_type():
     # based sentences distribution (mean, median and mean of mean and median)
     # The tuple is (n_epochs, max_seq_length)
     MOST_EPOCHS = 20
-
+    
     return {
         DatasetType.RAW: [(MOST_EPOCHS, 17), (50, 10), (MOST_EPOCHS, 14)],
         DatasetType.WITHOUT_SW: [(MOST_EPOCHS, 9), (MOST_EPOCHS, 5), (50, 7)],
@@ -124,6 +124,10 @@ def __run_training_process_round(round_number, hyperparameters, dataset_type):
         "end_time": end_time
     }
     __save_training_experiments_results(round_number, training_history, configs)
+
+    # Clear memory and close data streams
+    training_dataframe.close()
+    embedding_matrix.close()
 
     return model
 
