@@ -1,9 +1,9 @@
-# Trabalho de Conclusão de Curso - Similaridades de Estilos Literários Baseadas em Aprendizado Profundo
+# Trabalho de Conclusão de Curso - REDES NEURAIS SIAMESAS LSTM PARA DETERMINAÇÃO DE SIMILARIDADES ENTRE PARES DE SENTENÇAS LITERÁRIAS
 
 Trabalho de Conclusão de Curso (TCC) como requisito para obtenção do título de Bacharel em Análise e Desenvolvimento de Sistemas pelo IFES, Campus Serra.
 
 ### Informações gerais
-- **Autor**: Harã Heique
+- **Autor**: Harã Heique dos Santos
 - **Orientador**: Fidelis Zanetti de Castro
 - **Linguagem de programação**: Python (versão 3.6.8+)
 - **Ambiente de desenvolvimento**: Visual Studio Code (versão 1.35.1+) e PyCharm (versão 2019.2.2+)
