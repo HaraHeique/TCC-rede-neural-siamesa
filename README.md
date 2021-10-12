@@ -146,7 +146,7 @@ aplicação:
         $ sh dependencies.sh
 
 4. Após instalar as dependências ao projeto é necessário baixar o word2vec no [link](https://drive.google.com/file/d/0B7XkCwpI5KDYNlNUTTlSS21pQmM/edit) 
-e colocá-lo no diretório **/src/data**;
+e colocá-lo no diretório **/src/data/word_embeddings**;
 
 5. Feito isto basta abrir o CLI (Command Line Interface) no diretório **/src** da aplicação e 
 executar o seguinte comando para inicializar a aplicação:
