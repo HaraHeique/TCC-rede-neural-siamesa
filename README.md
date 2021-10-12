@@ -62,6 +62,7 @@ TCC-rede-neural-siamesa
     |_ src
        |_ core
           |_ data_structuring.py
+          |_ experiments.py
           |_ helper.py
           |_ prediction.py
           |_ similarity_measure.py
@@ -69,17 +70,24 @@ TCC-rede-neural-siamesa
        |_ data
           |_ prediction
              |_ *arquivos CSV de predição*
+          |_ processed
+             |_ *arquivos pré-processados e modelos pré-treinados*
           |_ training
              |_ *arquivos CSV de treinamento*
+          |_ word_embeddings
+             |_ *modelos de word embeddings pré-treinados*
           |_ works
              *obras literárias em texto bruto para treinamento e predição*
-          |_ GoogleNews-vectors-negative300.bin.gz
-          |_ *arquivos de modelos da rede neural*.h5
           |_ training_variables.txt
        |_ enums
+          |_ DatasetType.py
           |_ NeuralNetworkType.py
           |_ SimilarityMeasureType.py
           |_ Stage.py
+          |_ WordEmbeddingType.py
+       |_ hyperparameters_optimization
+          |_ hyperas_optimization.ipynb
+          |_ hyperas_optimization_with_weights.ipynb
        |_ models
           |_ ManhattanDistance.py
        |_ results
